@@ -1,0 +1,10 @@
+.hero .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.hero img {
+    max-width: 100%;
+    height: auto;
+}
