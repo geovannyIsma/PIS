@@ -135,6 +135,10 @@ def seir_graph(request):
             # Configurar el diseño del gráfico
             layout = go.Layout(title='Modelo SEIR', xaxis=dict(title='Días'), yaxis=dict(title='Población'))
 
+            #Rango de los ejes
+            layout.update(xaxis=dict(range=[0, days]), yaxis=dict(range=[0, 700]))
+
+
             # Crear la figura Plotly
             fig = go.Figure(data=[trace1, trace2, trace3, trace4], layout=layout)
 
