@@ -23,5 +23,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
     path('accounts/', include('allauth.urls')),
+    path('home/', views.home, name='home'),
+    path('signup/', views.signup, name='signup'),
+    path('logout/', views.signout, name='logout'),
+    path('signin/', views.signin, name='signin'),
+    path('seir/', views.seir_graph, name='home'),
 
 ]

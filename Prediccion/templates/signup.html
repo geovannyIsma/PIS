@@ -1,0 +1,144 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <link href="{% static 'img/icon.png' %}" rel="icon">
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/signupEstilos.css' %}">
+    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body class="bg-secondary">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <div class="col-lg-7 d-none d-lg-block"
+                                 style="background-image: url('{% static 'img/modelos-matematicos-curso.png' %}');
+                                        background-size: cover;
+                                        background-position: center;">
+                            </div>
+                            <div class="col-lg-5 d-flex align-items-center justify-content-center">
+                                <div class="p-5">
+                                    <div class="text-center mb-4">
+                                        <h1 class="h4 text-gray-900">Create an Account!</h1>
+                                    </div>
+                                    {% if form.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            <ul>
+                                            {% for field in form %}
+                                                {% for error in field.errors %}
+                                                    <li>{{ field.label }}: {{ error }}</li>
+                                                {% endfor %}
+                                            {% endfor %}
+                                            {% for error in form.non_field_errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+                                    <form method="post" class="needs-validation" novalidate>
+                                        {% csrf_token %}
+                                        <div class="mb-4">
+                                            <label for="username" class="visually-hidden">Username</label>
+                                            <input type="text" class="form-control rounded-pill" id="username" name="username" placeholder="Username" required>
+                                            {% if form.username.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.username.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid username.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password1" class="visually-hidden">Password</label>
+                                            <input type="password" class="form-control rounded-pill" id="password1" name="password1" placeholder="Password" required>
+                                            {% if form.password1.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.password1.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid password.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password2" class="visually-hidden">Confirm Password</label>
+                                            <input type="password" class="form-control rounded-pill" id="password2" name="password2" placeholder="Confirm Password" required>
+                                            {% if form.password2.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.password2.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please confirm your password.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-center">
+                                            <button type="submit" class="btn btn-primary btn-lg btn-block rounded-pill">
+                                                Register Account
+                                            </button>
+                                        </div>
+                                    </form>
+                                    <hr>
+                                    <div class="text-center">
+                                        <a class="small" href="{% url 'signin' %}">Already have an account? Login!</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        (function () {
+            'use strict'
+
+            var forms = document.querySelectorAll('.needs-validation')
+
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+
+            // Ocultar el label cuando se escribe en el campo
+            var inputs = document.querySelectorAll('input');
+            inputs.forEach(function(input) {
+                input.addEventListener('input', function() {
+                    if (this.value) {
+                        this.previousElementSibling.classList.add('visually-hidden');
+                    } else {
+                        this.previousElementSibling.classList.remove('visually-hidden');
+                    }
+                });
+            });
+        })()
+    </script>
+</body>
+</html>

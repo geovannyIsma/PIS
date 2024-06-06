@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEIR Form</title>
+    {% load bootstrap5 %}
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+</head>
+<body>
+    <div class="container">
+        <h1>Ingrese los datos para el modelo SEIR</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_M">Matriculados:</label>
+                {{ form.M }}
+            </div>
+            <div class="form-group">
+                <label for="id_A0">Aprobados:</label>
+                {{ form.A0 }}
+            </div>
+            <div class="form-group">
+                <label for="id_R0">Reprobados:</label>
+                {{ form.R0 }}
+            </div>
+            <div class="form-group">
+                <label for="id_D0">Desertores:</label>
+                {{ form.D0 }}
+            </div>
+            <div class="form-group">
+                <label for="id_days">Duración de la simulación:</label>
+                {{ form.days }}
+            </div>
+            <button type="submit" class="btn btn-primary">Generar gráfico</button>
+        </form>
+    </div>
+</body>
+</html>
