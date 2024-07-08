@@ -2,11 +2,10 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db import IntegrityError
+from django.http.response import JsonResponse
 from django.shortcuts import render, redirect
-import numpy as np
-from scipy.integrate import odeint
-import plotly.graph_objs as go
-from .forms import SEIRForm
+
+from Prediccion.models import MallaCurricular
 
 
 # Create your views here.
@@ -79,75 +78,11 @@ def signin(request):
             })
 
 
-def seir_model(y, t, lmbda, beta, gamma, alpha):
-    S, R, D, A = y
-
-    # Ecuaciones diferenciales
-    dSdt = -lmbda * S
-    dRdt = gamma * S - alpha * R
-    dDdt = alpha * R - beta * D
-    dAdt = beta * D
-
-    return [dSdt, dRdt, dDdt, dAdt]
+def administracion_malla(request):
+    return render(request, 'administracion_malla.html')
 
 
-def simulate_seir(M, A0, R0, D0, days):
-    lmbda = D0 / M  # Tasa de deserción λ
-    beta = A0 / M  # Tasa de aprobación β
-    gamma = R0 / M  # Tasa de reprobación γ
-    alpha = D0 / R0  # Tasa de abandono α
-
-    # Población inicial
-    S0 = M
-
-    # Condiciones iniciales
-    y0 = [S0, R0, D0, A0]
-
-    # Vector de tiempo (en días)
-    t = np.linspace(0, days, days)
-
-    # Integrar las ecuaciones diferenciales
-    result = odeint(seir_model, y0, t, args=(lmbda, beta, gamma, alpha))
-
-    return t, result
-
-
-def seir_graph(request):
-    if request.method == 'POST':
-        form = SEIRForm(request.POST)
-        if form.is_valid():
-            # Obtener los datos del formulario
-            M = form.cleaned_data['M']
-            A0 = form.cleaned_data['A0']
-            R0 = form.cleaned_data['R0']
-            D0 = form.cleaned_data['D0']
-            days = form.cleaned_data['days']
-
-            # Simulacion del modelo SEIR
-            t, result = simulate_seir(M, A0, R0, D0, days)
-
-            # Crear los datos para Plotly
-            trace1 = go.Scatter(x=t, y=result[:, 0], mode='lines', name='Matriculados')
-            trace2 = go.Scatter(x=t, y=result[:, 1], mode='lines', name='Reprobados')
-            trace3 = go.Scatter(x=t, y=result[:, 2], mode='lines', name='Desertores')
-            trace4 = go.Scatter(x=t, y=result[:, 3], mode='lines', name='Aprobados')
-
-            # Configurar el diseño del gráfico
-            layout = go.Layout(title='Modelo SEIR', xaxis=dict(title='Días'), yaxis=dict(title='Población'))
-
-            #Rango de los ejes
-            layout.update(xaxis=dict(range=[0, days]), yaxis=dict(range=[0, 700]))
-
-
-            # Crear la figura Plotly
-            fig = go.Figure(data=[trace1, trace2, trace3, trace4], layout=layout)
-
-            # Convertir la figura Plotly a JSON
-            graph_json = fig.to_json()
-
-            # Pasar la figura JSON a la plantilla
-            context = {'graph_json': graph_json}
-            return render(request, 'home.html', context)
-    else:
-        form = SEIRForm()
-    return render(request, 'seir_form.html', {'form': form})
+def list_malla(_request):
+    mallaCurricular = list(MallaCurricular.objects.values())
+    data = {'mallaCurricular': mallaCurricular}
+    return JsonResponse(data)

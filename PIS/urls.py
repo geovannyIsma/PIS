@@ -27,6 +27,5 @@ urlpatterns = [
     path('signup/', views.signup, name='signup'),
     path('logout/', views.signout, name='logout'),
     path('signin/', views.signin, name='signin'),
-    path('seir/', views.seir_graph, name='home'),
-
+    path('Prediccion/', include('Prediccion.urls')),
 ]

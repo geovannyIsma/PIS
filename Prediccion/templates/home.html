@@ -1,21 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEIR Graph</title>
-    <!-- Incluir los archivos necesarios de Plotly -->
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-</head>
-<body>
-    <div id="graph"></div>
+{% extends 'base.html' %}
+{% block content %}
 
-    <script>
-        // Obtener el JSON del gráfico generado por Django
-        var graphJSON = {{ graph_json|safe }};
-
-        // Renderizar el gráfico Plotly en el elemento con id 'graph'
-        Plotly.newPlot('graph', graphJSON.data, graphJSON.layout);
-    </script>
-</body>
-</html>
+{% endblock %}

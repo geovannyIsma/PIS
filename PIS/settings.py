@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Prediccion.apps.PrediccionConfig',
-    'bootstrap5',
+    'bootstrap_datepicker_plus',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
