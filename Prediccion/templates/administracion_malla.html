@@ -5,22 +5,29 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/administracion_malla.css' %}">
+    <!-- fontawesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 {% endblock %}
 
 {% block content %}
-    <div class="container">
+    <h2 class="text-center">Administración de Mallas</h2>
+    <a href="{% url 'nueva_malla' %}" class="btn btn-primary">Nueva Malla</a>
+    <div class="container mt-4">
         <div class="row">
             <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
                 <div class="table-responsive">
-                    <table id="datatable-mallas">
+                    <table id="datatable-mallas" class="table">
+                        <caption>Lista de Mallas</caption>
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Codigo</th>
-                                <th>Nombre</th>
-                                <th>Titulo</th>
+                                <th class="centered">#</th>
+                                <th class="centered">Codigo</th>
+                                <th class="centered">Nombre</th>
+                                <th class="centered">Titulo</th>
+                                <th class="centered">Opciones</th>
                             </tr>
                         </thead>
+                        <tbody id = "tableBody_mallas"></tbody>
                     </table>
                 </div>
             </div>

@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="my-4">Confirmar Malla Curricular</h1>
+
+        <div class="card">
+            <div class="card-header">
+                Malla Curricular
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'confirmar_malla' %}">
+                    {% csrf_token %}
+                    <p><strong>Código:</strong> {{ malla_data.codigo }}</p>
+                    <p><strong>Nombre:</strong> {{ malla_data.nombre_malla }}</p>
+                    <p><strong>Título Otorgado:</strong> {{ malla_data.tituloOtorgado }}</p>
+
+                    <div class="card">
+                        <div class="card-header">
+                            Ciclos
+                        </div>
+                        <div class="card-body">
+                            {% for ciclo in ciclos_data %}
+                            <h3>{{ ciclo.nombre_ciclo }}</h3>
+                            <ul>
+                                {% for subject in ciclo.subjects %}
+                                    <li>{{ subject.codigo_asignatura }} - {{ subject.nombre_asignatura }}</li>
+                                {% endfor %}
+                            </ul>
+                    {% endfor %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success mt-4">Guardar Malla</button>
+                    <a href="{% url 'administracion_malla' %}" class="btn btn-secondary mt-4">Cancelar</a>
+                </form>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

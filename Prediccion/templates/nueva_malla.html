@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Nueva Malla
+{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Nueva Malla Curricular</h1>
+        <form method="post">
+            {% csrf_token %}
+            {{ malla_form.as_p }}
+            <div class="form-group">
+                <label for="num_cycles">Número de ciclos:</label>
+                <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" required>
+            </div>
+            <button type="button" class="btn btn-primary mb-3" onclick="createCycleTabs()">Aceptar</button>
+            <div id="cycle_tabs"></div>
+            <button type="submit" class="btn btn-success">Guardar Malla</button>
+        </form>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="asignaturaModal" tabindex="-1" role="dialog" aria-labelledby="asignaturaModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="asignaturaModalLabel">Agregar Asignatura</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="asignaturaForm">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="codigo_asignatura_modal">Código de Asignatura:</label>
+                            <input type="text" class="form-control" id="codigo_asignatura_modal" name="codigo_asignatura_modal" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nombre_asignatura_modal">Nombre de Asignatura:</label>
+                            <input type="text" class="form-control" id="nombre_asignatura_modal" name="nombre_asignatura_modal" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary" id="saveAsignaturaBtn" onclick="saveAsignatura()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/dynamic_form.js' %}"></script>
+{% endblock %}
