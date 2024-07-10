@@ -54,6 +54,9 @@ function createCycleTabs() {
         });
     }
 
+    // Habilitar el botón de guardar
+    document.getElementById('guardar_button').disabled = false;
+
     // Apply Bootstrap validation
     applyBootstrapValidation();
 }
@@ -99,11 +102,6 @@ function createSubjectRows(cycleIndex) {
     applyBootstrapValidation();
 }
 
-function openAsignaturaModal(cycleIndex, subjectIndex) {
-    document.getElementById('asignaturaForm').setAttribute('data-cycle', cycleIndex);
-    document.getElementById('asignaturaForm').setAttribute('data-subject', subjectIndex);
-}
-
 function saveAsignatura() {
     const codigoAsignatura = document.getElementById('codigo_asignatura_modal').value;
     const nombreAsignatura = document.getElementById('nombre_asignatura_modal').value;
@@ -140,6 +138,40 @@ function applyBootstrapValidation() {
     const forms = document.getElementsByClassName('needs-validation');
     Array.prototype.filter.call(forms, function(form) {
         form.addEventListener('submit', function(event) {
+            // Verificar si se han creado ciclos y asignaturas antes de enviar el formulario
+            const numCycles = document.getElementById('num_cycles').value;
+            if (numCycles === '' || numCycles === '0') {
+                alert('Por favor, crea al menos un ciclo antes de guardar.');
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            const cycleTabs = document.getElementsByClassName('tab');
+            if (cycleTabs.length === 0) {
+                alert('Por favor, crea al menos un ciclo antes de guardar.');
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            const subjectTables = document.getElementsByTagName('tbody');
+            let subjectsExist = false;
+            for (let table of subjectTables) {
+                if (table.children.length > 0) {
+                    subjectsExist = true;
+                    break;
+                }
+            }
+
+            if (!subjectsExist) {
+                alert('Por favor, agrega al menos una asignatura antes de guardar.');
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+
+            // Si todo está validado, añadir la clase was-validated para los estilos de Bootstrap
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -161,16 +193,3 @@ function validateField(field) {
         return true;
     }
 }
-
-function clearValidationStyles(field) {
-    field.classList.remove('is-invalid');
-    field.classList.remove('is-valid');
-}
-
-function clearValidationFeedback() {
-    const fields = document.getElementsByClassName('form-control');
-    for (let field of fields) {
-        clearValidationStyles(field);
-    }
-}
-

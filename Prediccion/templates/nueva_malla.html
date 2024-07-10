@@ -8,51 +8,65 @@
 {% block content %}
     <div class="container">
         <h1 class="text-center">Nueva Malla Curricular</h1>
-        <form method="post" class="needs-validation" novalidate>
+        <form id="mallaForm" method="post" class="needs-validation" novalidate>
             {% csrf_token %}
 
-            <!-- Malla Curricular Fields -->
-            <div class="row">
-                <div class="col-md-6">
-                    {{ malla_form.codigo.errors }}
-                    <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
-                    {{ malla_form.codigo }}
+            <!-- Card for Malla Curricular Fields -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    Datos de la Malla
                 </div>
-                <div class="col-md-6">
-                    {{ malla_form.nombre_malla.errors }}
-                    <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
-                    {{ malla_form.nombre_malla }}
-                </div>
-            </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ malla_form.codigo.errors }}
+                            <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
+                            {{ malla_form.codigo }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ malla_form.nombre_malla.errors }}
+                            <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
+                            {{ malla_form.nombre_malla }}
+                        </div>
+                    </div>
 
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    {{ malla_form.tituloOtorgado.errors }}
-                    <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
-                    {{ malla_form.tituloOtorgado }}
-                </div>
-                <div class="col-md-6">
-                    <!-- Número de ciclos -->
-                    <div class="input-group mt-4">
-                        <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            {{ malla_form.tituloOtorgado.errors }}
+                            <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
+                            {{ malla_form.tituloOtorgado }}
                         </div>
-                        <div class="invalid-feedback">
-                            Por favor, ingresa un número válido de ciclos.
-                        </div>
-                        <div class="valid-feedback">
-                            Número de ciclos válido.
+                        <div class="col-md-6">
+                            <!-- Número de ciclos -->
+                            <div class="input-group mt-4">
+                                <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    Por favor, ingresa un número válido de ciclos.
+                                </div>
+                                <div class="valid-feedback">
+                                    Número de ciclos válido.
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Tabs de Ciclos -->
-            <div id="cycle_tabs"></div>
+            <!-- Card for Ciclos and Asignaturas -->
+            <div class="card">
+                <div class="card-header">
+                    Ciclos y Asignaturas
+                </div>
+                <div class="card-body">
+                    <div id="cycle_tabs"></div>
+                </div>
+            </div>
 
             <!-- Botón de guardar -->
-            <button type="submit" class="btn btn-success mt-3">Guardar Malla</button>
+            <button type="submit" id="guardar_button" class="btn btn-success mt-3" disabled>Guardar Malla</button>
         </form>
     </div>
 
