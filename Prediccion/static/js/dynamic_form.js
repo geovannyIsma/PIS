@@ -10,20 +10,34 @@ document.addEventListener('DOMContentLoaded', function() {
 function createCycleTabs() {
     const numCycles = document.getElementById('num_cycles');
     const numCyclesValue = numCycles.value;
-    const cycleContainer = document.getElementById('cycle_tabs');
+    const cycleTabs = document.getElementById('cycleTabs');
+    const cycleTabsContent = document.getElementById('cycleTabsContent');
 
     if (!validateField(numCycles)) {
         return;
     }
 
-    cycleContainer.innerHTML = '';
+    cycleTabs.innerHTML = '';
+    cycleTabsContent.innerHTML = '';
 
     for (let i = 1; i <= numCyclesValue; i++) {
-        const tab = document.createElement('div');
-        tab.className = 'tab';
-        tab.id = 'cycle_' + i;
+        // Create tab
+        const tab = document.createElement('li');
+        tab.className = 'nav-item';
         tab.innerHTML = `
-            <h3>Ciclo ${i}</h3>
+            <a class="nav-link ${i === 1 ? 'active' : ''}" id="cycle-tab-${i}" data-bs-toggle="tab" href="#cycle-${i}" role="tab" aria-controls="cycle-${i}" aria-selected="${i === 1}">
+                Ciclo ${i}
+            </a>
+        `;
+        cycleTabs.appendChild(tab);
+
+        // Create tab content
+        const tabContent = document.createElement('div');
+        tabContent.className = `tab-pane fade ${i === 1 ? 'show active' : ''}`;
+        tabContent.id = `cycle-${i}`;
+        tabContent.role = 'tabpanel';
+        tabContent.ariaLabelledby = `cycle-tab-${i}`;
+        tabContent.innerHTML = `
             <div class="input-group mb-3">
                 <label class="input-group-text" for="num_subjects_${i}">Número de asignaturas:</label>
                 <input type="number" class="form-control" id="num_subjects_${i}" min="1" required>
@@ -46,7 +60,7 @@ function createCycleTabs() {
                 <tbody></tbody>
             </table>
         `;
-        cycleContainer.appendChild(tab);
+        cycleTabsContent.appendChild(tabContent);
 
         // Apply real-time validation for the new num_subjects fields
         document.getElementById(`num_subjects_${i}`).addEventListener('input', function() {
@@ -192,4 +206,3 @@ function validateAllSubjects() {
 
     return true;
 }
-

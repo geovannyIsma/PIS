@@ -8,7 +8,15 @@ const dataTableOptions = {
         { searchable: false, targets: [0, 4] }
     ],
     pageLength: 10,
-    destroy: true
+    destroy: true,
+    language: {
+        lengthMenu: "Mostrar _MENU_ registros por página",
+        zeroRecords: "No se encontraron registros de mallas curriculares",
+        info: "Página _PAGE_ de _PAGES_",
+        infoEmpty: "No hay registros disponibles",
+        infoFiltered: "(filtrado de _MAX_ registros totales)",
+        search: "Buscar:",
+    }
 };
 
 const initDataTable = async () => {
