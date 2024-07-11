@@ -5,6 +5,16 @@
     Nueva Malla
 {% endblock %}
 
+{% block extra_css %}
+    <style>
+        .modal-header .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <h1 class="text-center">Nueva Malla Curricular</h1>
@@ -38,11 +48,10 @@
                         </div>
                         <div class="col-md-6">
                             <!-- Número de ciclos -->
-                            <div class="input-group mt-4">
-                                <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
-                                </div>
+                            <label for="num_cycles">Número de ciclos:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos de la malla curricular" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
                                 <div class="invalid-feedback">
                                     Por favor, ingresa un número válido de ciclos.
                                 </div>
@@ -76,9 +85,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="asignaturaModalLabel">Agregar Asignatura</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="asignaturaForm" class="needs-validation" novalidate>
@@ -106,7 +113,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                     <button type="button" class="btn btn-primary" id="saveAsignaturaBtn" onclick="saveAsignatura()">Guardar</button>
                 </div>
             </div>
