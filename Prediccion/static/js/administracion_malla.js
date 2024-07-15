@@ -1,5 +1,6 @@
 let dataTable;
 let dataTableIsInitialized = false;
+let mallaIdToDelete = null;
 
 const dataTableOptions = {
     columnDefs: [
@@ -42,8 +43,12 @@ const list_mallas = async () => {
                     <td>${mallaCurricular.nombre_malla}</td>
                     <td>${mallaCurricular.tituloOtorgado}</td>
                     <td>
-                        <button class='btn btn-sm btn-primary'><i class='fa-solid fa-pencil'></i></button>
-                        <button class='btn btn-sm btn-danger'><i class='fa-solid fa-trash-can'></i></button>
+                        <button class='btn btn-sm btn-primary' onclick='editMalla(${mallaCurricular.id})'>
+                            <i class='fa-solid fa-pencil'></i>
+                        </button>
+                        <button class='btn btn-sm btn-danger' onclick='showDeleteModal(${mallaCurricular.id})'>
+                            <i class='fa-solid fa-trash-can'></i>
+                        </button>
                     </td>
                 </tr>
             `;
@@ -54,6 +59,57 @@ const list_mallas = async () => {
     }
 };
 
+const deleteMalla = async (mallaId) => {
+    try {
+        const response = await fetch(`http://localhost:8000/Prediccion/eliminar_malla/${mallaId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        });
+
+        if (response.ok) {
+            await initDataTable();
+            $('#deleteModal').modal('hide');
+        } else {
+            alert('Error al eliminar la malla curricular.');
+        }
+    } catch (ex) {
+        alert(ex);
+    }
+};
+
+const showDeleteModal = (mallaId) => {
+    mallaIdToDelete = mallaId;
+    $('#deleteModal').modal('show');
+};
+
+const confirmDelete = () => {
+    if (mallaIdToDelete) {
+        deleteMalla(mallaIdToDelete);
+    }
+};
+
+const getCookie = (name) => {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+};
+
 window.addEventListener("load", async () => {
     await initDataTable();
+    document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
 });
+
+function editMalla(mallaId){
+    window.location.href = `/Prediccion/editar_malla/${mallaId}`;
+}

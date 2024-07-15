@@ -3,8 +3,35 @@ from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico
 
 
 # Register your models here.
+class MallaCurricularAdmin(admin.ModelAdmin):
+    list_display = ('id', 'codigo', 'nombre_malla', 'tituloOtorgado')
+    search_fields = ('codigo', 'nombre_malla', 'tituloOtorgado')
+    list_filter = ('nombre_malla', 'tituloOtorgado')
+    ordering = ('id',)
 
-admin.site.register(MallaCurricular)
-admin.site.register(Ciclo)
-admin.site.register(Asignatura)
-admin.site.register(PeriodoAcademico)
+
+class CicloAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre_ciclo', 'malla_curricular')
+    search_fields = ('nombre_ciclo', 'malla_curricular')
+    list_filter = ('nombre_ciclo', 'malla_curricular')
+    ordering = ('id',)
+
+
+class AsignaturaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'codigo_asignatura', 'nombre_asignatura', 'ciclo')
+    search_fields = ('codigo_asignatura', 'nombre_asignatura', 'ciclo')
+    list_filter = ('codigo_asignatura', 'nombre_asignatura', 'ciclo')
+    ordering = ('id',)
+
+
+class PeriodoAcademicoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'codigo_periodo')
+    search_fields = ('codigo_periodo',)
+    list_filter = ('codigo_periodo',)
+    ordering = ('id',)
+
+
+admin.site.register(MallaCurricular, MallaCurricularAdmin)
+admin.site.register(Ciclo, CicloAdmin)
+admin.site.register(Asignatura, AsignaturaAdmin)
+admin.site.register(PeriodoAcademico, PeriodoAcademicoAdmin)

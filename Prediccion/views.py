@@ -1,10 +1,13 @@
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.db import IntegrityError
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.http import require_http_methods
+
 from Prediccion.forms import MallaCurricularForm
 from Prediccion.models import MallaCurricular, Ciclo, Asignatura
 
@@ -128,30 +131,35 @@ def list_malla(_request):
     data = {'mallas_Curricular': mallas_Curricular}
     return JsonResponse(data)
 
-
+@login_required
 def nueva_malla(request):
     if request.method == 'POST':
         malla_form = MallaCurricularForm(request.POST)
         if malla_form.is_valid():
-            malla = malla_form.save(commit=False)  # No guardar aún en la base de datos
+            malla = malla_form.save(commit=False)
 
             num_cycles = int(request.POST.get('num_cycles'))
             ciclos_data = []
 
             for ciclo_index in range(1, num_cycles + 1):
-                codigo_asignatura = request.POST.get(f'codigo_asignatura_{ciclo_index}_1')
-                nombre_asignatura = request.POST.get(f'nombre_asignatura_{ciclo_index}_1')
+                num_subjects = int(request.POST.get(f'num_subjects_{ciclo_index}'))
+                subjects = []
+
+                for subject_index in range(1, num_subjects + 1):
+                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{ciclo_index}_{subject_index}')
+                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{ciclo_index}_{subject_index}')
+
+                    subjects.append({
+                        'codigo_asignatura': codigo_asignatura,
+                        'nombre_asignatura': nombre_asignatura
+                    })
 
                 ciclo_data = {
                     'nombre_ciclo': f'Ciclo {ciclo_index}',
-                    'subjects': [{
-                        'codigo_asignatura': codigo_asignatura,
-                        'nombre_asignatura': nombre_asignatura
-                    }]
+                    'subjects': subjects
                 }
                 ciclos_data.append(ciclo_data)
 
-            # Guardar en la sesión
             request.session['malla_data'] = {
                 'codigo': malla.codigo,
                 'nombre_malla': malla.nombre_malla,
@@ -167,6 +175,7 @@ def nueva_malla(request):
     return render(request, 'nueva_malla.html', {'malla_form': malla_form})
 
 
+@login_required
 def confirmar_malla(request):
     if request.method == 'POST':
         malla_data = request.session.get('malla_data')
@@ -201,7 +210,69 @@ def confirmar_malla(request):
         else:
             return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
     else:
-        return render(request, 'confirmar_malla.html', {
-            'malla_data': request.session.get('malla_data'),
-            'ciclos_data': request.session.get('ciclos_data')
-        })
+        malla_data = request.session.get('malla_data')
+        ciclos_data = request.session.get('ciclos_data')
+
+        if malla_data and ciclos_data:
+            return render(request, 'confirmar_malla.html', {
+                'malla_data': malla_data,
+                'ciclos_data': ciclos_data
+            })
+        else:
+            return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
+
+
+@login_required
+def editar_malla(request, malla_id):
+    malla = get_object_or_404(MallaCurricular, id=malla_id)
+
+    if request.method == 'POST':
+        malla_form = MallaCurricularForm(request.POST, instance=malla)
+
+        if malla_form.is_valid():
+            malla_form.save()
+
+            for ciclo in malla.ciclo_set.all():
+                nombre_ciclo = request.POST.get(f'nombre_ciclo_{ciclo.id}')
+                ciclo.nombre_ciclo = nombre_ciclo
+                ciclo.save()
+
+                for asignatura in ciclo.asignatura_set.all():
+                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{asignatura.id}')
+                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{asignatura.id}')
+                    asignatura.codigo_asignatura = codigo_asignatura
+                    asignatura.nombre_asignatura = nombre_asignatura
+                    asignatura.save()
+
+            messages.success(request, 'Malla curricular actualizada exitosamente.')
+            return redirect('administracion_malla')
+
+    else:
+        malla_form = MallaCurricularForm(instance=malla)
+
+    ciclos_data = [
+        {
+            'id': ciclo.id,
+            'nombre_ciclo': ciclo.nombre_ciclo,
+            'subjects': [
+                {
+                    'id': asignatura.id,
+                    'codigo_asignatura': asignatura.codigo_asignatura,
+                    'nombre_asignatura': asignatura.nombre_asignatura
+                } for asignatura in ciclo.asignatura_set.all()
+            ]
+        } for ciclo in malla.ciclo_set.all()
+    ]
+
+    return render(request, 'editar_malla.html', {
+        'malla_form': malla_form,
+        'malla': malla,
+        'ciclos_data': ciclos_data,
+    })
+
+
+@require_http_methods(["DELETE"])
+def eliminar_malla(request, malla_id):
+    malla = get_object_or_404(MallaCurricular, id=malla_id)
+    malla.delete()
+    return JsonResponse({'message': 'Malla eliminada correctamente'}, status=200)

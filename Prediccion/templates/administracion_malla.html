@@ -21,14 +21,33 @@
                         <thead>
                             <tr>
                                 <th class="centered">#</th>
-                                <th class="centered">Codigo</th>
+                                <th class="centered">Código</th>
                                 <th class="centered">Nombre</th>
-                                <th class="centered">Titulo</th>
+                                <th class="centered">Título</th>
                                 <th class="centered">Opciones</th>
                             </tr>
                         </thead>
-                        <tbody id = "tableBody_mallas"></tbody>
+                        <tbody id="tableBody_mallas"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para confirmación de eliminación -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que deseas eliminar esta malla curricular?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Eliminar</button>
                 </div>
             </div>
         </div>

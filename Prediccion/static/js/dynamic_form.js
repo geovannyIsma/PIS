@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('guardar_button').disabled = true;
     applyBootstrapValidation();
 
     // Real-time validation for num_cycles
@@ -40,7 +41,7 @@ function createCycleTabs() {
         tabContent.innerHTML = `
             <div class="input-group mb-3">
                 <label class="input-group-text" for="num_subjects_${i}">Número de asignaturas:</label>
-                <input type="number" class="form-control" id="num_subjects_${i}" min="1" required>
+                <input type="number" class="form-control" id="num_subjects_${i}" name="num_subjects_${i}" min="1" required>
                 <button class="btn btn-outline-secondary" type="button" onclick="createSubjectRows(${i})">Aceptar</button>
                 <div class="invalid-feedback">
                     Por favor, ingresa un número válido de asignaturas.
@@ -54,7 +55,6 @@ function createCycleTabs() {
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
-                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody></tbody>
@@ -65,11 +65,12 @@ function createCycleTabs() {
         // Apply real-time validation for the new num_subjects fields
         document.getElementById(`num_subjects_${i}`).addEventListener('input', function() {
             validateField(this);
+            document.getElementById('guardar_button').disabled = !validateAllSubjects();
         });
     }
 
-    // Habilitar el botón de guardar
-    document.getElementById('guardar_button').disabled = false;
+    // Enable the save button
+    document.getElementById('guardar_button').disabled = !validateAllSubjects();
 
     // Apply Bootstrap validation
     applyBootstrapValidation();
@@ -90,61 +91,21 @@ function createSubjectRows(cycleIndex) {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>
-                <input type="text" name="codigo_asignatura_${cycleIndex}_${i}" id="codigo_asignatura_${cycleIndex}_${i}" class="form-control" readonly required>
+                <input type="text" name="codigo_asignatura_${cycleIndex}_${i}" id="codigo_asignatura_${cycleIndex}_${i}" class="form-control" required>
             </td>
             <td>
-                <input type="text" name="nombre_asignatura_${cycleIndex}_${i}" id="nombre_asignatura_${cycleIndex}_${i}" class="form-control" readonly required>
-            </td>
-            <td>
-                <button type="button" class="btn btn-success" onclick="openAsignaturaModal(${cycleIndex}, ${i})">+</button>
-                <button type="button" class="btn btn-danger" onclick="clearAsignaturaFields(${cycleIndex}, ${i})">-</button>
+                <input type="text" name="nombre_asignatura_${cycleIndex}_${i}" id="nombre_asignatura_${cycleIndex}_${i}" class="form-control" required>
             </td>
         `;
         subjectTable.appendChild(row);
     }
 
+    // Mark that the subjects have been created
+    numSubjects.setAttribute('data-subjects-created', 'true');
+
+    document.getElementById('guardar_button').disabled = false;
     // Apply Bootstrap validation
     applyBootstrapValidation();
-}
-
-function clearAsignaturaFields(cycleIndex, subjectIndex) {
-    document.getElementById(`codigo_asignatura_${cycleIndex}_${subjectIndex}`).value = '';
-    document.getElementById(`nombre_asignatura_${cycleIndex}_${subjectIndex}`).value = '';
-}
-
-function openAsignaturaModal(cycleIndex, subjectIndex) {
-    const asignaturaForm = document.getElementById('asignaturaForm');
-
-    // Limpiar los campos del formulario modal
-    asignaturaForm.reset();
-
-    // Almacenar los índices del ciclo y de la asignatura en los atributos data
-    asignaturaForm.setAttribute('data-cycle', cycleIndex);
-    asignaturaForm.setAttribute('data-subject', subjectIndex);
-
-    // Abrir el modal
-    $('#asignaturaModal').modal('show');
-}
-
-function saveAsignatura() {
-    const asignaturaForm = document.getElementById('asignaturaForm');
-
-    if (!asignaturaForm.checkValidity()) {
-        asignaturaForm.classList.add('was-validated');
-        return;
-    }
-
-    const cycleIndex = asignaturaForm.getAttribute('data-cycle');
-    const subjectIndex = asignaturaForm.getAttribute('data-subject');
-    const codigoAsignatura = document.getElementById('codigo_asignatura_modal').value;
-    const nombreAsignatura = document.getElementById('nombre_asignatura_modal').value;
-
-    // Asignar los valores a los campos correspondientes en la tabla
-    document.getElementById(`codigo_asignatura_${cycleIndex}_${subjectIndex}`).value = codigoAsignatura;
-    document.getElementById(`nombre_asignatura_${cycleIndex}_${subjectIndex}`).value = nombreAsignatura;
-
-    // Cerrar el modal
-    $('#asignaturaModal').modal('hide');
 }
 
 // Función para aplicar la validación de Bootstrap
@@ -162,7 +123,7 @@ function applyBootstrapValidation() {
 
                 if (!validateAllSubjects() && !alreadyApplied) {
                     alreadyApplied = true;
-                    alert('Por favor, ingresa todas las asignaturas para los ciclos.');
+                    alert('Por favor, ingresa todas las asignaturas para los ciclos');
                 }
             }
             form.classList.add('was-validated');
@@ -188,13 +149,14 @@ function validateAllSubjects() {
     const numCycles = document.getElementById('num_cycles').value;
 
     for (let i = 1; i <= numCycles; i++) {
-        const numSubjects = document.getElementById(`num_subjects_${i}`).value;
+        const numSubjects = document.getElementById(`num_subjects_${i}`);
+        const numSubjectsValue = numSubjects.value;
 
-        if (numSubjects === '') {
+        if (numSubjectsValue === '' || numSubjects.getAttribute('data-subjects-created') !== 'true') {
             return false;
         }
 
-        for (let j = 1; j <= numSubjects; j++) {
+        for (let j = 1; j <= numSubjectsValue; j++) {
             const codigoAsignatura = document.getElementById(`codigo_asignatura_${i}_${j}`).value;
             const nombreAsignatura = document.getElementById(`nombre_asignatura_${i}_${j}`).value;
 

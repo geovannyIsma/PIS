@@ -76,49 +76,8 @@
             </div>
 
             <!-- Botón de guardar -->
-            <button type="submit" id="guardar_button" class="btn btn-success mt-3" disabled>Guardar Malla</button>
+            <button type="submit" id="guardar_button" class="btn btn-success mt-3">Guardar Malla</button>
         </form>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="asignaturaModal" tabindex="-1" role="dialog" aria-labelledby="asignaturaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="asignaturaModalLabel">Agregar Asignatura</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="asignaturaForm" class="needs-validation" novalidate>
-                        {% csrf_token %}
-                        <div class="form-group position-relative">
-                            <label for="codigo_asignatura_modal">Código de Asignatura:</label>
-                            <input type="text" class="form-control" id="codigo_asignatura_modal" name="codigo_asignatura_modal" required>
-                            <div class="invalid-feedback">
-                                Por favor, ingresa un código válido.
-                            </div>
-                            <div class="valid-feedback">
-                                Código de asignatura válido.
-                            </div>
-                        </div>
-                        <div class="form-group position-relative">
-                            <label for="nombre_asignatura_modal">Nombre de Asignatura:</label>
-                            <input type="text" class="form-control" id="nombre_asignatura_modal" name="nombre_asignatura_modal" required>
-                            <div class="invalid-feedback">
-                                Por favor, ingresa un nombre válido.
-                            </div>
-                            <div class="valid-feedback">
-                                Nombre de asignatura válido.
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="saveAsignaturaBtn" onclick="saveAsignatura()">Guardar</button>
-                </div>
-            </div>
-        </div>
     </div>
 {% endblock %}
 

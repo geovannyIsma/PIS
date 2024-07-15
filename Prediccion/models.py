@@ -9,6 +9,7 @@ class MallaCurricular(models.Model):
     tituloOtorgado = models.CharField(max_length=100, verbose_name="Título Otorgado")
 
     class Meta:
+
         verbose_name = "Malla Curricular"
         verbose_name_plural = "Mallas Curriculares"
 

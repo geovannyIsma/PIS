@@ -7,4 +7,7 @@ urlpatterns = [
     path('list_malla/', views.list_malla, name='list_malla'),
     path('nueva_malla/', views.nueva_malla, name='nueva_malla'),
     path('confirmar_malla/', views.confirmar_malla, name='confirmar_malla'),
+    path('editar_malla/<int:malla_id>/', views.editar_malla, name='editar_malla'),
+    path('eliminar_malla/<int:malla_id>/', views.eliminar_malla, name='eliminar_malla'),
+
 ]
