@@ -4,7 +4,7 @@ let mallaIdToDelete = null;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: "centered", targets: [0, 1, 2, 3, 4] },
+        { className: "text-center align-middle", targets: [0, 1, 2, 3, 4] },
         { orderable: false, targets: [0, 4] },
         { searchable: false, targets: [0, 4] }
     ],
@@ -38,11 +38,11 @@ const list_mallas = async () => {
         data.mallas_Curricular.forEach((mallaCurricular, index) => {
             content += `
                 <tr>
-                    <td>${index + 1}</td>
-                    <td>${mallaCurricular.codigo}</td>
-                    <td>${mallaCurricular.nombre_malla}</td>
-                    <td>${mallaCurricular.tituloOtorgado}</td>
-                    <td>
+                    <td class="text-center align-middle">${index + 1}</td>
+                    <td class="text-center align-middle">${mallaCurricular.codigo}</td>
+                    <td class="text-center align-middle">${mallaCurricular.nombre_malla}</td>
+                    <td class="text-center align-middle">${mallaCurricular.tituloOtorgado}</td>
+                    <td class="text-center align-middle">
                         <button class='btn btn-sm btn-primary' onclick='editMalla(${mallaCurricular.id})'>
                             <i class='fa-solid fa-pencil'></i>
                         </button>

@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Nuevo Registro{% endblock %}
+
+{% block extra_css %}
+<style>
+    .upload-box {
+        border: 2px dashed #cccccc;
+        padding: 40px;
+        text-align: center;
+        cursor: pointer;
+    }
+    .upload-box:hover {
+        background-color: #f9f9f9;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Nuevo Registro</h2>
+    <form method="post" enctype="multipart/form-data" action="{% url 'importar_datos' %}">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="malla_curricular" class="form-label">Malla Curricular</label>
+            <select class="form-select" id="malla_curricular" name="malla">
+                {% for malla in mallas %}
+                    <option value="{{ malla.id }}">{{ malla.nombre_malla }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3 upload-box" id="upload-box">
+            <input type="file" id="archivo_excel" name="archivo_excel" class="form-control" style="display: none;">
+            <p>Selecciona un archivo o arrástralo aquí</p>
+            <p><img src="{% static 'img/file-excel.svg' %}" alt="Excel Icon" width="50"></p>
+        </div>
+        <h4>Información obtenida</h4>
+        <div class="mb-3">
+            <label for="fecha_inicio" class="form-label">Fecha inicio</label>
+            <input type="date" class="form-control" id="fecha_inicio" name="fecha_inicio" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="fecha_fin" class="form-label">Fecha fin</label>
+            <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="desertores" class="form-label">Desertores</label>
+            <input type="number" class="form-control" id="desertores" name="desertores" readonly>
+        </div>
+
+        <input type="hidden" id="periodo_academico" name="periodo_academico">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Asignatura</th>
+                    <th>Matriculados</th>
+                    <th>Aprobados</th>
+                    <th>Reprobados</th>
+                    <th>Aplazadores</th>
+                    <th>Abandonaron</th>
+                </tr>
+            </thead>
+            <tbody id="historico-table-body">
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="button" class="btn btn-danger">Cancelar</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const uploadBox = document.getElementById('upload-box');
+    const fileInput = document.getElementById('archivo_excel');
+
+    // Evento de clic en el cuadro de carga para activar el input file
+    uploadBox.addEventListener('click', function () {
+        fileInput.click();
+    });
+
+    // Manejar el cambio de archivo seleccionado
+    fileInput.addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (file) {
+            uploadBox.querySelector('p').innerText = file.name;
+
+            const formData = new FormData();
+            formData.append('archivo', file);
+
+            // Enviar archivo al servidor para procesamiento
+            fetch("{% url 'procesar_excel' %}", {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('fecha_inicio').value = new Date(data.fecha_inicio).toISOString().split('T')[0];
+                    document.getElementById('fecha_fin').value = new Date(data.fecha_fin).toISOString().split('T')[0];
+
+                    // Verificar si desertores tiene un valor antes de asignarlo
+                    if (data.desertores !== undefined) {
+                        document.getElementById('desertores').value = data.desertores;
+                    } else {
+                        console.log('No se encontró el valor de desertores en los datos recibidos.');
+                    }
+
+                    document.getElementById('periodo_academico').value = data.periodo_academico_id;
+
+                    const historicoTableBody = document.getElementById('historico-table-body');
+                    historicoTableBody.innerHTML = ''; // Limpiar tabla antes de agregar nuevos datos
+
+                    data.historico.forEach(row => {
+                        const newRow = `
+                            <tr>
+                                <td>${row.asignatura}</td>
+                                <td>${row.matriculados}</td>
+                                <td>${row.aprobados}</td>
+                                <td>${row.reprobados}</td>
+                                <td>${row.aplazadores}</td>
+                                <td>${row.abandonaron}</td>
+                            </tr>`;
+                        historicoTableBody.innerHTML += newRow;
+                    });
+                } else {
+                    alert('Hubo un problema al procesar el archivo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    });
+
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (event) {
+        const malla = document.getElementById('malla_curricular').value;
+        const file = fileInput.files[0];
+
+        if (!malla) {
+            event.preventDefault();
+            alert('Seleccione una Malla Curricular.');
+            return;
+        }
+
+        if (!file) {
+            event.preventDefault();
+            alert('Seleccione un archivo Excel.');
+            return;
+        }
+    });
+});
+</script>
+
+{% endblock %}

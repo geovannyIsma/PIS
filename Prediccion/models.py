@@ -9,7 +9,6 @@ class MallaCurricular(models.Model):
     tituloOtorgado = models.CharField(max_length=100, verbose_name="Título Otorgado")
 
     class Meta:
-
         verbose_name = "Malla Curricular"
         verbose_name_plural = "Mallas Curriculares"
 
@@ -45,11 +44,12 @@ class Asignatura(models.Model):
 class Historico(models.Model):
     matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados")
     reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")
-    desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores")
+    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="abandonaron")
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
     aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
     asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE, verbose_name="Asignatura")
-    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE, verbose_name="Periodo Académico")
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
+                                          verbose_name="Periodo Académico")
 
     class Meta:
         verbose_name = "Histórico"
@@ -58,11 +58,18 @@ class Historico(models.Model):
     def __str__(self):
         return f"{self.asignatura.nombre_asignatura} - {self.periodo_academico.codigo_periodo}"
 
+    def clean(self):
+        total_students = self.matriculados
+        if self.reprobados + self.abandonaron + self.aprobados + self.aplazadores > total_students:
+            raise ValidationError(
+                "La suma de reprobados, abandonaron, aprobados y aplazadores no puede exceder el número total de matriculados.")
+
 
 class PeriodoAcademico(models.Model):
     codigo_periodo = models.CharField(max_length=50, default="", verbose_name="Código de Periodo")
     fecha_inicio = models.DateField(verbose_name="Fecha de Inicio")
     fecha_fin = models.DateField(verbose_name="Fecha de Fin")
+    desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
 
     class Meta:
         verbose_name = "Periodo Académico"
@@ -70,3 +77,7 @@ class PeriodoAcademico(models.Model):
 
     def __str__(self):
         return self.codigo_periodo
+
+    def clean(self):
+        if self.fecha_inicio >= self.fecha_fin:
+            raise ValidationError("La fecha de inicio debe ser menor a la fecha de fin")

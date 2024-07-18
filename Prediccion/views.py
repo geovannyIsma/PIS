@@ -1,15 +1,20 @@
+import logging
+
+import pandas as pd
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.core.exceptions import ValidationError
+from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
-from Prediccion.forms import MallaCurricularForm
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura
+from Prediccion.forms import MallaCurricularForm, ExcelUploadForm
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico
 
 
 def index(request):
@@ -131,7 +136,7 @@ def list_malla(_request):
     data = {'mallas_Curricular': mallas_Curricular}
     return JsonResponse(data)
 
-@login_required
+
 def nueva_malla(request):
     if request.method == 'POST':
         malla_form = MallaCurricularForm(request.POST)
@@ -175,7 +180,6 @@ def nueva_malla(request):
     return render(request, 'nueva_malla.html', {'malla_form': malla_form})
 
 
-@login_required
 def confirmar_malla(request):
     if request.method == 'POST':
         malla_data = request.session.get('malla_data')
@@ -222,7 +226,6 @@ def confirmar_malla(request):
             return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
 
 
-@login_required
 def editar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
 
@@ -276,3 +279,129 @@ def eliminar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
     malla.delete()
     return JsonResponse({'message': 'Malla eliminada correctamente'}, status=200)
+
+
+@csrf_exempt
+def procesar_excel(request):
+    if request.method == 'POST':
+        file = request.FILES.get('archivo')
+        if not file:
+            return JsonResponse({'success': False, 'error': 'No se ha seleccionado ningún archivo.'})
+
+        try:
+            df = pd.read_excel(file, header=0, skiprows=8)
+            valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
+            if valid_dates.empty:
+                return JsonResponse({'success': False, 'error': 'No se encontraron fechas válidas en el archivo.'})
+
+            fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
+            fecha_fin = valid_dates.iloc[-1]['fecha_fin']
+
+            historico_data = df.to_dict('records')
+
+            historico = [
+                {
+                    'codigo_asignatura': row['codigo_asignatura'],
+                    'asignatura': row['nombre_asignatura'],
+                    'matriculados': row['matriculados'],
+                    'aprobados': row['aprobados'],
+                    'reprobados': row['reprobados'],
+                    'aplazadores': row['aplazadores'],
+                    'abandonaron': row['abandonaron']
+                }
+                for row in historico_data
+            ]
+
+            periodo, created = PeriodoAcademico.objects.get_or_create(
+                codigo_periodo=f"{fecha_inicio.year}-{fecha_fin.year}",
+                defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
+            )
+
+            desertores = valid_dates.iloc[-1]['desertores']
+            periodo.desertores = desertores
+            periodo.save()
+
+            response_data = {
+                'success': True,
+                'fecha_inicio': fecha_inicio.isoformat(),
+                'fecha_fin': fecha_fin.isoformat(),
+                'periodo_academico_id': periodo.id,
+                'desertores': desertores,
+                'historico': historico
+            }
+            return JsonResponse(response_data)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    else:
+        return JsonResponse({'success': False, 'error': 'Método no permitido.'})
+
+
+def importar_datos(request):
+    if request.method == 'POST':
+        form = ExcelUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            malla = form.cleaned_data['malla']
+            archivo_excel = request.FILES['archivo_excel']
+
+            fs = FileSystemStorage()
+            filename = fs.save(archivo_excel.name, archivo_excel)
+            file_url = fs.url(filename)
+
+            try:
+                df = pd.read_excel(fs.path(filename), header=0, skiprows=8)
+
+                valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
+                if valid_dates.empty:
+                    messages.error(request, 'No se encontraron fechas válidas en el archivo.')
+                    return redirect('importar_datos')
+
+                fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
+                fecha_fin = valid_dates.iloc[-1]['fecha_fin']
+
+                periodo, created = PeriodoAcademico.objects.get_or_create(
+                    codigo_periodo=f"{fecha_inicio.year}-{malla.codigo}",
+                    defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
+                )
+
+                desertores = valid_dates.iloc[-1]['desertores']
+                periodo.desertores = desertores
+                periodo.save()
+
+                historicos = []
+                for _, row in df.iterrows():
+                    asignatura = Asignatura.objects.filter(
+                        codigo_asignatura=row['codigo_asignatura'],
+                        ciclo__malla_curricular=malla
+                    ).first()
+
+                    if asignatura:
+                        historico = Historico(
+                            matriculados=row['matriculados'],
+                            reprobados=row['reprobados'],
+                            abandonaron=row['abandonaron'],
+                            aprobados=row['aprobados'],
+                            aplazadores=row['aplazadores'],
+                            asignatura=asignatura,
+                            periodo_academico=periodo
+                        )
+                        try:
+                            historico.clean()
+                            historicos.append(historico)
+                        except ValidationError as e:
+                            messages.error(request, f"Error en la asignatura {asignatura.nombre_asignatura}: {e}")
+
+                Historico.objects.bulk_create(historicos)
+
+                messages.success(request, 'Datos importados exitosamente.')
+                return redirect('importar_datos')
+            except Exception as e:
+                messages.error(request, f'Error al procesar el archivo: {e}')
+            finally:
+                fs.delete(filename)
+        else:
+            print(form.errors)
+    else:
+        form = ExcelUploadForm()
+
+    mallas = MallaCurricular.objects.all()
+    return render(request, 'import_data.html', {'form': form, 'mallas': mallas})

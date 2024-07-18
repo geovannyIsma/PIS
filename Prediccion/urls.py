@@ -8,6 +8,6 @@ urlpatterns = [
     path('nueva_malla/', views.nueva_malla, name='nueva_malla'),
     path('confirmar_malla/', views.confirmar_malla, name='confirmar_malla'),
     path('editar_malla/<int:malla_id>/', views.editar_malla, name='editar_malla'),
-    path('eliminar_malla/<int:malla_id>/', views.eliminar_malla, name='eliminar_malla'),
-
+    path('importar/', views.importar_datos, name='importar_datos'),
+    path('procesar_excel/', views.procesar_excel, name='procesar_excel'),
 ]

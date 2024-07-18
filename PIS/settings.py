@@ -152,3 +152,6 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+CSP_DEFAULT_SRC = ("'self'",)
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'")
