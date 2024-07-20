@@ -9,6 +9,14 @@
 {% endblock %}
 
 {% block content %}
+<nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'administracion_periodo' %}">Administración de Periodos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Periodo</li>
+    </ol>
+</nav>
+
 <div class="container">
     <h1 class="text-center">Editar Periodo</h1>
     <form id="periodoForm" method="post" class="needs-validation" novalidate>

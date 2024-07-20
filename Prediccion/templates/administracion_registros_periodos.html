@@ -9,6 +9,13 @@
 {% endblock %}
 
 {% block content %}
+    <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Administración de Periodos</li>
+        </ol>
+    </nav>
+
     <h2 class="text-center">Administración de Periodos</h2>
     <a href="{% url 'importar_datos' %}" class="btn btn-primary">Nuevo Periodo</a>
     <div class="container mt-4">

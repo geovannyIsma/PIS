@@ -16,6 +16,14 @@
 {% endblock %}
 
 {% block content %}
+    <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'administracion_malla' %}">Administración de Mallas</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nueva Malla</li>
+        </ol>
+    </nav>
+
     <div class="container">
         <h1 class="text-center">Nueva Malla Curricular</h1>
         <form id="mallaForm" method="post" class="needs-validation" novalidate>
@@ -77,6 +85,8 @@
 
             <!-- Botón de guardar -->
             <button type="submit" id="guardar_button" class="btn btn-success mt-3">Guardar Malla</button>
+            <!-- Botón de cancelar -->
+            <a href="{% url 'administracion_malla' %}" class="btn btn-danger mt-3">Cancelar</a>
         </form>
     </div>
 {% endblock %}

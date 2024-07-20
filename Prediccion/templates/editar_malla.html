@@ -6,6 +6,14 @@
 {% endblock %}
 
 {% block content %}
+<nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'administracion_malla' %}">Administración de Mallas</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Malla</li>
+    </ol>
+</nav>
+
 <div class="container">
     <h1 class="text-center">Editar Malla Curricular</h1>
     <form id="mallaForm" method="post" class="needs-validation" novalidate>
