@@ -76,7 +76,7 @@
             <div class="list-group list-group-flush">
                 <a href="#" class="list-group-item list-group-item-action bg-light">Inicio</a>
                 <a href="{% url 'administracion_malla' %}" class="list-group-item list-group-item-action bg-light">Gestión de mallas curriculares</a>
-                <a href="{% url 'importar_datos' %}" class="list-group-item list-group-item-action bg-light">Registros</a>
+                <a href="{% url 'administracion_periodo' %}" class="list-group-item list-group-item-action bg-light">Gestion de periodos academicos</a>
                 <a href="#" class="list-group-item list-group-item-action bg-light">Modelo matemático</a>
                 <a href="#" class="list-group-item list-group-item-action bg-light">Opciones Visuales</a>
             </div>
@@ -115,6 +115,8 @@
         });
     </script>
 
-    {% block extra_js %}{% endblock %}
+    {% block extra_js %}
+
+    {% endblock %}
 </body>
 </html>

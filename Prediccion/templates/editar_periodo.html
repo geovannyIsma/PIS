@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Editar Periodo
+{% endblock %}
+
+{% block extra_css %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center">Editar Periodo</h1>
+    <form id="periodoForm" method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Datos del Periodo
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ periodo_form.fecha_inicio.errors }}
+                        <label for="{{ periodo_form.fecha_inicio.id_for_label }}">Fecha de Inicio:</label>
+                        {{ periodo_form.fecha_inicio }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ periodo_form.fecha_fin.errors }}
+                        <label for="{{ periodo_form.fecha_fin.id_for_label }}">Fecha de Fin:</label>
+                        {{ periodo_form.fecha_fin }}
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        {{ periodo_form.desertores.errors }}
+                        <label for="{{ periodo_form.desertores.id_for_label }}">Desertores:</label>
+                        {{ periodo_form.desertores }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Asignaturas
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Asignatura</th>
+                            <th>Matriculados</th>
+                            <th>Aprobados</th>
+                            <th>Reprobados</th>
+                            <th>Aplazadores</th>
+                            <th>Abandonaron</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for historico in historicos %}
+                            <tr>
+                                <td>{{ historico.asignatura.nombre_asignatura }}</td>
+                                <td>
+                                    <input type="number" class="form-control" name="matriculados_{{ historico.id }}" value="{{ historico.matriculados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="aprobados_{{ historico.id }}" value="{{ historico.aprobados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="reprobados_{{ historico.id }}" value="{{ historico.reprobados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="aplazadores_{{ historico.id }}" value="{{ historico.aplazadores }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="abandonaron_{{ historico.id }}" value="{{ historico.abandonaron }}" required>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Guardar</button>
+        <a href="{% url 'administracion_periodo' %}" class="btn btn-danger mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico
 
 
 class MallaCurricularForm(forms.ModelForm):
@@ -53,3 +53,13 @@ class ExcelUploadForm(forms.Form):
         widget=forms.FileInput(attrs={'class': 'custom-file-input'})
     )
 
+
+class PeriodoForm(forms.ModelForm):
+    class Meta:
+        model = PeriodoAcademico
+        fields = ['fecha_inicio', 'fecha_fin', 'desertores']
+        widgets = {
+            'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
+        }

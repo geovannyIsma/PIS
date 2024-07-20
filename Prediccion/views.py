@@ -13,7 +13,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from Prediccion.forms import MallaCurricularForm, ExcelUploadForm
+from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm
 from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico
 
 
@@ -137,6 +137,7 @@ def list_malla(_request):
     return JsonResponse(data)
 
 
+@login_required
 def nueva_malla(request):
     if request.method == 'POST':
         malla_form = MallaCurricularForm(request.POST)
@@ -180,6 +181,7 @@ def nueva_malla(request):
     return render(request, 'nueva_malla.html', {'malla_form': malla_form})
 
 
+@login_required
 def confirmar_malla(request):
     if request.method == 'POST':
         malla_data = request.session.get('malla_data')
@@ -226,6 +228,7 @@ def confirmar_malla(request):
             return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
 
 
+@login_required
 def editar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
 
@@ -274,13 +277,14 @@ def editar_malla(request, malla_id):
     })
 
 
+@login_required
 @require_http_methods(["DELETE"])
 def eliminar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
     malla.delete()
     return JsonResponse({'message': 'Malla eliminada correctamente'}, status=200)
 
-
+@login_required
 @csrf_exempt
 def procesar_excel(request):
     if request.method == 'POST':
@@ -312,20 +316,12 @@ def procesar_excel(request):
                 for row in historico_data
             ]
 
-            periodo, created = PeriodoAcademico.objects.get_or_create(
-                codigo_periodo=f"{fecha_inicio.year}-{fecha_fin.year}",
-                defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
-            )
-
             desertores = valid_dates.iloc[-1]['desertores']
-            periodo.desertores = desertores
-            periodo.save()
 
             response_data = {
                 'success': True,
                 'fecha_inicio': fecha_inicio.isoformat(),
                 'fecha_fin': fecha_fin.isoformat(),
-                'periodo_academico_id': periodo.id,
                 'desertores': desertores,
                 'historico': historico
             }
@@ -335,8 +331,8 @@ def procesar_excel(request):
     else:
         return JsonResponse({'success': False, 'error': 'Método no permitido.'})
 
-
-def importar_datos(request):
+@login_required
+def importar_datos_periodo_historico(request):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -357,15 +353,12 @@ def importar_datos(request):
 
                 fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
                 fecha_fin = valid_dates.iloc[-1]['fecha_fin']
-
-                periodo, created = PeriodoAcademico.objects.get_or_create(
-                    codigo_periodo=f"{fecha_inicio.year}-{malla.codigo}",
-                    defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
-                )
-
                 desertores = valid_dates.iloc[-1]['desertores']
-                periodo.desertores = desertores
-                periodo.save()
+
+                periodo, created = PeriodoAcademico.objects.update_or_create(
+                    codigo_periodo=f"{fecha_inicio.year}-{malla.codigo}",
+                    defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin, 'desertores': desertores}
+                )
 
                 historicos = []
                 for _, row in df.iterrows():
@@ -405,3 +398,66 @@ def importar_datos(request):
 
     mallas = MallaCurricular.objects.all()
     return render(request, 'import_data.html', {'form': form, 'mallas': mallas})
+
+
+def list_periodos_historicos(request):
+    periodos = list(PeriodoAcademico.objects.values())
+    data = {'periodos': periodos}
+    return JsonResponse(data)
+
+
+def administracion_periodo(request):
+    return render(request, 'administracion_registros_periodos.html')
+
+
+@login_required
+def editar_datos_periodo_historico(request, periodo_id):
+    periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
+    if request.method == 'POST':
+        periodo_form = PeriodoForm(request.POST, instance=periodo)
+        if periodo_form.is_valid():
+            periodo_form.save()
+
+            historicos = []
+            for historico in periodo.historico_set.all():
+                matriculados = request.POST.get(f'matriculados_{historico.id}')
+                reprobados = request.POST.get(f'reprobados_{historico.id}')
+                abandonaron = request.POST.get(f'abandonaron_{historico.id}')
+                aprobados = request.POST.get(f'aprobados_{historico.id}')
+                aplazadores = request.POST.get(f'aplazadores_{historico.id}')
+
+                historico.matriculados = matriculados
+                historico.reprobados = reprobados
+                historico.abandonaron = abandonaron
+                historico.aprobados = aprobados
+                historico.aplazadores = aplazadores
+
+                try:
+                    historico.clean()
+                    historicos.append(historico)
+                except ValidationError as e:
+                    messages.error(request, f"Error en la asignatura {historico.asignatura.nombre_asignatura}: {e}")
+
+            Historico.objects.bulk_update(historicos,
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores'])
+
+            messages.success(request, 'Datos del periodo actualizados exitosamente.')
+            return redirect('administracion_periodo')
+
+    else:
+        periodo_form = PeriodoForm(instance=periodo)
+
+    historicos = periodo.historico_set.all()
+    return render(request, 'editar_periodo.html', {
+        'periodo': periodo,
+        'periodo_form': periodo_form,
+        'historicos': historicos
+    })
+
+
+@login_required
+def eliminar_datos_periodo_historico(request, periodo_id):
+    periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
+    periodo.delete()
+    return JsonResponse({'message': 'Periodo eliminado correctamente'}, status=200)
+

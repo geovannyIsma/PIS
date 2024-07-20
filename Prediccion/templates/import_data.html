@@ -18,7 +18,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Nuevo Registro</h2>
+    <h2>Nuevo Registro de Periodo Acedemico</h2>
     <form method="post" enctype="multipart/form-data" action="{% url 'importar_datos' %}">
         {% csrf_token %}
         <div class="mb-3">
@@ -64,7 +64,7 @@
             </tbody>
         </table>
         <button type="submit" class="btn btn-success">Guardar</button>
-        <button type="button" class="btn btn-danger">Cancelar</button>
+        <a href="{% url 'administracion_periodo' %}" class="btn btn-danger">Cancelar</a>
     </form>
 </div>
 {% endblock %}
