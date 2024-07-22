@@ -1,10 +1,10 @@
-import logging
-
+import json
 import pandas as pd
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
@@ -180,7 +180,6 @@ def nueva_malla(request):
 
     return render(request, 'nueva_malla.html', {'malla_form': malla_form})
 
-
 @login_required
 def confirmar_malla(request):
     if request.method == 'POST':
@@ -210,9 +209,9 @@ def confirmar_malla(request):
                 request.session.pop('malla_data')
                 request.session.pop('ciclos_data')
 
-                return redirect('administracion_malla')
+                return render(request, 'confirmar_malla.html', {'success': True})
             except Exception as e:
-                return HttpResponseBadRequest("Error al guardar la malla curricular: " + str(e))
+                return render(request, 'confirmar_malla.html', {'error': str(e)})
         else:
             return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
     else:
@@ -250,8 +249,9 @@ def editar_malla(request, malla_id):
                     asignatura.nombre_asignatura = nombre_asignatura
                     asignatura.save()
 
-            messages.success(request, 'Malla curricular actualizada exitosamente.')
-            return redirect('administracion_malla')
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': malla_form.errors})
 
     else:
         malla_form = MallaCurricularForm(instance=malla)
@@ -276,7 +276,6 @@ def editar_malla(request, malla_id):
         'ciclos_data': ciclos_data,
     })
 
-
 @login_required
 @require_http_methods(["DELETE"])
 def eliminar_malla(request, malla_id):
@@ -284,19 +283,20 @@ def eliminar_malla(request, malla_id):
     malla.delete()
     return JsonResponse({'message': 'Malla eliminada correctamente'}, status=200)
 
+
 @login_required
 @csrf_exempt
 def procesar_excel(request):
     if request.method == 'POST':
         file = request.FILES.get('archivo')
         if not file:
-            return JsonResponse({'success': False, 'error': 'No se ha seleccionado ningún archivo.'})
+            return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo.'})
 
         try:
             df = pd.read_excel(file, header=0, skiprows=8)
             valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
             if valid_dates.empty:
-                return JsonResponse({'success': False, 'error': 'No se encontraron fechas válidas en el archivo.'})
+                return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
             fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
             fecha_fin = valid_dates.iloc[-1]['fecha_fin']
@@ -323,13 +323,15 @@ def procesar_excel(request):
                 'fecha_inicio': fecha_inicio.isoformat(),
                 'fecha_fin': fecha_fin.isoformat(),
                 'desertores': desertores,
-                'historico': historico
+                'historico': historico,
+                'message': 'Archivo procesado exitosamente.'
             }
             return JsonResponse(response_data)
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({'success': False, 'message': str(e)})
     else:
-        return JsonResponse({'success': False, 'error': 'Método no permitido.'})
+        return JsonResponse({'success': False, 'message': 'Método no permitido.'})
+
 
 @login_required
 def importar_datos_periodo_historico(request):
@@ -348,8 +350,7 @@ def importar_datos_periodo_historico(request):
 
                 valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
                 if valid_dates.empty:
-                    messages.error(request, 'No se encontraron fechas válidas en el archivo.')
-                    return redirect('importar_datos')
+                    return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
                 fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
                 fecha_fin = valid_dates.iloc[-1]['fecha_fin']
@@ -381,18 +382,17 @@ def importar_datos_periodo_historico(request):
                             historico.clean()
                             historicos.append(historico)
                         except ValidationError as e:
-                            messages.error(request, f"Error en la asignatura {asignatura.nombre_asignatura}: {e}")
+                            return JsonResponse({'success': False, 'message': f"Error en la asignatura {asignatura.nombre_asignatura}: {e}"})
 
                 Historico.objects.bulk_create(historicos)
 
-                messages.success(request, 'Datos importados exitosamente.')
-                return redirect('importar_datos')
+                return JsonResponse({'success': True, 'message': 'Datos importados exitosamente.'})
             except Exception as e:
-                messages.error(request, f'Error al procesar el archivo: {e}')
+                return JsonResponse({'success': False, 'message': f'Error al procesar el archivo: {e}'})
             finally:
                 fs.delete(filename)
         else:
-            print(form.errors)
+            return JsonResponse({'success': False, 'message': 'Formulario no válido.'})
     else:
         form = ExcelUploadForm()
 
@@ -436,23 +436,25 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    messages.error(request, f"Error en la asignatura {historico.asignatura.nombre_asignatura}: {e}")
+                    return JsonResponse({'success': False, 'message': f"Error en la asignatura {historico.asignatura.nombre_asignatura}: {e}"})
 
             Historico.objects.bulk_update(historicos,
                                           ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores'])
 
-            messages.success(request, 'Datos del periodo actualizados exitosamente.')
-            return redirect('administracion_periodo')
+            return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
+        else:
+            return JsonResponse({'success': False, 'message': 'Formulario no válido.'})
 
     else:
         periodo_form = PeriodoForm(instance=periodo)
 
     historicos = periodo.historico_set.all()
-    return render(request, 'editar_periodo.html', {
+    context = {
         'periodo': periodo,
         'periodo_form': periodo_form,
         'historicos': historicos
-    })
+    }
+    return render(request, 'editar_periodo.html', context)
 
 
 @login_required
@@ -461,3 +463,6 @@ def eliminar_datos_periodo_historico(request, periodo_id):
     periodo.delete()
     return JsonResponse({'message': 'Periodo eliminado correctamente'}, status=200)
 
+
+def modelo_matematico(request):
+    return render(request, 'modelo_matematico.html')

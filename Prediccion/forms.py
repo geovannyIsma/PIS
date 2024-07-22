@@ -63,3 +63,5 @@ class PeriodoForm(forms.ModelForm):
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+

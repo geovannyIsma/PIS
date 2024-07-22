@@ -16,15 +16,17 @@
     <!-- LineIcons -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet"/>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <!-- Estilos base -->
     <link rel="stylesheet" href="{% static 'css/estilos_base.css' %}">
 
     {% block extra_css %}{% endblock %}
 </head>
-
 <body>
     <div class="wrapper">
-        <aside id="sidebar">
+        <aside id="sidebar" class="expand"> <!-- Añadido la clase expand aquí -->
             <div class="d-flex">
                 <button class="toggle-btn" type="button">
                     <i class="lni lni-menu"></i>
@@ -35,7 +37,7 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <a href="{% url 'home' %}" class="sidebar-link">
                         <i class="lni lni-home"></i>
                         <span>Inicio</span>
                     </a>
@@ -53,7 +55,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
+                    <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
                         <i class="lni lni-calculator"></i>
                         <span>Modelo matemático</span>
                     </a>

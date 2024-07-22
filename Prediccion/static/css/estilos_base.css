@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 ::after,
 ::before {
@@ -30,13 +30,18 @@ body {
 
 .main {
     min-height: 100vh;
-    width: 100%;
+    width: calc(100% - 70px);
     overflow: hidden;
     transition: all 0.35s ease-in-out;
-    background-color: #fafbfe;
+    background-color: #ffffff;
+    margin-left: 70px;
 }
 
 #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
     width: 70px;
     min-width: 70px;
     z-index: 1000;
@@ -47,8 +52,13 @@ body {
 }
 
 #sidebar.expand {
-    width: 325px;
-    min-width: 325px;
+    width: 330px;  /* Cambiado a 300px */
+    min-width: 330px;  /* Cambiado a 300px */
+}
+
+#sidebar.expand + .main {
+    margin-left: 330px;  /* Cambiado a 300px */
+    width: calc(100% - 330px);  /* Cambiado a 300px */
 }
 
 .toggle-btn {

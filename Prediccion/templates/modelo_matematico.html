@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Modelo Matemático
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .icon {
+            height: 50px;
+            width: 50px;
+            background-color: #ddd;
+            display: inline-block;
+            text-align: center;
+            line-height: 50px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 24px;
+            color: #333;
+        }
+        .sub-section-title {
+            font-weight: bold;
+            font-size: 20px;
+            color: #666;
+        }
+        .container {
+            max-width: 1150px;
+        }
+        .content-box {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .content-box img {
+            max-width: 100%;
+            border-radius: 5px;
+        }
+        .d-flex {
+            display: flex;
+            align-items: center;
+        }
+        .ml-3 {
+            margin-left: 1rem;
+        }
+        .mt-4 {
+            margin-top: 1.5rem;
+        }
+        .mt-5 {
+            margin-top: 3rem;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .card-container {
+            display: flex;
+            justify-content: space-around;
+        }
+        .card {
+            width: 45%;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        .card img {
+            width: auto;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        ul {
+            text-align: left;
+            padding-left: 20px;
+        }
+        .justify {
+            text-align: justify;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Modelo Matemático</li>
+        </ol>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-5">Modelo matemático</h1>
+
+        <div class="content-box mb-5 justify">
+            <h2 class="section-title">¿Qué es un Modelo Matemático?</h2>
+            <div class="d-flex align-items-center">
+                <img src="{% static 'img/math-wiki-svgrepo-com.svg' %}" alt="Icono de modelo matemático" class="mr-3">
+                <p class="ml-3">Un modelo matemático es una representación abstracta y simplificada de un sistema real mediante conceptos y lenguajes matemáticos. Su propósito es analizar, predecir y comprender el comportamiento de fenómenos complejos a través de ecuaciones y fórmulas que describen las relaciones y procesos dentro del sistema. Los modelos matemáticos permiten simular diferentes escenarios y evaluar el impacto de diversas variables en el sistema en estudio.</p>
+            </div>
+        </div>
+
+        <div class="content-box mb-5 justify">
+            <h2 class="section-title">Descripción Estudiantil</h2>
+            <div class="d-flex align-items-center">
+                <img src="{% static 'img/vecteezyisometric-school-illustrationgr0522_generated.jpg' %}" class="mr-3">
+                <p class="ml-3">La deserción estudiantil se refiere al fenómeno en el cual los estudiantes abandonan sus estudios antes de completar el programa académico. Este fenómeno puede ser influenciado por múltiples factores, incluyendo razones personales, académicas, económicas y sociales. Comprender y predecir la deserción estudiantil es crucial para las instituciones educativas, ya que ayuda a identificar áreas problemáticas y desarrollar estrategias para mejorar la retención de estudiantes.</p>
+            </div>
+        </div>
+
+        <div class="content-box mb-5 justify">
+            <h2 class="section-title">Uso de Modelos Matemáticos para Predecir la Deserción</h2>
+            <p>Los modelos matemáticos pueden ser utilizados para predecir la deserción estudiantil mediante la representación de la dinámica de los estudiantes a lo largo del tiempo. Estos modelos permiten simular el impacto de diferentes factores y prever cómo cambian las tasas de deserción bajo diversas condiciones.</p>
+
+            <div class="card-container mt-4">
+                <div class="card justify">
+                    <h3 class="sub-section-title">Modelo SIR</h3>
+                    <img src="{% static 'img/SIR.png' %}" alt="Icono de modelo SIR">
+                    <p>Modelo SIR (Kermack y McKendrick, 1927): Originalmente desarrollado para modelar la propagación de enfermedades infecciosas, el modelo SIR divide la población en tres compartimientos:</p>
+                    <ul>
+                        <li>Susceptibles (S): Individuos en riesgo de contraer la enfermedad.</li>
+                        <li>Infectados (I): Individuos actualmente infectados.</li>
+                        <li>Recuperados (R): Individuos que se han recuperado.</li>
+                    </ul>
+                    <p>Este modelo se adapta al contexto de la deserción estudiantil, donde los compartimientos representan a estudiantes en diferentes estados de progreso académico.</p>
+                </div>
+                <div class="card justify">
+                    <h3 class="sub-section-title">Modelo SEIRD</h3>
+                    <img src="{% static 'img/SERID.png' %}" alt="Icono de modelo SEIRD">
+                    <p>Modelo SEIRD: Una extensión del modelo SIR, que añade los siguientes compartimientos:</p>
+                    <ul>
+                        <li>Expuestos (E): Estudiantes que están en contacto con factores de riesgo, pero no están en riesgo inmediato de deserción.</li>
+                        <li>Muertos (D): Estudiantes que han abandonado completamente el programa académico.</li>
+                    </ul>
+                    <p>El modelo SEIRD proporciona una visión más detallada al incorporar la variable adicional de deserción y permitir un análisis más profundo de los factores que influyen en la deserción estudiantil.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-box mb-5 justify">
+            <h2 class="section-title">Aplicación del Modelo Matemático</h2>
+            <p>En el contexto de la deserción estudiantil, el modelo SEIRD se adapta para analizar la dinámica de los estudiantes matriculados, aprobados, reprobados, desertores y aquellos que aplazan materias. Las variables definidas incluyen:</p>
+            <div class="text-center">
+                <img src="{% static 'img/diagramaSerid.png' %}" alt="Diagrama del modelo SEIRD">
+            </div>
+            <ul>
+                <li>S(t): Número de estudiantes matriculados en el tiempo t.</li>
+                <li>E(t): Número de estudiantes expuestos en el tiempo t.</li>
+                <li>I(t): Número de estudiantes reprobados en el tiempo t.</li>
+                <li>R(t): Número de estudiantes aprobados en el tiempo t.</li>
+                <li>D(t): Número de estudiantes desertores en el tiempo t.</li>
+            </ul>
+            <h3 class="sub-section-title">Tasas</h3>
+            <ul>
+                <li>Tasa de Deserción (λ): Proporción de estudiantes que abandonan la carrera en relación con el número total de estudiantes matriculados.</li>
+                <li>Tasa de Aprobación (β): Proporción de estudiantes que aprueban en relación con el total de matriculados.</li>
+                <li>Tasa de Reprobación (γ): Proporción de estudiantes reprobados en relación con el total de matriculados.</li>
+                <li>Tasa de Abandono (σ): Proporción de estudiantes que abandonan después de haber sido reprobados, estimada mediante la pendiente de la curva ajustada.</li>
+                <li>Tasa de Aplazamiento (μ): Proporción de estudiantes que aplazan una materia respecto al total de estudiantes matriculados.</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

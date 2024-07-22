@@ -55,7 +55,7 @@ const list_mallas = async () => {
         });
         document.getElementById('tableBody_mallas').innerHTML = content;
     } catch (ex) {
-        alert(ex);
+        Swal.fire("Error", ex , "error");
     }
 };
 
@@ -72,10 +72,10 @@ const deleteMalla = async (mallaId) => {
             await initDataTable();
             $('#deleteModal').modal('hide');
         } else {
-            alert('Error al eliminar la malla curricular.');
+            Swal.fire("Error", "No se pudo eliminar la malla curricular", "error");
         }
     } catch (ex) {
-        alert(ex);
+        Swal.fire("Error", ex , "error");
     }
 };
 

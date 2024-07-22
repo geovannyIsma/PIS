@@ -26,22 +26,40 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        {{ malla_form.codigo.errors }}
-                        <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
-                        {{ malla_form.codigo }}
+                        <div class="form-group">
+                            <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
+                            {{ malla_form.codigo }}
+                            {% if malla_form.codigo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.codigo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        {{ malla_form.nombre_malla.errors }}
-                        <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
-                        {{ malla_form.nombre_malla }}
+                        <div class="form-group">
+                            <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
+                            {{ malla_form.nombre_malla }}
+                            {% if malla_form.nombre_malla.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.nombre_malla.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
                 <div class="row mt-3">
                     <div class="col-md-6">
-                        {{ malla_form.tituloOtorgado.errors }}
-                        <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
-                        {{ malla_form.tituloOtorgado }}
+                        <div class="form-group">
+                            <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
+                            {{ malla_form.tituloOtorgado }}
+                            {% if malla_form.tituloOtorgado.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.tituloOtorgado.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,14 +113,48 @@
             </div>
         </div>
 
-        <button type="submit" class="btn btn-success mt-3">Actualizar Malla</button>
+        <button type="button" class="btn btn-success mt-3" id="updateMallaButton">Actualizar Malla</button>
+        <a href="{% url 'administracion_malla' %}" class="btn btn-danger mt-3">Cancelar</a>
     </form>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-<script src="{% static 'js/edit_dynamic_form.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#updateMallaButton').click(function() {
+            var formData = $('#mallaForm').serialize();
+            $.ajax({
+                url: "{% url 'editar_malla' malla.id %}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Malla curricular actualizada exitosamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{% url 'administracion_malla' %}";
+                        }
+                    });
+                },
+                error: function(response) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Hubo un error al actualizar la malla curricular. Por favor, inténtelo de nuevo.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

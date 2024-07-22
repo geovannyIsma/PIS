@@ -58,12 +58,6 @@ class Historico(models.Model):
     def __str__(self):
         return f"{self.asignatura.nombre_asignatura} - {self.periodo_academico.codigo_periodo}"
 
-    def clean(self):
-        total_students = self.matriculados
-        if self.reprobados + self.abandonaron + self.aprobados + self.aplazadores > total_students:
-            raise ValidationError(
-                "La suma de reprobados, abandonaron, aprobados y aplazadores no puede exceder el número total de matriculados.")
-
 
 class PeriodoAcademico(models.Model):
     codigo_periodo = models.CharField(max_length=50, default="", verbose_name="Código de Periodo")
@@ -77,7 +71,3 @@ class PeriodoAcademico(models.Model):
 
     def __str__(self):
         return self.codigo_periodo
-
-    def clean(self):
-        if self.fecha_inicio >= self.fecha_fin:
-            raise ValidationError("La fecha de inicio debe ser menor a la fecha de fin")

@@ -57,7 +57,7 @@ const list_periodos = async () => {
         });
         document.getElementById('tableBody_periodos').innerHTML = content;
     } catch (error) {
-        alert(error)
+        Swal.fire("Error", "No se pudo cargar la lista de periodos", "error");
     }
 };
 
@@ -74,10 +74,10 @@ const deletePeriodo = async () => {
             await initDataTable();
             $('#deleteModal').modal('hide');
         } else {
-            alert('No se pudo eliminar el periodo');
+            Swal.fire("Error", "No se pudo eliminar el periodo", "error");
         }
     } catch (error) {
-        alert(error);
+        Swal.fire("Error", error, "error");
     }
 
 }

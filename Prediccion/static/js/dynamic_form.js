@@ -123,7 +123,7 @@ function applyBootstrapValidation() {
 
                 if (!validateAllSubjects() && !alreadyApplied) {
                     alreadyApplied = true;
-                    alert('Por favor, ingresa todas las asignaturas para los ciclos');
+                    Swal.fire('¡Error!', 'Por favor, ingresa todas las asignaturas para los ciclos.', 'error');
                 }
             }
             form.classList.add('was-validated');

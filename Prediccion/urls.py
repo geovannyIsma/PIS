@@ -15,5 +15,5 @@ urlpatterns = [
     path('administracion_periodo/', views.administracion_periodo, name='administracion_periodo'),
     path('editar_periodo/<int:periodo_id>/', views.editar_datos_periodo_historico, name='editar_periodo'),
     path('eliminar_periodo/<int:periodo_id>/', views.eliminar_datos_periodo_historico, name='eliminar_periodo'),
-
+    path('modelo_matematico/', views.modelo_matematico, name='modelo_matematico'),
 ]
