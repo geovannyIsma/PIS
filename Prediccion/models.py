@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -44,26 +43,25 @@ class Asignatura(models.Model):
 class Historico(models.Model):
     matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados")
     reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")
-    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="abandonaron")
+    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron")
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
     aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
-    asignatura = models.ForeignKey(Asignatura, on_delete=models.CASCADE, verbose_name="Asignatura")
-    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
-                                          verbose_name="Periodo Académico")
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE, verbose_name="Periodo Académico")
+    desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
+    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, verbose_name="Ciclo", default=1)
 
     class Meta:
         verbose_name = "Histórico"
         verbose_name_plural = "Históricos"
 
     def __str__(self):
-        return f"{self.asignatura.nombre_asignatura} - {self.periodo_academico.codigo_periodo}"
+        return f"{self.periodo_academico} - {self.ciclo} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"
 
 
 class PeriodoAcademico(models.Model):
     codigo_periodo = models.CharField(max_length=50, default="", verbose_name="Código de Periodo")
     fecha_inicio = models.DateField(verbose_name="Fecha de Inicio")
     fecha_fin = models.DateField(verbose_name="Fecha de Fin")
-    desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
 
     class Meta:
         verbose_name = "Periodo Académico"
@@ -71,3 +69,20 @@ class PeriodoAcademico(models.Model):
 
     def __str__(self):
         return self.codigo_periodo
+
+
+class Historico_Periodo(models.Model):
+    matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados")
+    reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")
+    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron")
+    aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
+    aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
+    desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE, verbose_name="Periodo Académico")
+
+    class Meta:
+        verbose_name = "Histórico"
+        verbose_name_plural = "Históricos"
+
+    def __str__(self):
+        return f"{self.periodo_academico} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"

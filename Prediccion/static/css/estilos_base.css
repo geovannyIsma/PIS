@@ -1,139 +1,107 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
-::after,
-::before {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+body {
+    font-family: 'Poppins', sans-serif;
 }
 
-a {
-    text-decoration: none;
+h1 {
+    font-weight: 800;
 }
 
 li {
     list-style: none;
 }
 
-h1 {
-    font-weight: 600;
-    font-size: 1.5rem;
-}
-
-body {
-    font-family: 'Poppins', sans-serif;
-}
-
-.wrapper {
-    display: flex;
+a {
+    text-decoration: none;
 }
 
 .main {
+    margin-left: 264px; /* Ajusta el margen para dejar espacio al sidebar */
     min-height: 100vh;
-    width: calc(100% - 70px);
-    overflow: hidden;
+    overflow-y: auto; /* Permite desplazamiento vertical */
+    background-color: #f9f9f9;
+    padding: 1rem;
     transition: all 0.35s ease-in-out;
-    background-color: #ffffff;
-    margin-left: 70px;
+    width: calc(100% - 70px);
+}
+
+.main.expanded {
+    margin-left: 0; /* Ajusta el margen cuando el sidebar está colapsado */
+}
+
+.main .container-fluid {
+    padding: 2rem;
 }
 
 #sidebar {
-    position: fixed;
+    max-width: 264px;
+    min-width: 264px;
+    position: fixed; /* Establece el sidebar como fijo */
     top: 0;
-    left: 0;
-    height: 100%;
-    width: 70px;
-    min-width: 70px;
-    z-index: 1000;
-    transition: all .25s ease-in-out;
-    background-color: #9ac1ec;
+    bottom: 0;
+    overflow-y: auto;
+    transition: all 0.35s ease-in-out;
+    background-color: #000;
     display: flex;
     flex-direction: column;
 }
 
-#sidebar.expand {
-    width: 330px;  /* Cambiado a 300px */
-    min-width: 330px;  /* Cambiado a 300px */
+#sidebar.collapsed {
+    margin-left: -264px;
 }
 
-#sidebar.expand + .main {
-    margin-left: 330px;  /* Cambiado a 300px */
-    width: calc(100% - 330px);  /* Cambiado a 300px */
-}
-
-.toggle-btn {
+.toggler-btn {
     background-color: transparent;
     cursor: pointer;
     border: 0;
-    padding: 1rem 1.5rem;
 }
 
-.toggle-btn i {
-    font-size: 1.5rem;
-    color: #000000;
+.toggler-btn i {
+    font-size: 1.75rem;
+    color: #000;
+    font-weight: 1000;
 }
 
-.sidebar-logo {
-    margin: auto 0;
-}
-
-.sidebar-logo a {
-    color: #000000;
-    font-size: 1.15rem;
-    font-weight: 600;
-}
-
-#sidebar:not(.expand) .sidebar-logo,
-#sidebar:not(.expand) a.sidebar-link span {
-    display: none;
+.navbar {
+    padding: 1.15rem 1.5rem;
 }
 
 .sidebar-nav {
-    padding: 2rem 0;
     flex: 1 1 auto;
+}
+
+.sidebar-logo {
+    padding: 1.15rem 1.5rem;
+    text-align: center;
+}
+
+.sidebar-logo a {
+    color: #FFF;
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.sidebar-header {
+    color: #FFF;
+    font-size: .75rem;
+    padding: 1.5rem 1.5rem .375rem;
 }
 
 a.sidebar-link {
     padding: .625rem 1.625rem;
-    color: #000000;
+    color: #FFF;
+    position: relative;
+    transition: all 0.35s;
     display: block;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    border-left: 3px solid transparent;
-}
-
-.sidebar-link i {
-    font-size: 1.1rem;
-    margin-right: .75rem;
+    font-size: 1.25rem;
 }
 
 a.sidebar-link:hover {
-    background-color: rgba(255, 255, 255, .075);
-    border-left: 3px solid #3b7ddd;
+    background-color: #f9f6f630;
 }
 
-.sidebar-item {
-    position: relative;
-}
-
-#sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
-    position: absolute;
-    top: 0;
-    left: 70px;
-    background-color: #0e2238;
-    padding: 0;
-    min-width: 15rem;
-    display: none;
-}
-
-#sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
-    display: block;
-    max-height: 15em;
-    width: 100%;
-    opacity: 1;
-}
-
-#sidebar.expand .sidebar-link[data-bs-toggle="collapse"]::after {
+.sidebar-link[data-bs-toggle="collapse"]::after {
     border: solid;
     border-width: 0 .075rem .075rem 0;
     content: "";
@@ -146,7 +114,27 @@ a.sidebar-link:hover {
     transition: all .2s ease-out;
 }
 
-#sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
+.sidebar-link[data-bs-toggle="collapse"].collapsed::after {
     transform: rotate(45deg);
     transition: all .2s ease-out;
+}
+
+/* Screen size less than 768px */
+@media (max-width: 768px) {
+    .main {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    #sidebar {
+        margin-left: -264px;
+    }
+
+    #sidebar.collapsed {
+        margin-left: -264px;
+    }
+
+    .main.expanded {
+        margin-left: 0;
+    }
 }

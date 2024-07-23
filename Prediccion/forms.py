@@ -57,11 +57,9 @@ class ExcelUploadForm(forms.Form):
 class PeriodoForm(forms.ModelForm):
     class Meta:
         model = PeriodoAcademico
-        fields = ['fecha_inicio', 'fecha_fin', 'desertores']
+        fields = ['fecha_inicio', 'fecha_fin']
         widgets = {
             'fecha_inicio': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
         }
-
 

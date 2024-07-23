@@ -60,7 +60,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (data.success) {
                     document.getElementById('fecha_inicio').value = new Date(data.fecha_inicio).toISOString().split('T')[0];
                     document.getElementById('fecha_fin').value = new Date(data.fecha_fin).toISOString().split('T')[0];
-                    document.getElementById('desertores').value = data.desertores;
                     document.getElementById('periodo_academico').value = data.periodo_academico_id;
 
                     const historicoTableBody = document.getElementById('historico-table-body');
@@ -69,12 +68,13 @@ document.addEventListener('DOMContentLoaded', function () {
                     data.historico.forEach(row => {
                         const newRow = `
                             <tr>
-                                <td>${row.asignatura}</td>
+                                <td>${row.ciclo}</td>
                                 <td>${row.matriculados}</td>
                                 <td>${row.aprobados}</td>
                                 <td>${row.reprobados}</td>
                                 <td>${row.aplazadores}</td>
                                 <td>${row.abandonaron}</td>
+                                <td>${row.desertores}</td>
                             </tr>`;
                         historicoTableBody.innerHTML += newRow;
                     });

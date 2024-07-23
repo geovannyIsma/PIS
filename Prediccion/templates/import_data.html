@@ -19,21 +19,23 @@
         background-color: #eee;
     }
 </style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 {% endblock %}
 
 {% block content %}
-     <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'administracion_periodo' %}">Administración de Periodos</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Nuevo Registro</li>
-        </ol>
-    </nav>
+<nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'administracion_periodo' %}">Administración de Periodos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Nuevo Registro</li>
+    </ol>
+</nav>
 
 <div class="container mt-5">
     <h2>Nuevo Registro de Periodo Acedemico</h2>
     <form id="registro-form" method="post" enctype="multipart/form-data" action="{% url 'importar_datos' %}">
         {% csrf_token %}
+        <input type="hidden" id="malla_id_hidden" name="malla_id">
         <div class="mb-3">
             <label for="malla_curricular" class="form-label">Malla Curricular</label>
             <select class="form-select" id="malla_curricular" name="malla">
@@ -57,33 +59,167 @@
             <label for="fecha_fin" class="form-label">Fecha fin</label>
             <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" readonly>
         </div>
-        <div class="mb-3">
-            <label for="desertores" class="form-label">Desertores</label>
-            <input type="number" class="form-control" id="desertores" name="desertores" readonly>
-        </div>
 
         <input type="hidden" id="periodo_academico" name="periodo_academico">
         <table class="table">
             <thead>
                 <tr>
-                    <th>Asignatura</th>
+                    <th>Ciclo</th>
                     <th>Matriculados</th>
                     <th>Aprobados</th>
                     <th>Reprobados</th>
                     <th>Aplazadores</th>
                     <th>Abandonaron</th>
+                    <th>Desertores</th>
                 </tr>
             </thead>
-            <tbody id="historico-table-body">
+            <tbody id="historico-data">
+                <!-- Los datos del historico se agregarán aquí dinámicamente -->
             </tbody>
         </table>
-        <button type="submit" class="btn btn-success">Guardar</button>
+        <button type="submit" class="btn btn-success">Registrar</button>
         <a href="{% url 'administracion_periodo' %}" class="btn btn-danger">Cancelar</a>
     </form>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{% static 'js/import_datos.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const uploadBox = document.getElementById('upload-box');
+    const fileInput = document.getElementById('archivo_excel');
+    const mallaSelect = document.getElementById('malla_curricular');
+    const mallaIdHidden = document.getElementById('malla_id_hidden');
+    const form = document.getElementById('registro-form');
+
+    mallaSelect.addEventListener('change', function () {
+        mallaIdHidden.value = mallaSelect.value;
+    });
+
+    uploadBox.addEventListener('click', function () {
+        fileInput.click();
+    });
+
+    uploadBox.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        uploadBox.classList.add('dragover');
+    });
+
+    uploadBox.addEventListener('dragleave', function () {
+        uploadBox.classList.remove('dragover');
+    });
+
+    uploadBox.addEventListener('drop', function (e) {
+        e.preventDefault();
+        uploadBox.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            procesarArchivo(files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            procesarArchivo(fileInput.files[0]);
+        }
+    });
+
+    function procesarArchivo(file) {
+        const formData = new FormData();
+        formData.append('archivo', file);
+        formData.append('malla_id', mallaSelect.value);
+        fetch("{% url 'procesar_excel' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: data.message
+                });
+                document.getElementById('fecha_inicio').value = new Date(data.fecha_inicio).toISOString().split('T')[0];
+                document.getElementById('fecha_fin').value = new Date(data.fecha_fin).toISOString().split('T')[0];
+                document.getElementById('periodo_academico').value = data.periodo_academico_id;
+                const historicoTableBody = document.getElementById('historico-data');
+                historicoTableBody.innerHTML = '';
+                data.historico.forEach(h => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${h.ciclo}</td>
+                        <td>${h.matriculados}</td>
+                        <td>${h.aprobados}</td>
+                        <td>${h.reprobados}</td>
+                        <td>${h.aplazadores}</td>
+                        <td>${h.abandonaron}</td>
+                        <td>${h.desertores}</td>
+                    `;
+                    historicoTableBody.appendChild(row);
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al procesar el archivo. Intente nuevamente.'
+            });
+            console.error('Error:', error);
+        });
+    }
+
+    // Handle form submission for other types of requests
+    form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const formData = new FormData(form);
+        fetch("{% url 'importar_datos' %}", {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Éxito',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    window.location.href = "{% url 'administracion_periodo' %}";
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al enviar los datos. Intente nuevamente.'
+            });
+            console.error('Error:', error);
+        });
+    });
+});
+
+</script>
 {% endblock %}

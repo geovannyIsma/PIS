@@ -301,28 +301,35 @@ def procesar_excel(request):
             fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
             fecha_fin = valid_dates.iloc[-1]['fecha_fin']
 
+            # Obtener la malla seleccionada desde el frontend
+            malla_id = request.POST.get('malla_id')
+            if not malla_id:
+                return JsonResponse({'success': False, 'message': 'Malla curricular no seleccionada.'})
+            malla = MallaCurricular.objects.get(id=malla_id)
+
+            ciclos_validos = Ciclo.objects.filter(malla_curricular=malla).values_list('nombre_ciclo', flat=True)
+
             historico_data = df.to_dict('records')
-
-            historico = [
-                {
-                    'codigo_asignatura': row['codigo_asignatura'],
-                    'asignatura': row['nombre_asignatura'],
-                    'matriculados': row['matriculados'],
-                    'aprobados': row['aprobados'],
-                    'reprobados': row['reprobados'],
-                    'aplazadores': row['aplazadores'],
-                    'abandonaron': row['abandonaron']
-                }
-                for row in historico_data
-            ]
-
-            desertores = valid_dates.iloc[-1]['desertores']
+            historico = []
+            for row in historico_data:
+                if row['ciclo'] not in ciclos_validos:
+                    return JsonResponse({'success': False, 'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
+                historico.append(
+                    {
+                        'ciclo': row['ciclo'],
+                        'matriculados': row['matriculados'],
+                        'aprobados': row['aprobados'],
+                        'reprobados': row['reprobados'],
+                        'aplazadores': row['aplazadores'],
+                        'abandonaron': row['abandonaron'],
+                        'desertores': row['desertores']
+                    }
+                )
 
             response_data = {
                 'success': True,
                 'fecha_inicio': fecha_inicio.isoformat(),
                 'fecha_fin': fecha_fin.isoformat(),
-                'desertores': desertores,
                 'historico': historico,
                 'message': 'Archivo procesado exitosamente.'
             }
@@ -347,42 +354,43 @@ def importar_datos_periodo_historico(request):
 
             try:
                 df = pd.read_excel(fs.path(filename), header=0, skiprows=8)
-
                 valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
                 if valid_dates.empty:
                     return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
                 fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
                 fecha_fin = valid_dates.iloc[-1]['fecha_fin']
-                desertores = valid_dates.iloc[-1]['desertores']
 
                 periodo, created = PeriodoAcademico.objects.update_or_create(
                     codigo_periodo=f"{fecha_inicio.year}-{malla.codigo}",
-                    defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin, 'desertores': desertores}
+                    defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
                 )
+
+                ciclos_validos = Ciclo.objects.filter(malla_curricular=malla).values_list('nombre_ciclo', flat=True)
 
                 historicos = []
                 for _, row in df.iterrows():
-                    asignatura = Asignatura.objects.filter(
-                        codigo_asignatura=row['codigo_asignatura'],
-                        ciclo__malla_curricular=malla
-                    ).first()
+                    if row['ciclo'] not in ciclos_validos:
+                        return JsonResponse({'success': False, 'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
 
-                    if asignatura:
+                    ciclo = Ciclo.objects.filter(nombre_ciclo=row['ciclo'], malla_curricular=malla).first()
+
+                    if ciclo:
                         historico = Historico(
                             matriculados=row['matriculados'],
                             reprobados=row['reprobados'],
                             abandonaron=row['abandonaron'],
                             aprobados=row['aprobados'],
                             aplazadores=row['aplazadores'],
-                            asignatura=asignatura,
+                            desertores=row['desertores'],
+                            ciclo=ciclo,
                             periodo_academico=periodo
                         )
                         try:
                             historico.clean()
                             historicos.append(historico)
                         except ValidationError as e:
-                            return JsonResponse({'success': False, 'message': f"Error en la asignatura {asignatura.nombre_asignatura}: {e}"})
+                            return JsonResponse({'success': False, 'message': f"Error en el ciclo {ciclo.nombre_ciclo}: {e}"})
 
                 Historico.objects.bulk_create(historicos)
 
@@ -420,26 +428,20 @@ def editar_datos_periodo_historico(request, periodo_id):
 
             historicos = []
             for historico in periodo.historico_set.all():
-                matriculados = request.POST.get(f'matriculados_{historico.id}')
-                reprobados = request.POST.get(f'reprobados_{historico.id}')
-                abandonaron = request.POST.get(f'abandonaron_{historico.id}')
-                aprobados = request.POST.get(f'aprobados_{historico.id}')
-                aplazadores = request.POST.get(f'aplazadores_{historico.id}')
-
-                historico.matriculados = matriculados
-                historico.reprobados = reprobados
-                historico.abandonaron = abandonaron
-                historico.aprobados = aprobados
-                historico.aplazadores = aplazadores
+                historico.matriculados = request.POST.get(f'matriculados_{historico.id}')
+                historico.reprobados = request.POST.get(f'reprobados_{historico.id}')
+                historico.abandonaron = request.POST.get(f'abandonaron_{historico.id}')
+                historico.aprobados = request.POST.get(f'aprobados_{historico.id}')
+                historico.aplazadores = request.POST.get(f'aplazadores_{historico.id}')
+                historico.desertores = request.POST.get(f'desertores_{historico.id}')
 
                 try:
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse({'success': False, 'message': f"Error en la asignatura {historico.asignatura.nombre_asignatura}: {e}"})
+                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
-            Historico.objects.bulk_update(historicos,
-                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores'])
+            Historico.objects.bulk_update(historicos, ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:

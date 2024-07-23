@@ -39,14 +39,6 @@
                         {{ periodo_form.fecha_fin }}
                     </div>
                 </div>
-
-                <div class="row mt-3">
-                    <div class="col-md-6">
-                        {{ periodo_form.desertores.errors }}
-                        <label for="{{ periodo_form.desertores.id_for_label }}">Desertores:</label>
-                        {{ periodo_form.desertores }}
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -58,18 +50,19 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Asignatura</th>
+                            <th>Ciclo</th>
                             <th>Matriculados</th>
                             <th>Aprobados</th>
                             <th>Reprobados</th>
                             <th>Aplazadores</th>
                             <th>Abandonaron</th>
+                            <th>Desertores</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for historico in historicos %}
                             <tr>
-                                <td>{{ historico.asignatura.nombre_asignatura }}</td>
+                                <td>{{ historico.ciclo.nombre_ciclo }}</td>
                                 <td>
                                     <input type="number" class="form-control" name="matriculados_{{ historico.id }}" value="{{ historico.matriculados }}" required>
                                 </td>
@@ -84,6 +77,9 @@
                                 </td>
                                 <td>
                                     <input type="number" class="form-control" name="abandonaron_{{ historico.id }}" value="{{ historico.abandonaron }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="desertores_{{ historico.id }}" value="{{ historico.desertores }}" required>
                                 </td>
                             </tr>
                         {% endfor %}

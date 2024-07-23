@@ -5,8 +5,8 @@ let periodoIdToDelete = null;
 const dataTableOptions = {
     columnDefs: [
         { className: "text-center align-middle", targets: [0, 1, 2, 3, 4] },
-        { orderable: false, targets: [0, 5] },
-        { searchable: false, targets: [0, 5] }
+        { orderable: false, targets: [0, 4] },
+        { searchable: false, targets: [0, 4] }
     ],
     pageLength: 10,
     destroy: true,
@@ -43,7 +43,6 @@ const list_periodos = async () => {
                     <td class="text-center align-middle">${periodo.codigo_periodo}</td>
                     <td class="text-center align-middle">${periodo.fecha_inicio}</td>
                     <td class="text-center align-middle">${periodo.fecha_fin}</td>
-                    <td class="text-center align-middle">${periodo.desertores}</td>
                     <td class="text-center align-middle">
                         <button class='btn btn-sm btn-primary' onclick='editPeriodo(${periodo.id})'>
                             <i class='fa-solid fa-pencil'></i>

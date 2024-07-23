@@ -25,19 +25,15 @@ class AsignaturaAdmin(admin.ModelAdmin):
 
 
 class PeriodoAcademicoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'codigo_periodo', 'fecha_inicio', 'fecha_fin', 'desertores')
-    search_fields = ('codigo_periodo', 'fecha_inicio', 'fecha_fin', 'desertores')
-    list_filter = ('codigo_periodo', 'fecha_inicio', 'fecha_fin', 'desertores')
+    list_display = ('id', 'codigo_periodo', 'fecha_inicio', 'fecha_fin')
+    search_fields = ('codigo_periodo', 'fecha_inicio', 'fecha_fin')
+    list_filter = ('codigo_periodo', 'fecha_inicio', 'fecha_fin')
     ordering = ('id',)
 
-
 class HistoricoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'asignatura',
-                    'periodo_academico')
-    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'asignatura',
-                     'periodo_academico')
-    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'asignatura',
-                   'periodo_academico')
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
     ordering = ('id',)
 
 
@@ -46,4 +42,3 @@ admin.site.register(Ciclo, CicloAdmin)
 admin.site.register(Asignatura, AsignaturaAdmin)
 admin.site.register(PeriodoAcademico, PeriodoAcademicoAdmin)
 admin.site.register(Historico, HistoricoAdmin)
-
