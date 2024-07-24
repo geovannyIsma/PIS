@@ -1,10 +1,7 @@
-import json
 import pandas as pd
-from django.contrib import messages
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate, get_user_model
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
@@ -13,96 +10,32 @@ from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico
+
+from Prediccion.decorators import admin_required
+from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
+    CustomUserChangeForm
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
 
 
 def index(request):
-    """
-    Renderiza la página de inicio.
-
-    Esta función de vista maneja la renderización de la página de inicio. No requiere
-    ningún contexto o parámetro específico y siempre renderiza la plantilla 'index.html'.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse con la plantilla 'index.html' renderizada.
-    """
     return render(request, 'index.html')
 
 
 def home(request):
-    """
-    Renderiza la página de inicio para usuarios autenticados.
-
-    Esta vista verifica si el usuario está autenticado. Si el usuario está autenticado,
-    renderiza la plantilla 'home.html'. Si el usuario no está autenticado, no devuelve
-    nada, denegando implícitamente el acceso a la página de inicio para usuarios no autenticados.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse con la plantilla 'home.html' renderizada si el usuario está autenticado.
-    """
-    if request.user.is_authenticated:
-        return render(request, 'home.html')
+    return render(request, 'home.html')
 
 
-def signup(request):
-    """
-    Maneja las solicitudes de registro de usuarios.
-
-    Este método de vista procesa tanto solicitudes GET como POST. Para una solicitud GET, muestra
-    el formulario de registro. Para una solicitud POST, intenta crear un nuevo usuario basado en los datos del formulario.
-    Si el usuario se crea y autentica con éxito, se redirige a la página de inicio. Si hay un error
-    (por ejemplo, el nombre de usuario ya existe), el formulario de registro se vuelve a renderizar con
-    un mensaje de error apropiado.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse que renderiza la plantilla 'signup.html'. Para un registro exitoso,
-        redirige a la vista 'home'. Para una solicitud GET o un intento de registro fallido, renderiza el
-        formulario de registro con cualquier mensaje de error relevante.
-    """
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            try:
-                user = form.save()
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password1')
-                user = authenticate(request, username=username, password=password)
-                if user is not None:
-                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                    return redirect('home')
-                else:
-                    return render(request, 'signup.html',
-                                  {'form': form, 'error': 'Autenticación fallida. Inténtalo de nuevo.'})
-            except IntegrityError as e:
-                form.add_error(None, 'El nombre de usuario ya existe.')
-        else:
-            # Aquí puedes agregar errores personalizados si es necesario
-            pass
-        return render(request, 'signup.html', {'form': form})
-    else:
-        form = UserCreationForm()
-    return render(request, 'signup.html', {'form': form})
-
-
-# Función para cerrar sesión
-@login_required
-def signout(request):
-    logout(request)
-    return redirect('index')
-
-
-# Función para iniciar sesión
 def signin(request):
+    """
+    Maneja las solicitudes de inicio de sesión de usuarios.
+
+    Args:
+        request: Objeto HttpRequest que representa la solicitud actual.
+
+    Returns:
+        Objeto HttpResponse que renderiza la plantilla 'signin.html' para una solicitud GET,
+        o redirige a la vista 'home' para un inicio de sesión exitoso.
+    """
     if request.method == 'GET':
         form = AuthenticationForm()
         return render(request, 'signin.html', {'form': form})
@@ -116,28 +49,74 @@ def signin(request):
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return redirect('home')
             else:
-                return render(request, 'signin.html', {
-                    'form': form,
-                    'error': 'Username or password incorrect'
-                })
-        else:
-            return render(request, 'signin.html', {
-                'form': form,
-                'error': 'Username or password incorrect'
-            })
+                return render(request, 'signin.html', {'form': form, 'error': 'Username or password incorrect'})
+        return render(request, 'signin.html', {'form': form, 'error': 'Username or password incorrect'})
 
 
+def signup(request):
+    """
+    Maneja las solicitudes de registro de usuarios.
+
+    Args:
+        request: Objeto HttpRequest que representa la solicitud actual.
+
+    Returns:
+        Objeto HttpResponse que renderiza la plantilla 'signup.html'. Para un registro exitoso,
+        redirige a la vista 'home'. Para una solicitud GET o un intento de registro fallido, renderiza el
+        formulario de registro con cualquier mensaje de error relevante.
+    """
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.role = CustomUser.CONSULTOR  # Asignar el rol por defecto
+                user.save()
+                username = form.cleaned_data.get('username')
+                password = form.cleaned_data.get('password1')
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                    return redirect('home')
+                else:
+                    return render(request, 'signup.html',
+                                  {'form': form, 'error': 'Autenticación fallida. Inténtalo de nuevo.'})
+            except IntegrityError:
+                form.add_error(None, 'El nombre de usuario ya existe.')
+        return render(request, 'signup.html', {'form': form})
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'signup.html', {'form': form})
+
+
+@login_required
+def signout(request):
+    """
+    Cierra la sesión del usuario actual y lo redirige a la página de inicio.
+
+    Args:
+        request: Objeto HttpRequest que representa la solicitud actual.
+
+    Returns:
+        Objeto HttpResponse redirigiendo a la plantilla 'index.html'.
+    """
+    logout(request)
+    return redirect('index')
+
+
+@admin_required
 def administracion_malla(request):
     return render(request, 'administracion_malla.html')
 
 
+@admin_required
 def list_malla(_request):
     mallas_Curricular = list(MallaCurricular.objects.values())
     data = {'mallas_Curricular': mallas_Curricular}
     return JsonResponse(data)
 
 
-@login_required
+@admin_required
 def nueva_malla(request):
     if request.method == 'POST':
         malla_form = MallaCurricularForm(request.POST)
@@ -180,7 +159,8 @@ def nueva_malla(request):
 
     return render(request, 'nueva_malla.html', {'malla_form': malla_form})
 
-@login_required
+
+@admin_required
 def confirmar_malla(request):
     if request.method == 'POST':
         malla_data = request.session.get('malla_data')
@@ -227,7 +207,7 @@ def confirmar_malla(request):
             return HttpResponseBadRequest("No se encontraron datos de malla o ciclos en la sesión.")
 
 
-@login_required
+@admin_required
 def editar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
 
@@ -276,7 +256,8 @@ def editar_malla(request, malla_id):
         'ciclos_data': ciclos_data,
     })
 
-@login_required
+
+@admin_required
 @require_http_methods(["DELETE"])
 def eliminar_malla(request, malla_id):
     malla = get_object_or_404(MallaCurricular, id=malla_id)
@@ -284,7 +265,7 @@ def eliminar_malla(request, malla_id):
     return JsonResponse({'message': 'Malla eliminada correctamente'}, status=200)
 
 
-@login_required
+@admin_required
 @csrf_exempt
 def procesar_excel(request):
     if request.method == 'POST':
@@ -313,7 +294,8 @@ def procesar_excel(request):
             historico = []
             for row in historico_data:
                 if row['ciclo'] not in ciclos_validos:
-                    return JsonResponse({'success': False, 'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
+                    return JsonResponse({'success': False,
+                                         'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
                 historico.append(
                     {
                         'ciclo': row['ciclo'],
@@ -340,7 +322,7 @@ def procesar_excel(request):
         return JsonResponse({'success': False, 'message': 'Método no permitido.'})
 
 
-@login_required
+@admin_required
 def importar_datos_periodo_historico(request):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
@@ -356,7 +338,8 @@ def importar_datos_periodo_historico(request):
                 df = pd.read_excel(fs.path(filename), header=0, skiprows=8)
                 valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
                 if valid_dates.empty:
-                    return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
+                    return JsonResponse(
+                        {'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
                 fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
                 fecha_fin = valid_dates.iloc[-1]['fecha_fin']
@@ -371,7 +354,8 @@ def importar_datos_periodo_historico(request):
                 historicos = []
                 for _, row in df.iterrows():
                     if row['ciclo'] not in ciclos_validos:
-                        return JsonResponse({'success': False, 'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
+                        return JsonResponse({'success': False,
+                                             'message': f"El ciclo {row['ciclo']} no es válido para la malla seleccionada."})
 
                     ciclo = Ciclo.objects.filter(nombre_ciclo=row['ciclo'], malla_curricular=malla).first()
 
@@ -390,7 +374,8 @@ def importar_datos_periodo_historico(request):
                             historico.clean()
                             historicos.append(historico)
                         except ValidationError as e:
-                            return JsonResponse({'success': False, 'message': f"Error en el ciclo {ciclo.nombre_ciclo}: {e}"})
+                            return JsonResponse(
+                                {'success': False, 'message': f"Error en el ciclo {ciclo.nombre_ciclo}: {e}"})
 
                 Historico.objects.bulk_create(historicos)
 
@@ -408,17 +393,19 @@ def importar_datos_periodo_historico(request):
     return render(request, 'import_data.html', {'form': form, 'mallas': mallas})
 
 
+@admin_required
 def list_periodos_historicos(request):
     periodos = list(PeriodoAcademico.objects.values())
     data = {'periodos': periodos}
     return JsonResponse(data)
 
 
+@admin_required
 def administracion_periodo(request):
     return render(request, 'administracion_registros_periodos.html')
 
 
-@login_required
+@admin_required
 def editar_datos_periodo_historico(request, periodo_id):
     periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
     if request.method == 'POST':
@@ -439,9 +426,12 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
+                    return JsonResponse(
+                        {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
-            Historico.objects.bulk_update(historicos, ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
+            Historico.objects.bulk_update(historicos,
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
+                                           'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
@@ -459,7 +449,7 @@ def editar_datos_periodo_historico(request, periodo_id):
     return render(request, 'editar_periodo.html', context)
 
 
-@login_required
+@admin_required
 def eliminar_datos_periodo_historico(request, periodo_id):
     periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
     periodo.delete()
@@ -468,3 +458,49 @@ def eliminar_datos_periodo_historico(request, periodo_id):
 
 def modelo_matematico(request):
     return render(request, 'modelo_matematico.html')
+
+
+User = get_user_model()
+
+
+@admin_required
+def administracion_usuarios(request):
+    return render(request, 'administracion_usuarios.html')
+
+
+@admin_required
+def list_usuarios(request):
+    usuarios = list(User.objects.filter(is_superuser=False, is_staff=False).values())
+    data = {'usuarios': usuarios}
+    return JsonResponse(data)
+
+
+@admin_required
+def nuevo_usuario(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('administracion_usuarios')
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'nuevo_usuario.html', {'form': form})
+
+
+@admin_required
+def editar_usuario(request, usuario_id):
+    usuario = get_object_or_404(User, id=usuario_id, is_superuser=False, is_staff=False)
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            return redirect('administracion_usuario')
+    else:
+        form = CustomUserChangeForm(instance=usuario)
+    return render(request, 'edit_user.html', {'form': form, 'usuario': usuario})
+
+@admin_required
+def eliminar_usuario(request, usuario_id):
+    usuario = get_object_or_404(User, id=usuario_id, is_superuser=False, is_staff=False)
+    usuario.delete()
+    return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)

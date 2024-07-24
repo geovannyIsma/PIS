@@ -58,6 +58,51 @@
                                                 </div>
                                             {% endif %}
                                         </div>
+                                        <div class="mb-4">
+                                            <label for="first_name" class="visually-hidden">First Name</label>
+                                            <input type="text" class="form-control rounded-pill" id="first_name" name="first_name" placeholder="First Name" required>
+                                            {% if form.first_name.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.first_name.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid first name.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="last_name" class="visually-hidden">Last Name</label>
+                                            <input type="text" class="form-control rounded-pill" id="last_name" name="last_name" placeholder="Last Name" required>
+                                            {% if form.last_name.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.last_name.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid last name.
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="mb-4">
+                                            <label for="email" class="visually-hidden">Email</label>
+                                            <input type="email" class="form-control rounded-pill" id="email" name="email" placeholder="Email" required>
+                                            {% if form.email.errors %}
+                                                <div class="invalid-feedback">
+                                                    {% for error in form.email.errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                <div class="invalid-feedback">
+                                                    Please provide a valid email.
+                                                </div>
+                                            {% endif %}
+                                        </div>
                                         <div class="mb-3">
                                             <label for="password1" class="visually-hidden">Password</label>
                                             <input type="password" class="form-control rounded-pill" id="password1" name="password1" placeholder="Password" required>
@@ -106,36 +151,23 @@
             </div>
         </div>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        (function () {
-            'use strict'
-
-            var forms = document.querySelectorAll('.needs-validation')
-
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault()
-                            event.stopPropagation()
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                var forms = document.getElementsByClassName('needs-validation');
+                var validation = Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
                         }
-
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-
-            // Ocultar el label cuando se escribe en el campo
-            var inputs = document.querySelectorAll('input');
-            inputs.forEach(function(input) {
-                input.addEventListener('input', function() {
-                    if (this.value) {
-                        this.previousElementSibling.classList.add('visually-hidden');
-                    } else {
-                        this.previousElementSibling.classList.remove('visually-hidden');
-                    }
+                        form.classList.add('was-validated');
+                    }, false);
                 });
-            });
-        })()
+            }, false);
+        })();
     </script>
 </body>
 </html>

@@ -1,12 +1,12 @@
 let dataTable;
 let dataTableIsInitialized = false;
-let mallaIdToDelete = null;
+let usuarioIdToDelete = null;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: "text-center align-middle", targets: [0, 1, 2, 3, 4] },
-        { orderable: false, targets: [0, 4] },
-        { searchable: false, targets: [0, 4] }
+        { className: "text-center align-middle", targets: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
+        { orderable: false, targets: [0, 8] },
+        { searchable: false, targets: [0, 8] }
     ],
     pageLength: 10,
     destroy: true,
@@ -30,7 +30,7 @@ const dataTableOptions = {
     ],
     language: {
         lengthMenu: "Mostrar _MENU_ registros por página",
-        zeroRecords: "No se encontraron registros de mallas curriculares",
+        zeroRecords: "No se encontraron registros de usuarios",
         info: "Página _PAGE_ de _PAGES_",
         infoEmpty: "No hay registros disponibles",
         infoFiltered: "(filtrado de _MAX_ registros totales)",
@@ -44,48 +44,59 @@ const dataTableOptions = {
     }
 };
 
+const formatDateTime = (dateTimeString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+    const date = new Date(dateTimeString);
+    return date.toLocaleDateString('es-ES', options);
+};
+
 const initDataTable = async () => {
     if (dataTableIsInitialized) {
         dataTable.destroy();
     }
 
-    await list_mallas();
-    dataTable = $('#datatable-mallas').DataTable(dataTableOptions);
+    await list_usuarios();
+    dataTable = $('#datatable-usuarios').DataTable(dataTableOptions);
     dataTableIsInitialized = true;
 };
 
-const list_mallas = async () => {
+const list_usuarios = async () => {
     try {
-        const response = await fetch('http://localhost:8000/Prediccion/list_malla/');
+        const response = await fetch('/Prediccion/list_usuario/');
         const data = await response.json();
         let content = ``;
-        data.mallas_Curricular.forEach((mallaCurricular, index) => {
+        data.usuarios.forEach((usuario, index) => {
             content += `
                 <tr>
                     <td class="text-center align-middle">${index + 1}</td>
-                    <td class="text-center align-middle">${mallaCurricular.codigo}</td>
-                    <td class="text-center align-middle">${mallaCurricular.nombre_malla}</td>
-                    <td class="text-center align-middle">${mallaCurricular.tituloOtorgado}</td>
+                    <td class="text-center align-middle">${usuario.first_name}</td>
+                    <td class="text-center align-middle">${usuario.last_name}</td>
+                    <td class="text-center align-middle">${usuario.username}</td>
+                    <td class="text-center align-middle">${usuario.email}</td>
+                    <td class="text-center align-middle">${usuario.role}</td>
+                    <td class="text-center align-middle">${usuario.is_active ? 'Activo' : 'Inactivo'}</td>
+                    <td class="text-center align-middle">${formatDateTime(usuario.date_joined)}</td>
+                    <td class="text-center align-middle">${formatDateTime(usuario.last_login)}</td>
                     <td class="text-center align-middle">
-                        <button class='btn btn-sm btn-primary' onclick='editMalla(${mallaCurricular.id})'>
+                        <button class='btn btn-sm btn-primary' onclick='editUsuario(${usuario.id})'>
                             <i class='fa-solid fa-pencil'></i>
                         </button>
-                        <button class='btn btn-sm btn-danger' onclick='showDeleteModal(${mallaCurricular.id})'>
+                        <button class='btn btn-sm btn-danger' onclick='showDeleteModal(${usuario.id})'>
                             <i class='fa-solid fa-trash-can'></i>
                         </button>
                     </td>
                 </tr>
             `;
         });
-        document.getElementById('tableBody_mallas').innerHTML = content;
+        document.getElementById('tableBody_usuarios').innerHTML = content;
     } catch (ex) {
         Swal.fire("Error", ex , "error");
     }
 };
 
-const deleteMalla = async (mallaId) => {
+const deleteUsuario = async (usuarioId) => {
     try {
-        const response = await fetch(`http://localhost:8000/Prediccion/eliminar_malla/${mallaId}/`, {
+        const response = await fetch(`/Prediccion/eliminar_usuario/${usuarioId}/`, {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
@@ -96,22 +107,16 @@ const deleteMalla = async (mallaId) => {
             await initDataTable();
             $('#deleteModal').modal('hide');
         } else {
-            Swal.fire("Error", "No se pudo eliminar la malla curricular", "error");
+            Swal.fire("Error", "No se pudo eliminar el usuario", "error");
         }
     } catch (ex) {
         Swal.fire("Error", ex , "error");
     }
 };
 
-const showDeleteModal = (mallaId) => {
-    mallaIdToDelete = mallaId;
+const showDeleteModal = (usuarioId) => {
+    usuarioIdToDelete = usuarioId;
     $('#deleteModal').modal('show');
-};
-
-const confirmDelete = () => {
-    if (mallaIdToDelete) {
-        deleteMalla(mallaIdToDelete);
-    }
 };
 
 const getCookie = (name) => {
@@ -129,11 +134,13 @@ const getCookie = (name) => {
     return cookieValue;
 };
 
-window.addEventListener("load", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
     await initDataTable();
-    document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
+    document.getElementById('confirmDelete').addEventListener('click', () => {
+        deleteUsuario(usuarioIdToDelete);
+    });
 });
 
-function editMalla(mallaId){
-    window.location.href = `/Prediccion/editar_malla/${mallaId}`;
+function editUsuario(usuarioId) {
+    window.location.href = `/Prediccion/editar_usuario/${usuarioId}/`;
 }

@@ -16,5 +16,10 @@ urlpatterns = [
     path('editar_periodo/<int:periodo_id>/', views.editar_datos_periodo_historico, name='editar_periodo'),
     path('eliminar_periodo/<int:periodo_id>/', views.eliminar_datos_periodo_historico, name='eliminar_periodo'),
     path('modelo_matematico/', views.modelo_matematico, name='modelo_matematico'),
+    path('administracion_usuario/', views.administracion_usuarios, name='administracion_usuario'),
+    path('nuevo_usuario/', views.nuevo_usuario, name='nuevo_usuario'),
+    path('editar_usuario/<int:usuario_id>/', views.editar_usuario, name='editar_usuario'),
+    path('eliminar_usuario/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
+    path('list_usuario/', views.list_usuarios, name='list_usuario'),
 
 ]

@@ -1,6 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, CustomUser
 
 
 class MallaCurricularForm(forms.ModelForm):
@@ -63,3 +64,26 @@ class PeriodoForm(forms.ModelForm):
             'fecha_fin': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }
 
+
+class CustomUserCreationForm(UserCreationForm):
+    first_name = forms.CharField(max_length=30, required=True, help_text='Requerido.')
+    last_name = forms.CharField(max_length=30, required=True, help_text='Requerido.')
+    email = forms.EmailField(max_length=254, required=True, help_text='Requerido. Ingrese una dirección de correo válida.')
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+        return user
+
+
+class CustomUserChangeForm(UserChangeForm):
+    role = forms.ChoiceField(choices=CustomUser.ROLE_CHOICES, required=True)
+
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'first_name', 'last_name', 'email', 'role', 'is_active')

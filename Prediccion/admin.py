@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico
+from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
 
 
 # Register your models here.
@@ -30,10 +30,18 @@ class PeriodoAcademicoAdmin(admin.ModelAdmin):
     list_filter = ('codigo_periodo', 'fecha_inicio', 'fecha_fin')
     ordering = ('id',)
 
+
 class HistoricoAdmin(admin.ModelAdmin):
     list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
     search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
     list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
+    ordering = ('id',)
+
+
+class CustomUserAdmin(admin.ModelAdmin):
+    list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'date_joined', 'last_login', 'is_superuser', 'role')
+    search_fields = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'date_joined', 'last_login', 'is_superuser', 'role')
+    list_filter = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active', 'date_joined', 'last_login', 'is_superuser', 'role')
     ordering = ('id',)
 
 
@@ -42,3 +50,4 @@ admin.site.register(Ciclo, CicloAdmin)
 admin.site.register(Asignatura, AsignaturaAdmin)
 admin.site.register(PeriodoAcademico, PeriodoAcademicoAdmin)
 admin.site.register(Historico, HistoricoAdmin)
+admin.site.register(CustomUser, CustomUserAdmin)

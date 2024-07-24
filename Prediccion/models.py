@@ -1,3 +1,5 @@
+from django.contrib.auth.models import AbstractUser, Group
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -46,7 +48,8 @@ class Historico(models.Model):
     abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron")
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
     aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
-    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE, verbose_name="Periodo Académico")
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
+                                          verbose_name="Periodo Académico")
     desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
     ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, verbose_name="Ciclo", default=1)
 
@@ -78,7 +81,8 @@ class Historico_Periodo(models.Model):
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
     aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
     desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
-    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE, verbose_name="Periodo Académico")
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
+                                          verbose_name="Periodo Académico")
 
     class Meta:
         verbose_name = "Histórico"
@@ -86,3 +90,31 @@ class Historico_Periodo(models.Model):
 
     def __str__(self):
         return f"{self.periodo_academico} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"
+
+
+class CustomUser(AbstractUser):
+    ADMIN = 'admin'
+    CONSULTOR = 'consultor'
+
+    ROLE_CHOICES = [
+        (ADMIN, 'Administrador'),
+        (CONSULTOR, 'Consultor'),
+    ]
+
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default=CONSULTOR)
+
+    def is_admin(self):
+        return self.role == self.ADMIN
+
+    def is_registered(self):
+        return self.role == self.CONSULTOR
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.is_superuser and not self.is_staff:
+            if self.role == self.ADMIN:
+                admin_group, created = Group.objects.get_or_create(name='Administrador')
+                self.groups.add(admin_group)
+            elif self.role == self.CONSULTOR:
+                registered_group, created = Group.objects.get_or_create(name='Consultor')
+                self.groups.add(registered_group)

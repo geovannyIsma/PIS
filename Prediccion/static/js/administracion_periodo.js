@@ -10,6 +10,24 @@ const dataTableOptions = {
     ],
     pageLength: 10,
     destroy: true,
+    dom: 'Bfrtip',
+    buttons: [
+        { extend: 'copy',
+            text: '<i class="fa-solid fa-copy"></i> Copiar'
+        },
+        { extend: 'csv',
+            text: '<i class="fa-solid fa-file-csv"></i> CSV'
+        },
+        { extend: 'excel',
+            text: '<i class="fa-regular fa-file-excel"></i> Excel'
+        },
+        { extend: 'pdf',
+            text: '<i class="fa-solid fa-file-pdf"></i> PDF'
+        },
+        { extend: 'print',
+            text: '<i class="fa-solid fa-print"></i> Imprimir'
+        }
+    ],
     language : {
         lengthMenu: "Mostrar _MENU_ registros por página",
         zeroRecords: "No se encontraron registros de periodos",
@@ -17,6 +35,12 @@ const dataTableOptions = {
         infoEmpty: "No hay registros disponibles",
         infoFiltered: "(filtrado de _MAX_ registros totales)",
         search: "Buscar:",
+        paginate: {
+            first: "Primero",
+            last: "Último",
+            next: "Siguiente",
+            previous: "Anterior"
+        }
 
     }
 };

@@ -1,5 +1,4 @@
 {% load static %}
-<!-- templates/myapp/base.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -33,60 +32,80 @@
             </div>
             <!-- Sidebar Navigation -->
             <ul class="sidebar-nav p-0">
-                <li class="sidebar-item">
-                    <a href="{% url 'home' %}" class="sidebar-link">
-                        <i class="lni lni-home"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
 
-                <li class="sidebar-header">Administración</li>
-
-                <li class="sidebar-item">
-                    <a href="{% url 'administracion_malla' %}" class="sidebar-link">
-                        <i class="lni lni-agenda"></i>
-                        <span>Gestión de mallas curriculares</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-item">
-                    <a href="{% url 'administracion_periodo' %}" class="sidebar-link">
-                        <i class="lni lni-agenda"></i>
-                        <span>Gestión periodo académicos</span>
-                    </a>
-                </li>
-
-                <li class="sidebar-header">Pages</li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#auth" aria-expanded="true" aria-controls="auth">
-                        <i class="lni lni-protection"></i>
-                        <span>Auth</span>
-                    </a>
-                    <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                {% if user.is_authenticated %}
+                    {% if user.is_registered %}
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Login</a>
+                            <a href="{% url 'home' %}" class="sidebar-link">
+                                <i class="lni lni-home"></i>
+                                <span>Inicio</span>
+                            </a>
                         </li>
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Register</a>
-                        </li>
-                    </ul>
-                </li>
 
-                <li class="sidebar-header">Modelo matemático</li>
-                <li class="sidebar-item">
-                    <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
-                        <i class="lni lni-popup"></i>
-                        <span>Modelo matemático</span>
-                    </a>
-                </li>
+                        <li class="sidebar-header">Modelo matemático</li>
+                        <li class="sidebar-item">
+                            <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
+                                <i class="lni lni-popup"></i>
+                                <span>Modelo matemático</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.is_admin %}
+                        <li class="sidebar-header">Administración</li>
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'administracion_malla' %}" class="sidebar-link">
+                                <i class="lni lni-agenda"></i>
+                                <span>Gestión de mallas curriculares</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'administracion_periodo' %}" class="sidebar-link">
+                                <i class="lni lni-agenda"></i>
+                                <span>Gestión periodo académicos</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'administracion_usuario' %}" class="sidebar-link">
+                                <i class="lni lni-users"></i>
+                                <span>Administración de Usuarios</span>
+                            </a>
+
+                    {% endif %}
+                {% else %}
+                    <!-- Content for unauthenticated users -->
+                    <li class="sidebar-item">
+                        <a href="{% url 'home' %}" class="sidebar-link">
+                            <i class="lni lni-home"></i>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+
+                    <li class="sidebar-header">Modelo matemático</li>
+                    <li class="sidebar-item">
+                        <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
+                            <i class="lni lni-popup"></i>
+                            <span>Modelo matemático</span>
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <!-- Sidebar Navigation Ends -->
             <div class="sidebar-footer">
-                <a href="{% url 'logout' %}" class="sidebar-link">
-                    <i class="lni lni-exit"></i>
-                    <span>Salir</span>
-                </a>
+                {% if user.is_authenticated %}
+                   <a href="{% url 'signout' %}" class="sidebar-link">
+                        <i class="lni lni-exit"></i>
+                        <span>Salir</span>
+                   </a>
+                {% else %}
+                    <a href="{% url 'index' %}" class="sidebar-link">
+                        <i class="lni lni-exit"></i>
+                        <span>Salir</span>
+                    </a>
+                {% endif %}
             </div>
         </aside>
         <!-- Sidebar Ends -->
