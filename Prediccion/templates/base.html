@@ -49,6 +49,14 @@
                                 <span>Modelo matemático</span>
                             </a>
                         </li>
+
+                        <li class="sidebar-header">Predicciones</li>
+                        <li class="sidebar-item">
+                            <a href="{% url 'prediccion' %}" class="sidebar-link">
+                                <i class="lni lni-bar-chart"></i>
+                                <span>Predicciones</span>
+                            </a>
+                        </li>
                     {% endif %}
 
                     {% if user.is_admin %}
@@ -83,6 +91,14 @@
                             </a>
                         </li>
 
+                        <li class="sidebar-header">Predicciones</li>
+                        <li class="sidebar-item">
+                            <a href="{% url 'prediccion' %}" class="sidebar-link">
+                                <i class="lni lni-bar-chart"></i>
+                                <span>Predicciones</span>
+                            </a>
+                        </li>
+
                     {% endif %}
                 {% else %}
                     <!-- Content for unauthenticated users -->
@@ -106,6 +122,7 @@
                             <i class="lni lni-bar-chart"></i>
                             <span>Predicciones</span>
                         </a>
+                    </li>
                 {% endif %}
             </ul>
             <!-- Sidebar Navigation Ends -->

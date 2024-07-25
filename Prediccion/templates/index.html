@@ -43,7 +43,10 @@
             opacity: 1;
         }
 
-        .card::before {
+        .card-bg-1::before,
+        .card-bg-2::before,
+        .card-bg-3::before,
+        .card-bg-4::before {
             content: "";
             position: absolute;
             top: 0;
@@ -55,19 +58,19 @@
             transition: filter 0.3s;
         }
 
-        .card:nth-child(1)::before {
+        .card-bg-1::before {
             background-image: url('{% static 'img/94.jpg' %}');
         }
 
-        .card:nth-child(2)::before {
+        .card-bg-2::before {
             background-image: url('{% static 'img/image.png' %}');
         }
 
-        .card:nth-child(3)::before {
+        .card-bg-3::before {
             background-image: url('{% static 'img/diagramaSerid.png' %}');
         }
 
-        .card:nth-child(4)::before {
+        .card-bg-4::before {
             background-image: url('{% static 'img/vecteezyisometric-school-illustrationgr0522_generated.jpg' %}');
         }
 
@@ -75,13 +78,6 @@
             filter: blur(5px);
         }
 
-        .info-section h2, .info-section h3 {
-            margin-bottom: 20px;
-        }
-
-        .info-section p {
-            margin-bottom: 15px;
-        }
     </style>
 </head>
 <body>
@@ -138,7 +134,7 @@
             <h3 class="mt-5">¿Qué puedes hacer en TrackGuard?</h3>
             <div class="row text-center">
                 <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                    <div class="card card-bg-1">
                         <div class="card-body">
                             <h5 class="card-title">Predicción de deserción con gráficas interactivas</h5>
                             <p class="card-text">Realiza predicciones de deserción estudiantil con datos históricos reales de la carrera de Computación.</p>
@@ -146,7 +142,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                    <div class="card card-bg-2">
                         <div class="card-body">
                             <h5 class="card-title">Descargar los datos disponibles en nuestra base de datos</h5>
                             <p class="card-text">Descarga los datos históricos de la carrera de Computación para realizar análisis personalizados.</p>
@@ -154,7 +150,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                    <div class="card card-bg-3">
                         <div class="card-body">
                             <h5 class="card-title">Realizar simulaciones con el modelo matemático SEIRD</h5>
                             <p class="card-text">Realiza simulaciones de deserción estudiantil con el modelo matemático SEIRD.</p>
@@ -162,7 +158,7 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
-                    <div class="card">
+                    <div class="card card-bg-4">
                         <div class="card-body">
                             <h5 class="card-title">Infórmate sobre la deserción en Computación</h5>
                             <p class="card-text">Consulta información relevante sobre la deserción estudiantil en la carrera de Computación.</p>
@@ -170,6 +166,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </section>
 

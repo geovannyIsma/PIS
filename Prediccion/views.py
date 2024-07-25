@@ -245,7 +245,7 @@ def procesar_excel(request):
             return JsonResponse({'success': False, 'message': 'No se ha seleccionado ningún archivo.'})
 
         try:
-            df = pd.read_excel(file, header=0, skiprows=8)
+            df = pd.read_excel(file, header=0, skiprows=4)
             valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
             if valid_dates.empty:
                 return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
@@ -305,7 +305,7 @@ def importar_datos_periodo_historico(request):
             file_url = fs.url(filename)
 
             try:
-                df = pd.read_excel(fs.path(filename), header=0, skiprows=8)
+                df = pd.read_excel(fs.path(filename), header=0, skiprows=4)
                 valid_dates = df.dropna(subset=['fecha_inicio', 'fecha_fin'])
                 if valid_dates.empty:
                     return JsonResponse(
@@ -315,7 +315,7 @@ def importar_datos_periodo_historico(request):
                 fecha_fin = valid_dates.iloc[-1]['fecha_fin']
 
                 periodo, created = PeriodoAcademico.objects.update_or_create(
-                    codigo_periodo=f"{fecha_inicio.year}-{malla.codigo}",
+                    codigo_periodo=f"Periodo-{fecha_fin.year}",
                     defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
                 )
 
@@ -480,6 +480,7 @@ def eliminar_usuario(request, usuario_id):
     return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
 
 
+
 def dashboard_view(request):
     historico_data = Historico.objects.aggregate(
         total_matriculados=Sum('matriculados'),
@@ -490,9 +491,28 @@ def dashboard_view(request):
         total_desertores=Sum('desertores')
     )
 
-    print(historico_data)
+    labels = ["Matriculados", "Reprobados", "Abandonaron", "Aprobados", "Aplazadores", "Desertores"]
+    desertores = [
+        historico_data['total_desertores'] or 0,
+        historico_data['total_reprobados'] or 0,
+        historico_data['total_abandonaron'] or 0,
+        historico_data['total_aprobados'] or 0,
+        historico_data['total_aplazadores'] or 0,
+        historico_data['total_matriculados'] or 0,
+    ]
+    matriculados = [
+        historico_data['total_matriculados'] or 0,
+        historico_data['total_reprobados'] or 0,
+        historico_data['total_abandonaron'] or 0,
+        historico_data['total_aprobados'] or 0,
+        historico_data['total_aplazadores'] or 0,
+        historico_data['total_desertores'] or 0,
+    ]
 
     context = {
+        'labels': labels,
+        'desertores': desertores,
+        'matriculados': matriculados,
         'total_matriculados': historico_data['total_matriculados'] or 0,
         'total_reprobados': historico_data['total_reprobados'] or 0,
         'total_abandonaron': historico_data['total_abandonaron'] or 0,
@@ -508,7 +528,7 @@ def about(request):
     return render(request, 'about.html')
 
 
-def mcmc(lista, num_sim=5000):
+def mcmc(lista, num_sim=12):
     difer = np.diff(lista)
     media = np.mean(difer)
     desviacion = np.std(difer)
@@ -522,7 +542,7 @@ def mcmc(lista, num_sim=5000):
 def predicciones_view(request):
     historicos = Historico.objects.all().order_by('id')
 
-    fechas = [h.periodo_academico.fecha_inicio.strftime('%Y-%m-%d') for h in historicos]
+    periodos = [h.periodo_academico.codigo_periodo for h in historicos]
     matriculados = [h.matriculados for h in historicos]
     reprobados = [h.reprobados for h in historicos]
     abandonaron = [h.abandonaron for h in historicos]
@@ -538,18 +558,20 @@ def predicciones_view(request):
     prediccion_aplazadores = mcmc(aplazadores)
     prediccion_desertores = mcmc(desertores)
 
-    fechas_futuras = [historicos.last().periodo_academico.fecha_inicio + timedelta(days=30 * i) for i in range(1, 13)]
-    fechas_futuras_str = [date.strftime('%Y-%m-%d') for date in fechas_futuras]
+    # Generar nuevos periodos
+    ultimos_periodo = periodos[-1]
+    num_ultimo_periodo = int(ultimos_periodo.split('-')[1])
+    nuevos_periodos = [f"Periodo-{num_ultimo_periodo + i}" for i in range(1, 13)]
 
     context = {
-        'fechas': fechas,
+        'periodos': periodos,
         'matriculados': matriculados,
         'reprobados': reprobados,
         'abandonaron': abandonaron,
         'aprobados': aprobados,
         'aplazadores': aplazadores,
         'desertores': desertores,
-        'fechas_futuras': fechas_futuras_str,
+        'nuevos_periodos': nuevos_periodos,
         'prediccion_matriculados': prediccion_matriculados,
         'prediccion_reprobados': prediccion_reprobados,
         'prediccion_abandonaron': prediccion_abandonaron,

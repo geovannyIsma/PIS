@@ -81,6 +81,12 @@
         .justify {
             text-align: justify;
         }
+        #downloadButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
     </style>
 {% endblock %}
 
@@ -92,7 +98,7 @@
         </ol>
     </nav>
 
-    <div class="container mt-5">
+    <div class="container mt-5" id="content">
         <h1 class="text-center mb-5">Modelo matemático</h1>
 
         <div class="content-box mb-5 justify">
@@ -163,4 +169,39 @@
             </ul>
         </div>
     </div>
+
+    <button id="downloadButton" class="btn btn-dark">Descargar PDF</button>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.4/jspdf.debug.js"></script>
+    <script>
+        document.getElementById('downloadButton').addEventListener('click', function () {
+            html2canvas(document.getElementById('content'), {
+                onrendered: function (canvas) {
+                    var imgData = canvas.toDataURL('image/png');
+                    var doc = new jsPDF('p', 'mm');
+                    var imgWidth = 210; // A4 size width in mm
+                    var pageHeight = 295; // A4 size height in mm
+                    var imgHeight = canvas.height * imgWidth / canvas.width;
+                    var heightLeft = imgHeight;
+                    var position = 0;
+
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+
+                    while (heightLeft >= 0) {
+                        position = heightLeft - imgHeight;
+                        doc.addPage();
+                        doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                        heightLeft -= pageHeight;
+                    }
+
+                    doc.save('modelo_matematico.pdf');
+                }
+            });
+        });
+    </script>
 {% endblock %}
