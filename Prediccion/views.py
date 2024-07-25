@@ -5,6 +5,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
+from django.db.models import Sum
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -21,21 +22,7 @@ def index(request):
     return render(request, 'index.html')
 
 
-def home(request):
-    return render(request, 'home.html')
-
-
 def signin(request):
-    """
-    Maneja las solicitudes de inicio de sesión de usuarios.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse que renderiza la plantilla 'signin.html' para una solicitud GET,
-        o redirige a la vista 'home' para un inicio de sesión exitoso.
-    """
     if request.method == 'GET':
         form = AuthenticationForm()
         return render(request, 'signin.html', {'form': form})
@@ -54,17 +41,6 @@ def signin(request):
 
 
 def signup(request):
-    """
-    Maneja las solicitudes de registro de usuarios.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse que renderiza la plantilla 'signup.html'. Para un registro exitoso,
-        redirige a la vista 'home'. Para una solicitud GET o un intento de registro fallido, renderiza el
-        formulario de registro con cualquier mensaje de error relevante.
-    """
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -91,15 +67,6 @@ def signup(request):
 
 @login_required
 def signout(request):
-    """
-    Cierra la sesión del usuario actual y lo redirige a la página de inicio.
-
-    Args:
-        request: Objeto HttpRequest que representa la solicitud actual.
-
-    Returns:
-        Objeto HttpResponse redirigiendo a la plantilla 'index.html'.
-    """
     logout(request)
     return redirect('index')
 
@@ -504,3 +471,30 @@ def eliminar_usuario(request, usuario_id):
     usuario = get_object_or_404(User, id=usuario_id, is_superuser=False, is_staff=False)
     usuario.delete()
     return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
+
+
+def dashboard_view(request):
+    historico_data = Historico.objects.aggregate(
+        total_matriculados=Sum('matriculados'),
+        total_reprobados=Sum('reprobados'),
+        total_abandonaron=Sum('abandonaron'),
+        total_aprobados=Sum('aprobados'),
+        total_aplazadores=Sum('aplazadores'),
+        total_desertores=Sum('desertores')
+    )
+
+    print(historico_data)
+
+    context = {
+        'total_matriculados': historico_data['total_matriculados'] or 0,
+        'total_reprobados': historico_data['total_reprobados'] or 0,
+        'total_abandonaron': historico_data['total_abandonaron'] or 0,
+        'total_aprobados': historico_data['total_aprobados'] or 0,
+        'total_aplazadores': historico_data['total_aplazadores'] or 0,
+        'total_desertores': historico_data['total_desertores'] or 0,
+    }
+
+    return render(request, 'home.html', context)
+
+def about(request):
+    return render(request, 'about.html')

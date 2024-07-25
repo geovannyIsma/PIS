@@ -13,19 +13,24 @@ const dataTableOptions = {
     dom: 'Bfrtip',
     buttons: [
         { extend: 'copy',
-            text: '<i class="fa-solid fa-copy"></i> Copiar'
+            text: '<i class="fa-solid fa-copy"></i> Copiar',
+            className: 'btn btn-copy'
         },
         { extend: 'csv',
-            text: '<i class="fa-solid fa-file-csv"></i> CSV'
+            text: '<i class="fa-solid fa-file-csv"></i> CSV',
+            className: 'btn btn-csv'
         },
         { extend: 'excel',
-            text: '<i class="fa-regular fa-file-excel"></i> Excel'
+            text: '<i class="fa-regular fa-file-excel"></i> Excel',
+            className: 'btn btn-excel'
         },
         { extend: 'pdf',
-            text: '<i class="fa-solid fa-file-pdf"></i> PDF'
+            text: '<i class="fa-solid fa-file-pdf"></i> PDF',
+            className: 'btn btn-pdf'
         },
         { extend: 'print',
-            text: '<i class="fa-solid fa-print"></i> Imprimir'
+            text: '<i class="fa-solid fa-print"></i> Imprimir',
+            className: 'btn btn-print'
         }
     ],
     language : {

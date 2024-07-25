@@ -52,6 +52,14 @@
                     {% endif %}
 
                     {% if user.is_admin %}
+
+                        <li class="sidebar-item">
+                            <a href="{% url 'home' %}" class="sidebar-link">
+                                <i class="lni lni-home"></i>
+                                <span>Inicio</span>
+                            </a>
+                        </li>
+
                         <li class="sidebar-header">Administración</li>
 
                         <li class="sidebar-item">
@@ -73,6 +81,7 @@
                                 <i class="lni lni-users"></i>
                                 <span>Administración de Usuarios</span>
                             </a>
+                        </li>
 
                     {% endif %}
                 {% else %}

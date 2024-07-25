@@ -67,3 +67,30 @@
     background-color: #dc3545;
     border: none;
 }
+
+
+
+.btn-copy {
+    background-color: #007bff; /* color azul */
+    color: white;
+}
+
+.btn-csv {
+    background-color: #28a745; /* color verde */
+    color: white;
+}
+
+.btn-excel {
+    background-color: #17a2b8; /* color cian */
+    color: white;
+}
+
+.btn-pdf {
+    background-color: #dc3545; /* color rojo */
+    color: white;
+}
+
+.btn-print {
+    background-color: #ffc107; /* color amarillo */
+    color: black;
+}

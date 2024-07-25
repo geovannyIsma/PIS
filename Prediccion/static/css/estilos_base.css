@@ -23,11 +23,12 @@ a {
     background-color: #f9f9f9;
     padding: 1rem;
     transition: all 0.35s ease-in-out;
-    width: calc(100% - 70px);
+    width: calc(100% - 264px); /* Adjusted to the width of sidebar */
 }
 
 .main.expanded {
-    margin-left: 0; /* Ajusta el margen cuando el sidebar está colapsado */
+    margin-left: 0;
+    width: 100%;
 }
 
 .main .container-fluid {
@@ -137,4 +138,8 @@ a.sidebar-link:hover {
     .main.expanded {
         margin-left: 0;
     }
+}
+
+.main .container-fluid {
+    padding: 1rem;
 }
