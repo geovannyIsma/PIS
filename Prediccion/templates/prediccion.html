@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %} Predicciones de Datos Históricos {% endblock %}
+
+{% block extra_css %}
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h1 class="p-4">Predicciones de Datos Históricos</h1>
+    <div id="main" style="width: 100%; height: 600px;"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        // Datos de ejemplo. Reemplaza con tus datos.
+        var fechas = {{ fechas|safe }};
+        var matriculados = {{ matriculados|safe }};
+        var reprobados = {{ reprobados|safe }};
+        var abandonaron = {{ abandonaron|safe }};
+        var aprobados = {{ aprobados|safe }};
+        var aplazadores = {{ aplazadores|safe }};
+        var desertores = {{ desertores|safe }};
+        var fechas_futuras = {{ fechas_futuras|safe }};
+
+        var prediccion_matriculados = {{ prediccion_matriculados|safe }};
+        var prediccion_reprobados = {{ prediccion_reprobados|safe }};
+        var prediccion_abandonaron = {{ prediccion_abandonaron|safe }};
+        var prediccion_aprobados = {{ prediccion_aprobados|safe }};
+        var prediccion_aplazadores = {{ prediccion_aplazadores|safe }};
+        var prediccion_desertores = {{ prediccion_desertores|safe }};
+
+        // Asegúrate de que los datos sean válidos y estén bien formateados
+        console.log("Fechas:", fechas);
+        console.log("Matriculados:", matriculados);
+        console.log("Predicciones Matriculados:", prediccion_matriculados);
+        console.log("Fechas Futuras:", fechas_futuras);
+
+        var option = {
+            title: {
+                text: 'Predicciones de Datos Históricos'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
+            },
+            xAxis: {
+                type: 'time',
+                name: 'Fecha',
+                data: fechas.concat(fechas_futuras).map(function(date) {
+                    return new Date(date);
+                })
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Valores'
+            },
+            series: [
+                {
+                    name: 'Matriculados',
+                    type: 'line',
+                    data: matriculados.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_matriculados[idx]]; // Ajusta si tienes múltiples predicciones
+                        })
+                    )
+                },
+                {
+                    name: 'Reprobados',
+                    type: 'line',
+                    data: reprobados.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_reprobados[idx]];
+                        })
+                    )
+                },
+                {
+                    name: 'Abandonaron',
+                    type: 'line',
+                    data: abandonaron.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_abandonaron[idx]];
+                        })
+                    )
+                },
+                {
+                    name: 'Aprobados',
+                    type: 'line',
+                    data: aprobados.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_aprobados[idx]];
+                        })
+                    )
+                },
+                {
+                    name: 'Aplazadores',
+                    type: 'line',
+                    data: aplazadores.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_aplazadores[idx]];
+                        })
+                    )
+                },
+                {
+                    name: 'Desertores',
+                    type: 'line',
+                    data: desertores.map(function(val, idx) {
+                        return [new Date(fechas[idx]), val];
+                    }).concat(
+                        fechas_futuras.map(function(date, idx) {
+                            return [new Date(date), prediccion_desertores[idx]];
+                        })
+                    )
+                }
+            ]
+        };
+
+        var chart = echarts.init(document.getElementById('main'));
+        chart.setOption(option);
+    </script>
+{% endblock %}

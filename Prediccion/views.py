@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+import numpy as np
 import pandas as pd
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -14,7 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from Prediccion.decorators import admin_required
-from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, CustomUserChangeForm
+from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
+    CustomUserChangeForm
 from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
 
 
@@ -392,9 +396,12 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
+                    return JsonResponse(
+                        {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
-            Historico.objects.bulk_update(historicos, ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
+            Historico.objects.bulk_update(historicos,
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
+                                           'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
@@ -465,6 +472,7 @@ def editar_usuario(request, usuario_id):
         form = CustomUserChangeForm(instance=usuario)
     return render(request, 'edit_user.html', {'form': form, 'usuario': usuario})
 
+
 @admin_required
 def eliminar_usuario(request, usuario_id):
     usuario = get_object_or_404(User, id=usuario_id, is_superuser=False, is_staff=False)
@@ -495,5 +503,59 @@ def dashboard_view(request):
 
     return render(request, 'home.html', context)
 
+
 def about(request):
     return render(request, 'about.html')
+
+
+def mcmc(lista, num_sim=5000):
+    difer = np.diff(lista)
+    media = np.mean(difer)
+    desviacion = np.std(difer)
+    valores_futuros = []
+    for _ in range(num_sim):
+        nueva_diferencia = np.random.normal(media, desviacion)
+        nuevo_valor = lista[-1] + nueva_diferencia
+        valores_futuros.append(nuevo_valor)
+    return valores_futuros
+
+def predicciones_view(request):
+    historicos = Historico.objects.all().order_by('id')
+
+    fechas = [h.periodo_academico.fecha_inicio.strftime('%Y-%m-%d') for h in historicos]
+    matriculados = [h.matriculados for h in historicos]
+    reprobados = [h.reprobados for h in historicos]
+    abandonaron = [h.abandonaron for h in historicos]
+    aprobados = [h.aprobados for h in historicos]
+    aplazadores = [h.aplazadores for h in historicos]
+    desertores = [h.desertores for h in historicos]
+
+    # Realizar predicciones
+    prediccion_matriculados = mcmc(matriculados)
+    prediccion_reprobados = mcmc(reprobados)
+    prediccion_abandonaron = mcmc(abandonaron)
+    prediccion_aprobados = mcmc(aprobados)
+    prediccion_aplazadores = mcmc(aplazadores)
+    prediccion_desertores = mcmc(desertores)
+
+    fechas_futuras = [historicos.last().periodo_academico.fecha_inicio + timedelta(days=30 * i) for i in range(1, 13)]
+    fechas_futuras_str = [date.strftime('%Y-%m-%d') for date in fechas_futuras]
+
+    context = {
+        'fechas': fechas,
+        'matriculados': matriculados,
+        'reprobados': reprobados,
+        'abandonaron': abandonaron,
+        'aprobados': aprobados,
+        'aplazadores': aplazadores,
+        'desertores': desertores,
+        'fechas_futuras': fechas_futuras_str,
+        'prediccion_matriculados': prediccion_matriculados,
+        'prediccion_reprobados': prediccion_reprobados,
+        'prediccion_abandonaron': prediccion_abandonaron,
+        'prediccion_aprobados': prediccion_aprobados,
+        'prediccion_aplazadores': prediccion_aplazadores,
+        'prediccion_desertores': prediccion_desertores,
+    }
+
+    return render(request, 'prediccion.html', context)
