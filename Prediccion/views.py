@@ -9,12 +9,12 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.dateformat import DateFormat
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
 from Prediccion.decorators import admin_required
-from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
-    CustomUserChangeForm
+from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, CustomUserChangeForm
 from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
 
 
@@ -246,10 +246,9 @@ def procesar_excel(request):
             if valid_dates.empty:
                 return JsonResponse({'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
-            fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
-            fecha_fin = valid_dates.iloc[-1]['fecha_fin']
+            fecha_inicio = pd.to_datetime(valid_dates.iloc[-1]['fecha_inicio']).date()
+            fecha_fin = pd.to_datetime(valid_dates.iloc[-1]['fecha_fin']).date()
 
-            # Obtener la malla seleccionada desde el frontend
             malla_id = request.POST.get('malla_id')
             if not malla_id:
                 return JsonResponse({'success': False, 'message': 'Malla curricular no seleccionada.'})
@@ -372,7 +371,7 @@ def administracion_periodo(request):
     return render(request, 'administracion_registros_periodos.html')
 
 
-@admin_required
+@login_required
 def editar_datos_periodo_historico(request, periodo_id):
     periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
     if request.method == 'POST':
@@ -393,18 +392,18 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse(
-                        {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
+                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
-            Historico.objects.bulk_update(historicos,
-                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
-                                           'desertores'])
+            Historico.objects.bulk_update(historicos, ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
             return JsonResponse({'success': False, 'message': 'Formulario no válido.'})
 
     else:
+        # Formatea las fechas al formato requerido 'yyyy-MM-dd'
+        periodo.fecha_inicio = periodo.fecha_inicio.strftime('%Y-%m-%d')
+        periodo.fecha_fin = periodo.fecha_fin.strftime('%Y-%m-%d')
         periodo_form = PeriodoForm(instance=periodo)
 
     historicos = periodo.historico_set.all()

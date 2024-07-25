@@ -60,6 +60,7 @@
             <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" readonly>
         </div>
 
+
         <input type="hidden" id="periodo_academico" name="periodo_academico">
         <table class="table">
             <thead>
@@ -143,9 +144,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     title: 'Éxito',
                     text: data.message
                 });
-                document.getElementById('fecha_inicio').value = new Date(data.fecha_inicio).toISOString().split('T')[0];
-                document.getElementById('fecha_fin').value = new Date(data.fecha_fin).toISOString().split('T')[0];
-                document.getElementById('periodo_academico').value = data.periodo_academico_id;
+                document.getElementById('fecha_inicio').value = data.fecha_inicio;
+                document.getElementById('fecha_fin').value = data.fecha_fin;
                 const historicoTableBody = document.getElementById('historico-data');
                 historicoTableBody.innerHTML = '';
                 data.historico.forEach(h => {
