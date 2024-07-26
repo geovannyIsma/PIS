@@ -1,10 +1,8 @@
-from datetime import timedelta
-
 import numpy as np
 import pandas as pd
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
@@ -12,7 +10,6 @@ from django.db.models import Sum
 from django.http import HttpResponseBadRequest
 from django.http.response import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.utils.dateformat import DateFormat
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -542,55 +539,151 @@ def about(request):
 
 
 def mcmc(lista, num_sim=12):
-    difer = np.diff(lista)
-    media = np.mean(difer)
-    desviacion = np.std(difer)
-    valores_futuros = []
-    for _ in range(num_sim):
-        nueva_diferencia = np.random.normal(media, desviacion)
-        nuevo_valor = lista[-1] + nueva_diferencia
-        valores_futuros.append(nuevo_valor)
+    if len(lista) < 2:
+        # Añadir variabilidad para listas muy pequeñas o constantes
+        base_valor = lista[-1] if lista else 0
+        variabilidad = base_valor * 0.05  # 5% de variabilidad
+        valores_futuros = [base_valor + np.random.uniform(-variabilidad, variabilidad) for _ in range(num_sim)]
+    else:
+        difer = np.diff(lista)
+        media = np.mean(difer)
+        desviacion = np.std(difer)
+
+        if desviacion == 0:  # Caso de datos constantes
+            variabilidad = media * 0.05  # 5% de variabilidad
+            valores_futuros = [lista[-1] + media + np.random.uniform(-variabilidad, variabilidad) for _ in
+                               range(num_sim)]
+        else:
+            valores_futuros = []
+            for _ in range(num_sim):
+                nueva_diferencia = np.random.normal(media, desviacion)
+                nuevo_valor = lista[-1] + nueva_diferencia
+                valores_futuros.append(nuevo_valor)
     return valores_futuros
 
+
 def predicciones_view(request):
-    historicos = Historico.objects.all().order_by('id')
+    # Obtener lista de ciclos disponibles
+    ciclos = Ciclo.objects.all()
 
-    periodos = [h.periodo_academico.codigo_periodo for h in historicos]
-    matriculados = [h.matriculados for h in historicos]
-    reprobados = [h.reprobados for h in historicos]
-    abandonaron = [h.abandonaron for h in historicos]
-    aprobados = [h.aprobados for h in historicos]
-    aplazadores = [h.aplazadores for h in historicos]
-    desertores = [h.desertores for h in historicos]
+    # Obtener ciclo seleccionado
+    ciclo_id = request.GET.get('ciclo', ciclos.first().id)
+    ciclo_seleccionado = get_object_or_404(Ciclo, id=ciclo_id)
 
-    # Realizar predicciones
-    prediccion_matriculados = mcmc(matriculados)
-    prediccion_reprobados = mcmc(reprobados)
-    prediccion_abandonaron = mcmc(abandonaron)
-    prediccion_aprobados = mcmc(aprobados)
-    prediccion_aplazadores = mcmc(aplazadores)
-    prediccion_desertores = mcmc(desertores)
+    # Filtrar datos históricos por ciclo seleccionado
+    historicos = Historico.objects.filter(ciclo=ciclo_seleccionado).order_by('id')
 
-    # Generar nuevos periodos
-    ultimos_periodo = periodos[-1]
-    num_ultimo_periodo = int(ultimos_periodo.split('-')[1])
-    nuevos_periodos = [f"Periodo-{num_ultimo_periodo + i}" for i in range(1, 13)]
+    if historicos.exists():
+        periodos_ciclo = [h.periodo_academico.codigo_periodo for h in historicos]
+        matriculados_ciclo = [h.matriculados for h in historicos]
+        reprobados_ciclo = [h.reprobados for h in historicos]
+        abandonaron_ciclo = [h.abandonaron for h in historicos]
+        aprobados_ciclo = [h.aprobados for h in historicos]
+        aplazadores_ciclo = [h.aplazadores for h in historicos]
+        desertores_ciclo = [h.desertores for h in historicos]
+
+        # Realizar predicciones por ciclo
+        prediccion_matriculados_ciclo = mcmc(matriculados_ciclo)
+        prediccion_reprobados_ciclo = mcmc(reprobados_ciclo)
+        prediccion_abandonaron_ciclo = mcmc(abandonaron_ciclo)
+        prediccion_aprobados_ciclo = mcmc(aprobados_ciclo)
+        prediccion_aplazadores_ciclo = mcmc(aplazadores_ciclo)
+        prediccion_desertores_ciclo = mcmc(desertores_ciclo)
+
+        # Generar nuevos periodos para ciclo
+        ultimos_periodo_ciclo = periodos_ciclo[-1]
+        num_ultimo_periodo_ciclo = int(ultimos_periodo_ciclo.split('-')[1])
+        nuevos_periodos_ciclo = [f"Periodo-{num_ultimo_periodo_ciclo + i}" for i in range(1, 13)]
+    else:
+        periodos_ciclo = []
+        matriculados_ciclo = []
+        reprobados_ciclo = []
+        abandonaron_ciclo = []
+        aprobados_ciclo = []
+        aplazadores_ciclo = []
+        desertores_ciclo = []
+        nuevos_periodos_ciclo = []
+        prediccion_matriculados_ciclo = []
+        prediccion_reprobados_ciclo = []
+        prediccion_abandonaron_ciclo = []
+        prediccion_aprobados_ciclo = []
+        prediccion_aplazadores_ciclo = []
+        prediccion_desertores_ciclo = []
+
+    # Obtener datos históricos por período académico
+    historicos_periodo = Historico_Periodo.objects.all().order_by('periodo_academico__fecha_inicio')
+
+    if historicos_periodo.exists():
+        periodos_periodo = [h.periodo_academico.codigo_periodo for h in historicos_periodo]
+        matriculados_periodo = [h.matriculados for h in historicos_periodo]
+        reprobados_periodo = [h.reprobados for h in historicos_periodo]
+        abandonaron_periodo = [h.abandonaron for h in historicos_periodo]
+        aprobados_periodo = [h.aprobados for h in historicos_periodo]
+        aplazadores_periodo = [h.aplazadores for h in historicos_periodo]
+        desertores_periodo = [h.desertores for h in historicos_periodo]
+
+        # Realizar predicciones por período académico
+        prediccion_matriculados_periodo = mcmc(matriculados_periodo)
+        prediccion_reprobados_periodo = mcmc(reprobados_periodo)
+        prediccion_abandonaron_periodo = mcmc(abandonaron_periodo)
+        prediccion_aprobados_periodo = mcmc(aprobados_periodo)
+        prediccion_aplazadores_periodo = mcmc(aplazadores_periodo)
+        prediccion_desertores_periodo = mcmc(desertores_periodo)
+
+        # Generar nuevos periodos para período académico
+        ultimos_periodo_periodo = periodos_periodo[-1]
+        num_ultimo_periodo_periodo = int(ultimos_periodo_periodo.split('-')[1])
+        nuevos_periodos_periodo = [f"Periodo-{num_ultimo_periodo_periodo + i}" for i in range(1, 13)]
+    else:
+        periodos_periodo = []
+        matriculados_periodo = []
+        reprobados_periodo = []
+        abandonaron_periodo = []
+        aprobados_periodo = []
+        aplazadores_periodo = []
+        desertores_periodo = []
+        nuevos_periodos_periodo = []
+        prediccion_matriculados_periodo = []
+        prediccion_reprobados_periodo = []
+        prediccion_abandonaron_periodo = []
+        prediccion_aprobados_periodo = []
+        prediccion_aplazadores_periodo = []
+        prediccion_desertores_periodo = []
 
     context = {
-        'periodos': periodos,
-        'matriculados': matriculados,
-        'reprobados': reprobados,
-        'abandonaron': abandonaron,
-        'aprobados': aprobados,
-        'aplazadores': aplazadores,
-        'desertores': desertores,
-        'nuevos_periodos': nuevos_periodos,
-        'prediccion_matriculados': prediccion_matriculados,
-        'prediccion_reprobados': prediccion_reprobados,
-        'prediccion_abandonaron': prediccion_abandonaron,
-        'prediccion_aprobados': prediccion_aprobados,
-        'prediccion_aplazadores': prediccion_aplazadores,
-        'prediccion_desertores': prediccion_desertores,
+        'ciclos': ciclos,
+        'ciclo_seleccionado': ciclo_seleccionado,
+        'periodos_ciclo': periodos_ciclo,
+        'matriculados_ciclo': matriculados_ciclo,
+        'reprobados_ciclo': reprobados_ciclo,
+        'abandonaron_ciclo': abandonaron_ciclo,
+        'aprobados_ciclo': aprobados_ciclo,
+        'aplazadores_ciclo': aplazadores_ciclo,
+        'desertores_ciclo': desertores_ciclo,
+        'nuevos_periodos_ciclo': nuevos_periodos_ciclo,
+        'prediccion_matriculados_ciclo': prediccion_matriculados_ciclo,
+        'prediccion_reprobados_ciclo': prediccion_reprobados_ciclo,
+        'prediccion_abandonaron_ciclo': prediccion_abandonaron_ciclo,
+        'prediccion_aprobados_ciclo': prediccion_aprobados_ciclo,
+        'prediccion_aplazadores_ciclo': prediccion_aplazadores_ciclo,
+        'prediccion_desertores_ciclo': prediccion_desertores_ciclo,
+        'periodos_periodo': periodos_periodo,
+        'matriculados_periodo': matriculados_periodo,
+        'reprobados_periodo': reprobados_periodo,
+        'abandonaron_periodo': abandonaron_periodo,
+        'aprobados_periodo': aprobados_periodo,
+        'aplazadores_periodo': aplazadores_periodo,
+        'desertores_periodo': desertores_periodo,
+        'nuevos_periodos_periodo': nuevos_periodos_periodo,
+        'prediccion_matriculados_periodo': prediccion_matriculados_periodo,
+        'prediccion_reprobados_periodo': prediccion_reprobados_periodo,
+        'prediccion_abandonaron_periodo': prediccion_abandonaron_periodo,
+        'prediccion_aprobados_periodo': prediccion_aprobados_periodo,
+        'prediccion_aplazadores_periodo': prediccion_aplazadores_periodo,
+        'prediccion_desertores_periodo': prediccion_desertores_periodo,
     }
 
     return render(request, 'prediccion.html', context)
+
+
+

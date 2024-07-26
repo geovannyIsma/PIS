@@ -85,8 +85,8 @@ class Historico_Periodo(models.Model):
                                           verbose_name="Periodo Académico")
 
     class Meta:
-        verbose_name = "Histórico"
-        verbose_name_plural = "Históricos"
+        verbose_name = "Histórico de Periodo"
+        verbose_name_plural = "Históricos de Periodos"
 
     def __str__(self):
         return f"{self.periodo_academico} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"
