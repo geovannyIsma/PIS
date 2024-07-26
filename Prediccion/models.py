@@ -75,11 +75,11 @@ class PeriodoAcademico(models.Model):
 
 
 class Historico_Periodo(models.Model):
-    matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados")
-    reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")
-    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron")
-    aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
-    aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
+    matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados", default=0)
+    reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados", default=0)
+    abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron", default=0)
+    aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados", default=0)
+    aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores", default=0)
     desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
     periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
                                           verbose_name="Periodo Académico")

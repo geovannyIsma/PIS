@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, CustomUser
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, CustomUser, Historico_Periodo
 
 
 class MallaCurricularForm(forms.ModelForm):
@@ -87,3 +87,17 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = CustomUser
         fields = ('username', 'first_name', 'last_name', 'email', 'role', 'is_active')
+
+
+class HistoricoPeriodoForm(forms.ModelForm):
+    class Meta:
+        model = Historico_Periodo
+        fields = ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores']
+        widgets = {
+            'matriculados': forms.NumberInput(attrs={'class': 'form-control'}),
+            'reprobados': forms.NumberInput(attrs={'class': 'form-control'}),
+            'abandonaron': forms.NumberInput(attrs={'class': 'form-control'}),
+            'aprobados': forms.NumberInput(attrs={'class': 'form-control'}),
+            'aplazadores': forms.NumberInput(attrs={'class': 'form-control'}),
+            'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
+        }

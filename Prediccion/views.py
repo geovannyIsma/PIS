@@ -18,8 +18,9 @@ from django.views.decorators.http import require_http_methods
 
 from Prediccion.decorators import admin_required
 from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
-    CustomUserChangeForm
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
+    CustomUserChangeForm, HistoricoPeriodoForm
+from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser, \
+    Historico_Periodo
 
 
 def index(request):
@@ -296,6 +297,8 @@ def procesar_excel(request):
 def importar_datos_periodo_historico(request):
     if request.method == 'POST':
         form = ExcelUploadForm(request.POST, request.FILES)
+        historico_periodo_form = HistoricoPeriodoForm(request.POST)
+
         if form.is_valid():
             malla = form.cleaned_data['malla']
             archivo_excel = request.FILES['archivo_excel']
@@ -349,6 +352,11 @@ def importar_datos_periodo_historico(request):
 
                 Historico.objects.bulk_create(historicos)
 
+                if historico_periodo_form.is_valid():
+                    historico_periodo = historico_periodo_form.save(commit=False)
+                    historico_periodo.periodo_academico = periodo
+                    historico_periodo.save()
+
                 return JsonResponse({'success': True, 'message': 'Datos importados exitosamente.'})
             except Exception as e:
                 return JsonResponse({'success': False, 'message': f'Error al procesar el archivo: {e}'})
@@ -358,9 +366,11 @@ def importar_datos_periodo_historico(request):
             return JsonResponse({'success': False, 'message': 'Formulario no válido.'})
     else:
         form = ExcelUploadForm()
+        historico_periodo_form = HistoricoPeriodoForm()
 
     mallas = MallaCurricular.objects.all()
-    return render(request, 'import_data.html', {'form': form, 'mallas': mallas})
+    return render(request, 'import_data.html',
+                  {'form': form, 'historico_periodo_form': historico_periodo_form, 'mallas': mallas})
 
 
 @admin_required
@@ -378,10 +388,15 @@ def administracion_periodo(request):
 @login_required
 def editar_datos_periodo_historico(request, periodo_id):
     periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
+    historico_periodo = get_object_or_404(Historico_Periodo, periodo_academico=periodo)
+
     if request.method == 'POST':
         periodo_form = PeriodoForm(request.POST, instance=periodo)
-        if periodo_form.is_valid():
+        historico_periodo_form = HistoricoPeriodoForm(request.POST, instance=historico_periodo)
+
+        if periodo_form.is_valid() and historico_periodo_form.is_valid():
             periodo_form.save()
+            historico_periodo_form.save()
 
             historicos = []
             for historico in periodo.historico_set.all():
@@ -396,27 +411,25 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse(
-                        {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
+                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
             Historico.objects.bulk_update(historicos,
-                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
-                                           'desertores'])
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
             return JsonResponse({'success': False, 'message': 'Formulario no válido.'})
-
     else:
-        # Formatea las fechas al formato requerido 'yyyy-MM-dd'
         periodo.fecha_inicio = periodo.fecha_inicio.strftime('%Y-%m-%d')
         periodo.fecha_fin = periodo.fecha_fin.strftime('%Y-%m-%d')
         periodo_form = PeriodoForm(instance=periodo)
+        historico_periodo_form = HistoricoPeriodoForm(instance=historico_periodo)
 
     historicos = periodo.historico_set.all()
     context = {
         'periodo': periodo,
         'periodo_form': periodo_form,
+        'historico_periodo_form': historico_periodo_form,
         'historicos': historicos
     }
     return render(request, 'editar_periodo.html', context)

@@ -1,3 +1,4 @@
+<!-- import_data.html -->
 {% extends "base.html" %}
 {% load static %}
 {% block title %}Nuevo Registro{% endblock %}
@@ -32,7 +33,7 @@
 </nav>
 
 <div class="container mt-5">
-    <h2>Nuevo Registro de Periodo Acedemico</h2>
+    <h2>Nuevo Registro de Periodo Académico</h2>
     <form id="registro-form" method="post" enctype="multipart/form-data" action="{% url 'importar_datos' %}">
         {% csrf_token %}
         <input type="hidden" id="malla_id_hidden" name="malla_id">
@@ -60,8 +61,6 @@
             <input type="date" class="form-control" id="fecha_fin" name="fecha_fin" readonly>
         </div>
 
-
-        <input type="hidden" id="periodo_academico" name="periodo_academico">
         <table class="table">
             <thead>
                 <tr>
@@ -78,6 +77,10 @@
                 <!-- Los datos del historico se agregarán aquí dinámicamente -->
             </tbody>
         </table>
+
+        <h3>Crear Histórico Periodo</h3>
+        {{ historico_periodo_form.as_p }}
+
         <button type="submit" class="btn btn-success">Registrar</button>
         <a href="{% url 'administracion_periodo' %}" class="btn btn-danger">Cancelar</a>
     </form>
@@ -220,6 +223,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
-
 </script>
 {% endblock %}

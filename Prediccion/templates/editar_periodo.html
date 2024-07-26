@@ -5,9 +5,6 @@
     Editar Periodo
 {% endblock %}
 
-{% block extra_css %}
-{% endblock %}
-
 {% block content %}
 <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -39,6 +36,15 @@
                         {{ periodo_form.fecha_fin }}
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Editar Histórico Periodo
+            </div>
+            <div class="card-body">
+                {{ historico_periodo_form.as_p }}
             </div>
         </div>
 

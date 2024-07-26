@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser
+from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser, Historico_Periodo
 
 
 # Register your models here.
@@ -45,9 +45,17 @@ class CustomUserAdmin(admin.ModelAdmin):
     ordering = ('id',)
 
 
+class HistoricoPeriodoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
+    ordering = ('id',)
+
+
 admin.site.register(MallaCurricular, MallaCurricularAdmin)
 admin.site.register(Ciclo, CicloAdmin)
 admin.site.register(Asignatura, AsignaturaAdmin)
 admin.site.register(PeriodoAcademico, PeriodoAcademicoAdmin)
 admin.site.register(Historico, HistoricoAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(Historico_Periodo, HistoricoPeriodoAdmin)
