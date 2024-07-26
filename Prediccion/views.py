@@ -501,34 +501,22 @@ def dashboard_view(request):
         total_desertores=Sum('desertores')
     )
 
-    labels = ["Matriculados", "Reprobados", "Abandonaron", "Aprobados", "Aplazadores", "Desertores"]
-    desertores = [
-        historico_data['total_desertores'] or 0,
-        historico_data['total_reprobados'] or 0,
-        historico_data['total_abandonaron'] or 0,
-        historico_data['total_aprobados'] or 0,
-        historico_data['total_aplazadores'] or 0,
-        historico_data['total_matriculados'] or 0,
-    ]
-    matriculados = [
-        historico_data['total_matriculados'] or 0,
-        historico_data['total_reprobados'] or 0,
-        historico_data['total_abandonaron'] or 0,
-        historico_data['total_aprobados'] or 0,
-        historico_data['total_aplazadores'] or 0,
-        historico_data['total_desertores'] or 0,
-    ]
+    # Obtener datos históricos por periodo
+    historicos = Historico.objects.order_by('periodo_academico__codigo_periodo')
+    periodos = historicos.values_list('periodo_academico__codigo_periodo', flat=True).distinct()
+    matriculados = historicos.values_list('matriculados', flat=True)
+    desertores = historicos.values_list('desertores', flat=True)
 
     context = {
-        'labels': labels,
-        'desertores': desertores,
-        'matriculados': matriculados,
         'total_matriculados': historico_data['total_matriculados'] or 0,
         'total_reprobados': historico_data['total_reprobados'] or 0,
         'total_abandonaron': historico_data['total_abandonaron'] or 0,
         'total_aprobados': historico_data['total_aprobados'] or 0,
         'total_aplazadores': historico_data['total_aplazadores'] or 0,
         'total_desertores': historico_data['total_desertores'] or 0,
+        'periodos': list(periodos),
+        'matriculados': list(matriculados),
+        'desertores': list(desertores),
     }
 
     return render(request, 'home.html', context)

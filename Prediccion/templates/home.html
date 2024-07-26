@@ -45,57 +45,98 @@
             background-color: #795548;
             color: white;
         }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
+    <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item active" aria-current="page">Inicio</li>
+        </ol>
+    </nav>
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-matriculados">
                     <div class="card-body">
-                        <h5 class="card-title">Matriculados</h5>
-                        <p class="card-text">{{ total_matriculados }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-graduate card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Matriculados</h5>
+                                <p class="card-text">{{ total_matriculados }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-reprobados">
                     <div class="card-body">
-                        <h5 class="card-title">Reprobados</h5>
-                        <p class="card-text">{{ total_reprobados }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-times card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Reprobados</h5>
+                                <p class="card-text">{{ total_reprobados }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-abandonaron">
                     <div class="card-body">
-                        <h5 class="card-title">Abandonaron</h5>
-                        <p class="card-text">{{ total_abandonaron }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-slash card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Abandonaron</h5>
+                                <p class="card-text">{{ total_abandonaron }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-aprobados">
                     <div class="card-body">
-                        <h5 class="card-title">Aprobados</h5>
-                        <p class="card-text">{{ total_aprobados }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-check card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Aprobados</h5>
+                                <p class="card-text">{{ total_aprobados }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-aplazadores">
                     <div class="card-body">
-                        <h5 class="card-title">Aplazadores</h5>
-                        <p class="card-text">{{ total_aplazadores }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-clock card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Aplazadores</h5>
+                                <p class="card-text">{{ total_aplazadores }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-desertores">
                     <div class="card-body">
-                        <h5 class="card-title">Desertores</h5>
-                        <p class="card-text">{{ total_desertores }}</p>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-alt-slash card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Desertores</h5>
+                                <p class="card-text">{{ total_desertores }}</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -131,18 +172,23 @@
 {% endblock %}
 
 {% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script>
         var matriculadosChart = echarts.init(document.getElementById('matriculados-chart'));
         var dataDistributionChart = echarts.init(document.getElementById('data-distribution-chart'));
         var desertoresChart = echarts.init(document.getElementById('desertores-chart'));
 
+        var periodos = {{ periodos|safe }};
+        var matriculados = {{ matriculados|safe }};
+        var desertores = {{ desertores|safe }};
+
         var matriculadosOption = {
-            title: { text: 'Matriculados' },
+            title: { text: 'Matriculados por Periodo' },
             tooltip: {},
-            xAxis: { data: ["2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"] },
+            xAxis: { data: periodos },
             yAxis: {},
-            series: [{ name: 'Matriculados', type: 'bar', data: [120, 132, 101, 134, 90, 230, 210, 180, 190] }]
+            series: [{ name: 'Matriculados', type: 'bar', data: matriculados }]
         };
 
         var dataDistributionOption = {
@@ -164,11 +210,11 @@
         };
 
         var desertoresOption = {
-            title: { text: 'Desertores' },
+            title: { text: 'Desertores por Periodo' },
             tooltip: {},
-            xAxis: { data: ["2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"] },
+            xAxis: { data: periodos },
             yAxis: {},
-            series: [{ name: 'Desertores', type: 'line', data: [5, 20, 36, 10, 10, 20, 15, 10, 30] }]
+            series: [{ name: 'Desertores', type: 'line', data: desertores }]
         };
 
         matriculadosChart.setOption(matriculadosOption);
