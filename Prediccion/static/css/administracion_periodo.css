@@ -1,0 +1,96 @@
+.centered {
+    text-align: center;
+}
+
+.align-middle {
+    vertical-align: middle !important;
+}
+/* administracion_malla.css */
+
+/* Estilo para la cabecera de la tabla */
+#datatable-mallas thead {
+    background-color: #343a40;
+    color: #fff;
+}
+
+/* Estilo para las filas impares */
+#datatable-mallas tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Estilo para las filas pares */
+#datatable-mallas tbody tr:nth-of-type(even) {
+    background-color: #e9ecef;
+}
+
+/* Efecto hover para las filas */
+#datatable-mallas tbody tr:hover {
+    background-color: #dee2e6;
+}
+
+/* Estilo para las celdas */
+#datatable-mallas tbody td {
+    padding: 15px;
+}
+
+/* Estilo para los botones */
+.btn-primary, .btn-danger {
+    border-radius: 20px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border: none;
+}
+
+.btn-primary:hover, .btn-danger:hover {
+    opacity: 0.8;
+}
+
+/* Estilo para el modal */
+.modal-header {
+    background-color: #343a40;
+    color: #fff;
+}
+
+.modal-footer .btn-secondary {
+    border-radius: 20px;
+}
+
+.modal-footer .btn-danger {
+    border-radius: 20px;
+    background-color: #dc3545;
+    border: none;
+}
+
+
+
+.btn-copy {
+    background-color: #007bff; /* color azul */
+    color: white;
+}
+
+.btn-csv {
+    background-color: #28a745; /* color verde */
+    color: white;
+}
+
+.btn-excel {
+    background-color: #17a2b8; /* color cian */
+    color: white;
+}
+
+.btn-pdf {
+    background-color: #dc3545; /* color rojo */
+    color: white;
+}
+
+.btn-print {
+    background-color: #ffc107; /* color amarillo */
+    color: black;
+}

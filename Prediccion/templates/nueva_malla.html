@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Nueva Malla
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .modal-header .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'administracion_malla' %}">Administración de Mallas</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nueva Malla</li>
+        </ol>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center">Nueva Malla Curricular</h1>
+        <form id="mallaForm" method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+
+            <!-- Card for Malla Curricular Fields -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    Datos de la Malla
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ malla_form.codigo.errors }}
+                            <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
+                            {{ malla_form.codigo }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ malla_form.nombre_malla.errors }}
+                            <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
+                            {{ malla_form.nombre_malla }}
+                        </div>
+                    </div>
+
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            {{ malla_form.tituloOtorgado.errors }}
+                            <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
+                            {{ malla_form.tituloOtorgado }}
+                        </div>
+                        <div class="col-md-6">
+                            <!-- Número de ciclos -->
+                            <label for="num_cycles">Número de ciclos:</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos de la malla curricular" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
+                                <div class="invalid-feedback">
+                                    Por favor, ingresa un número válido de ciclos.
+                                </div>
+                                <div class="valid-feedback">
+                                    Número de ciclos válido.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card for Ciclos and Asignaturas -->
+            <div class="card">
+                <div class="card-header">
+                    Ciclos y Asignaturas
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs" id="cycleTabs" role="tablist"></ul>
+                    <div class="tab-content" id="cycleTabsContent"></div>
+                </div>
+            </div>
+
+            <!-- Botón de guardar -->
+            <button type="submit" id="guardar_button" class="btn btn-success mt-3">Guardar Malla</button>
+            <!-- Botón de cancelar -->
+            <a href="{% url 'administracion_malla' %}" class="btn btn-danger mt-3">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="{% static 'js/dynamic_form.js' %}"></script>
+{% endblock %}

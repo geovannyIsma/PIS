@@ -1,0 +1,449 @@
+{% extends 'base.html' %}
+
+{% block title %} Predicciones de Datos Históricos {% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        #downloadButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Predicciones de Datos Históricos</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="pt-4">Predicción por Ciclo</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="get" id="cicloForm">
+                            <label for="ciclo">Seleccionar Ciclo:</label>
+                            <select name="ciclo" id="ciclo" onchange="document.getElementById('cicloForm').submit()">
+                                {% for ciclo in ciclos %}
+                                    <option value="{{ ciclo.id }}" {% if ciclo.id == ciclo_seleccionado.id %}selected{% endif %}>{{ ciclo.nombre_ciclo }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                        <div id="main_ciclo" style="width: 100%; height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="pt-4">Opciones de Personalización - Ciclo</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="customizationFormCiclo">
+                            <div class="form-group">
+                                <label for="matriculadosColorCiclo">Color de Matriculados:</label>
+                                <input type="color" id="matriculadosColorCiclo" name="matriculadosColor" class="form-control" value="#5470C6">
+                            </div>
+                            <div class="form-group">
+                                <label for="reprobadosColorCiclo">Color de Reprobados:</label>
+                                <input type="color" id="reprobadosColorCiclo" name="reprobadosColor" class="form-control" value="#91CC75">
+                            </div>
+                            <div class="form-group">
+                                <label for="abandonaronColorCiclo">Color de Abandonaron:</label>
+                                <input type="color" id="abandonaronColorCiclo" name="abandonaronColor" class="form-control" value="#EE6666">
+                            </div>
+                            <div class="form-group">
+                                <label for="aprobadosColorCiclo">Color de Aprobados:</label>
+                                <input type="color" id="aprobadosColorCiclo" name="aprobadosColor" class="form-control" value="#73C0DE">
+                            </div>
+                            <div class="form-group">
+                                <label for="aplazadoresColorCiclo">Color de Aplazadores:</label>
+                                <input type="color" id="aplazadoresColorCiclo" name="aplazadoresColor" class="form-control" value="#FAC858">
+                            </div>
+                            <div class="form-group">
+                                <label for="desertoresColorCiclo">Color de Desertores:</label>
+                                <input type="color" id="desertoresColorCiclo" name="desertoresColor" class="form-control" value="#8B4E8B">
+                            </div>
+                            <div class="form-group">
+                                <label for="lineWidthCiclo">Ancho de las Líneas:</label>
+                                <input type="number" id="lineWidthCiclo" name="lineWidth" class="form-control" value="2" min="1" max="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="chartHeightCiclo">Altura de la Gráfica:</label>
+                                <input type="number" id="chartHeightCiclo" name="chartHeight" class="form-control" value="600" min="300" max="1000">
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="applyCustomizationCiclo()">Aplicar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="pt-4">Predicción por Período Académico</h2>
+                    </div>
+                    <div class="card-body">
+                        <div id="main_periodo" style="width: 100%; height: 600px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="pt-4">Opciones de Personalización - Período Académico</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="customizationFormPeriodo">
+                            <div class="form-group">
+                                <label for="matriculadosColorPeriodo">Color de Matriculados:</label>
+                                <input type="color" id="matriculadosColorPeriodo" name="matriculadosColor" class="form-control" value="#5470C6">
+                            </div>
+                            <div class="form-group">
+                                <label for="reprobadosColorPeriodo">Color de Reprobados:</label>
+                                <input type="color" id="reprobadosColorPeriodo" name="reprobadosColor" class="form-control" value="#91CC75">
+                            </div>
+                            <div class="form-group">
+                                <label for="abandonaronColorPeriodo">Color de Abandonaron:</label>
+                                <input type="color" id="abandonaronColorPeriodo" name="abandonaronColor" class="form-control" value="#EE6666">
+                            </div>
+                            <div class="form-group">
+                                <label for="aprobadosColorPeriodo">Color de Aprobados:</label>
+                                <input type="color" id="aprobadosColorPeriodo" name="aprobadosColor" class="form-control" value="#73C0DE">
+                            </div>
+                            <div class="form-group">
+                                <label for="aplazadoresColorPeriodo">Color de Aplazadores:</label>
+                                <input type="color" id="aplazadoresColorPeriodo" name="aplazadoresColor" class="form-control" value="#FAC858">
+                            </div>
+                            <div class="form-group">
+                                <label for="desertoresColorPeriodo">Color de Desertores:</label>
+                                <input type="color" id="desertoresColorPeriodo" name="desertoresColor" class="form-control" value="#8B4E8B">
+                            </div>
+                            <div class="form-group">
+                                <label for="lineWidthPeriodo">Ancho de las Líneas:</label>
+                                <input type="number" id="lineWidthPeriodo" name="lineWidth" class="form-control" value="2" min="1" max="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="chartHeightPeriodo">Altura de la Gráfica:</label>
+                                <input type="number" id="chartHeightPeriodo" name="chartHeight" class="form-control" value="600" min="300" max="1000">
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="applyCustomizationPeriodo()">Aplicar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="downloadButton" class="btn btn-dark mb-3">
+        <i class="fas fa-download"></i> Descargar Gráfica
+    </button>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+        var periodos_ciclo = {{ periodos_ciclo|safe }};
+        var matriculados_ciclo = {{ matriculados_ciclo|safe }};
+        var reprobados_ciclo = {{ reprobados_ciclo|safe }};
+        var abandonaron_ciclo = {{ abandonaron_ciclo|safe }};
+        var aprobados_ciclo = {{ aprobados_ciclo|safe }};
+        var aplazadores_ciclo = {{ aplazadores_ciclo|safe }};
+        var desertores_ciclo = {{ desertores_ciclo|safe }};
+        var nuevos_periodos_ciclo = {{ nuevos_periodos_ciclo|safe }};
+
+        var prediccion_matriculados_ciclo = {{ prediccion_matriculados_ciclo|safe }};
+        var prediccion_reprobados_ciclo = {{ prediccion_reprobados_ciclo|safe }};
+        var prediccion_abandonaron_ciclo = {{ prediccion_abandonaron_ciclo|safe }};
+        var prediccion_aprobados_ciclo = {{ prediccion_aprobados_ciclo|safe }};
+        var prediccion_aplazadores_ciclo = {{ prediccion_aplazadores_ciclo|safe }};
+        var prediccion_desertores_ciclo = {{ prediccion_desertores_ciclo|safe }};
+
+        var periodos_periodo = {{ periodos_periodo|safe }};
+        var matriculados_periodo = {{ matriculados_periodo|safe }};
+        var reprobados_periodo = {{ reprobados_periodo|safe }};
+        var abandonaron_periodo = {{ abandonaron_periodo|safe }};
+        var aprobados_periodo = {{ aprobados_periodo|safe }};
+        var aplazadores_periodo = {{ aplazadores_periodo|safe }};
+        var desertores_periodo = {{ desertores_periodo|safe }};
+        var nuevos_periodos_periodo = {{ nuevos_periodos_periodo|safe }};
+
+        var prediccion_matriculados_periodo = {{ prediccion_matriculados_periodo|safe }};
+        var prediccion_reprobados_periodo = {{ prediccion_reprobados_periodo|safe }};
+        var prediccion_abandonaron_periodo = {{ prediccion_abandonaron_periodo|safe }};
+        var prediccion_aprobados_periodo = {{ prediccion_aprobados_periodo|safe }};
+        var prediccion_aplazadores_periodo = {{ prediccion_aplazadores_periodo|safe }};
+        var prediccion_desertores_periodo = {{ prediccion_desertores_periodo|safe }};
+
+        var defaultLineWidth = 2;
+        var defaultChartHeight = 600;
+
+        var option_ciclo = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
+            },
+            xAxis: {
+                type: 'category',
+                name: 'Periodo',
+                data: periodos_ciclo.concat(nuevos_periodos_ciclo)
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Valores'
+            },
+            series: [
+                {
+                    name: 'Matriculados',
+                    type: 'line',
+                    data: matriculados_ciclo.concat(prediccion_matriculados_ciclo),
+                    itemStyle: {
+                        color: '#5470C6'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Reprobados',
+                    type: 'line',
+                    data: reprobados_ciclo.concat(prediccion_reprobados_ciclo),
+                    itemStyle: {
+                        color: '#91CC75'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Abandonaron',
+                    type: 'line',
+                    data: abandonaron_ciclo.concat(prediccion_abandonaron_ciclo),
+                    itemStyle: {
+                        color: '#EE6666'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Aprobados',
+                    type: 'line',
+                    data: aprobados_ciclo.concat(prediccion_aprobados_ciclo),
+                    itemStyle: {
+                        color: '#73C0DE'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Aplazadores',
+                    type: 'line',
+                    data: aplazadores_ciclo.concat(prediccion_aplazadores_ciclo),
+                    itemStyle: {
+                        color: '#FAC858'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Desertores',
+                    type: 'line',
+                    data: desertores_ciclo.concat(prediccion_desertores_ciclo),
+                    itemStyle: {
+                        color: '#8B4E8B'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                }
+            ]
+        };
+
+        var option_periodo = {
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
+            },
+            xAxis: {
+                type: 'category',
+                name: 'Periodo',
+                data: periodos_periodo.concat(nuevos_periodos_periodo)
+            },
+            yAxis: {
+                type: 'value',
+                name: 'Valores'
+            },
+            series: [
+                {
+                    name: 'Matriculados',
+                    type: 'line',
+                    data: matriculados_periodo.concat(prediccion_matriculados_periodo),
+                    itemStyle: {
+                        color: '#5470C6'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Reprobados',
+                    type: 'line',
+                    data: reprobados_periodo.concat(prediccion_reprobados_periodo),
+                    itemStyle: {
+                        color: '#91CC75'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Abandonaron',
+                    type: 'line',
+                    data: abandonaron_periodo.concat(prediccion_abandonaron_periodo),
+                    itemStyle: {
+                        color: '#EE6666'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Aprobados',
+                    type: 'line',
+                    data: aprobados_periodo.concat(prediccion_aprobados_periodo),
+                    itemStyle: {
+                        color: '#73C0DE'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Aplazadores',
+                    type: 'line',
+                    data: aplazadores_periodo.concat(prediccion_aplazadores_periodo),
+                    itemStyle: {
+                        color: '#FAC858'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                },
+                {
+                    name: 'Desertores',
+                    type: 'line',
+                    data: desertores_periodo.concat(prediccion_desertores_periodo),
+                    itemStyle: {
+                        color: '#8B4E8B'
+                    },
+                    lineStyle: {
+                        width: defaultLineWidth
+                    }
+                }
+            ]
+        };
+
+        var chart_ciclo = echarts.init(document.getElementById('main_ciclo'));
+        chart_ciclo.setOption(option_ciclo);
+
+        var chart_periodo = echarts.init(document.getElementById('main_periodo'));
+        chart_periodo.setOption(option_periodo);
+
+        function applyCustomizationCiclo() {
+            var lineColors = {
+                matriculados: document.getElementById('matriculadosColorCiclo').value || '#5470C6',
+                reprobados: document.getElementById('reprobadosColorCiclo').value || '#91CC75',
+                abandonaron: document.getElementById('abandonaronColorCiclo').value || '#EE6666',
+                aprobados: document.getElementById('aprobadosColorCiclo').value || '#73C0DE',
+                aplazadores: document.getElementById('aplazadoresColorCiclo').value || '#FAC858',
+                desertores: document.getElementById('desertoresColorCiclo').value || '#8B4E8B'
+            };
+            var lineWidth = document.getElementById('lineWidthCiclo').value || defaultLineWidth;
+            var chartHeight = document.getElementById('chartHeightCiclo').value || defaultChartHeight;
+
+            option_ciclo.series[0].itemStyle.color = lineColors.matriculados;
+            option_ciclo.series[1].itemStyle.color = lineColors.reprobados;
+            option_ciclo.series[2].itemStyle.color = lineColors.abandonaron;
+            option_ciclo.series[3].itemStyle.color = lineColors.aprobados;
+            option_ciclo.series[4].itemStyle.color = lineColors.aplazadores;
+            option_ciclo.series[5].itemStyle.color = lineColors.desertores;
+            option_ciclo.series.forEach(function(series) {
+                series.lineStyle.width = parseInt(lineWidth);
+            });
+
+            chart_ciclo.setOption(option_ciclo);
+
+            document.getElementById('main_ciclo').style.height = chartHeight + 'px';
+            chart_ciclo.resize();
+        }
+
+        function applyCustomizationPeriodo() {
+            var lineColors = {
+                matriculados: document.getElementById('matriculadosColorPeriodo').value || '#5470C6',
+                reprobados: document.getElementById('reprobadosColorPeriodo').value || '#91CC75',
+                abandonaron: document.getElementById('abandonaronColorPeriodo').value || '#EE6666',
+                aprobados: document.getElementById('aprobadosColorPeriodo').value || '#73C0DE',
+                aplazadores: document.getElementById('aplazadoresColorPeriodo').value || '#FAC858',
+                desertores: document.getElementById('desertoresColorPeriodo').value || '#8B4E8B'
+            };
+            var lineWidth = document.getElementById('lineWidthPeriodo').value || defaultLineWidth;
+            var chartHeight = document.getElementById('chartHeightPeriodo').value || defaultChartHeight;
+
+            option_periodo.series[0].itemStyle.color = lineColors.matriculados;
+            option_periodo.series[1].itemStyle.color = lineColors.reprobados;
+            option_periodo.series[2].itemStyle.color = lineColors.abandonaron;
+            option_periodo.series[3].itemStyle.color = lineColors.aprobados;
+            option_periodo.series[4].itemStyle.color = lineColors.aplazadores;
+            option_periodo.series[5].itemStyle.color = lineColors.desertores;
+            option_periodo.series.forEach(function(series) {
+                series.lineStyle.width = parseInt(lineWidth);
+            });
+
+            chart_periodo.setOption(option_periodo);
+
+            document.getElementById('main_periodo').style.height = chartHeight + 'px';
+            chart_periodo.resize();
+        }
+
+        document.getElementById('downloadButton').addEventListener('click', function () {
+            var url_ciclo = chart_ciclo.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            var url_periodo = chart_periodo.getDataURL({
+                type: 'png',
+                pixelRatio: 2,
+                backgroundColor: '#fff'
+            });
+            var link_ciclo = document.createElement('a');
+            link_ciclo.href = url_ciclo;
+            link_ciclo.download = 'predicciones_datos_historicos_ciclo.png';
+            link_ciclo.click();
+
+            var link_periodo = document.createElement('a');
+            link_periodo.href = url_periodo;
+            link_periodo.download = 'predicciones_datos_historicos_periodo.png';
+            link_periodo.click();
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Editar Malla
+{% endblock %}
+
+{% block content %}
+<nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'administracion_malla' %}">Administración de Mallas</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Malla</li>
+    </ol>
+</nav>
+
+<div class="container">
+    <h1 class="text-center">Editar Malla Curricular</h1>
+    <form id="mallaForm" method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Datos de la Malla
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ malla_form.codigo.id_for_label }}">Código:</label>
+                            {{ malla_form.codigo }}
+                            {% if malla_form.codigo.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.codigo.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ malla_form.nombre_malla.id_for_label }}">Nombre de la Malla:</label>
+                            {{ malla_form.nombre_malla }}
+                            {% if malla_form.nombre_malla.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.nombre_malla.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="{{ malla_form.tituloOtorgado.id_for_label }}">Título Otorgado:</label>
+                            {{ malla_form.tituloOtorgado }}
+                            {% if malla_form.tituloOtorgado.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ malla_form.tituloOtorgado.errors }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Ciclos y Asignaturas
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="cycleTabs" role="tablist">
+                    {% for ciclo in ciclos_data %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if forloop.first %}active{% endif %}" id="ciclo-tab-{{ ciclo.id }}" data-toggle="tab" href="#ciclo-{{ ciclo.id }}" role="tab" aria-controls="ciclo-{{ ciclo.id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">{{ ciclo.nombre_ciclo }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <div class="tab-content" id="cycleTabsContent">
+                    {% for ciclo in ciclos_data %}
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="ciclo-{{ ciclo.id }}" role="tabpanel" aria-labelledby="ciclo-tab-{{ ciclo.id }}">
+                            <div class="form-group mt-3">
+                                <label for="nombre_ciclo_{{ ciclo.id }}">Nombre del Ciclo:</label>
+                                <input type="text" class="form-control" id="nombre_ciclo_{{ ciclo.id }}" name="nombre_ciclo_{{ ciclo.id }}" value="{{ ciclo.nombre_ciclo }}" required>
+                            </div>
+                            <h5 class="mt-4">Asignaturas</h5>
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Código</th>
+                                            <th>Nombre</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for subject in ciclo.subjects %}
+                                            <tr>
+                                                <td>
+                                                    <input type="text" class="form-control" id="codigo_asignatura_{{ subject.id }}" name="codigo_asignatura_{{ subject.id }}" value="{{ subject.codigo_asignatura }}" required>
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" id="nombre_asignatura_{{ subject.id }}" name="nombre_asignatura_{{ subject.id }}" value="{{ subject.nombre_asignatura }}" required>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-success mt-3" id="updateMallaButton">Actualizar Malla</button>
+        <a href="{% url 'administracion_malla' %}" class="btn btn-danger mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#updateMallaButton').click(function() {
+            var formData = $('#mallaForm').serialize();
+            $.ajax({
+                url: "{% url 'editar_malla' malla.id %}",
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    Swal.fire({
+                        title: 'Éxito',
+                        text: 'Malla curricular actualizada exitosamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = "{% url 'administracion_malla' %}";
+                        }
+                    });
+                },
+                error: function(response) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Hubo un error al actualizar la malla curricular. Por favor, inténtelo de nuevo.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
