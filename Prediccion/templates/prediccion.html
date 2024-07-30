@@ -11,6 +11,7 @@
             right: 20px;
             z-index: 1000;
         }
+
         .card {
             margin-bottom: 20px;
         }
@@ -21,9 +22,11 @@
     <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Predicciones de Datos Históricos</li>
+            <li class="breadcrumb-item active" aria-current="page">Predicciones</li>
         </ol>
     </nav>
+
+    <h2>Predicciones en base a datos historicos de la carrera de Computación de la UNL </h2>
 
     <div class="container-fluid">
         <div class="row">
@@ -37,7 +40,8 @@
                             <label for="ciclo">Seleccionar Ciclo:</label>
                             <select name="ciclo" id="ciclo" onchange="document.getElementById('cicloForm').submit()">
                                 {% for ciclo in ciclos %}
-                                    <option value="{{ ciclo.id }}" {% if ciclo.id == ciclo_seleccionado.id %}selected{% endif %}>{{ ciclo.nombre_ciclo }}</option>
+                                    <option value="{{ ciclo.id }}"
+                                            {% if ciclo.id == ciclo_seleccionado.id %}selected{% endif %}>{{ ciclo.nombre_ciclo }}</option>
                                 {% endfor %}
                             </select>
                         </form>
@@ -54,37 +58,46 @@
                         <form id="customizationFormCiclo">
                             <div class="form-group">
                                 <label for="matriculadosColorCiclo">Color de Matriculados:</label>
-                                <input type="color" id="matriculadosColorCiclo" name="matriculadosColor" class="form-control" value="#5470C6">
+                                <input type="color" id="matriculadosColorCiclo" name="matriculadosColor"
+                                       class="form-control" value="#5470C6">
                             </div>
                             <div class="form-group">
                                 <label for="reprobadosColorCiclo">Color de Reprobados:</label>
-                                <input type="color" id="reprobadosColorCiclo" name="reprobadosColor" class="form-control" value="#91CC75">
+                                <input type="color" id="reprobadosColorCiclo" name="reprobadosColor"
+                                       class="form-control" value="#91CC75">
                             </div>
                             <div class="form-group">
                                 <label for="abandonaronColorCiclo">Color de Abandonaron:</label>
-                                <input type="color" id="abandonaronColorCiclo" name="abandonaronColor" class="form-control" value="#EE6666">
+                                <input type="color" id="abandonaronColorCiclo" name="abandonaronColor"
+                                       class="form-control" value="#EE6666">
                             </div>
                             <div class="form-group">
                                 <label for="aprobadosColorCiclo">Color de Aprobados:</label>
-                                <input type="color" id="aprobadosColorCiclo" name="aprobadosColor" class="form-control" value="#73C0DE">
+                                <input type="color" id="aprobadosColorCiclo" name="aprobadosColor" class="form-control"
+                                       value="#73C0DE">
                             </div>
                             <div class="form-group">
                                 <label for="aplazadoresColorCiclo">Color de Aplazadores:</label>
-                                <input type="color" id="aplazadoresColorCiclo" name="aplazadoresColor" class="form-control" value="#FAC858">
+                                <input type="color" id="aplazadoresColorCiclo" name="aplazadoresColor"
+                                       class="form-control" value="#FAC858">
                             </div>
                             <div class="form-group">
                                 <label for="desertoresColorCiclo">Color de Desertores:</label>
-                                <input type="color" id="desertoresColorCiclo" name="desertoresColor" class="form-control" value="#8B4E8B">
+                                <input type="color" id="desertoresColorCiclo" name="desertoresColor"
+                                       class="form-control" value="#8B4E8B">
                             </div>
                             <div class="form-group">
                                 <label for="lineWidthCiclo">Ancho de las Líneas:</label>
-                                <input type="number" id="lineWidthCiclo" name="lineWidth" class="form-control" value="2" min="1" max="10">
+                                <input type="number" id="lineWidthCiclo" name="lineWidth" class="form-control" value="2"
+                                       min="1" max="10">
                             </div>
                             <div class="form-group">
                                 <label for="chartHeightCiclo">Altura de la Gráfica:</label>
-                                <input type="number" id="chartHeightCiclo" name="chartHeight" class="form-control" value="600" min="300" max="1000">
+                                <input type="number" id="chartHeightCiclo" name="chartHeight" class="form-control"
+                                       value="600" min="300" max="1000">
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="applyCustomizationCiclo()">Aplicar</button>
+                            <button type="button" class="btn btn-primary" onclick="applyCustomizationCiclo()">Aplicar
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -110,37 +123,47 @@
                         <form id="customizationFormPeriodo">
                             <div class="form-group">
                                 <label for="matriculadosColorPeriodo">Color de Matriculados:</label>
-                                <input type="color" id="matriculadosColorPeriodo" name="matriculadosColor" class="form-control" value="#5470C6">
+                                <input type="color" id="matriculadosColorPeriodo" name="matriculadosColor"
+                                       class="form-control" value="#5470C6">
                             </div>
                             <div class="form-group">
                                 <label for="reprobadosColorPeriodo">Color de Reprobados:</label>
-                                <input type="color" id="reprobadosColorPeriodo" name="reprobadosColor" class="form-control" value="#91CC75">
+                                <input type="color" id="reprobadosColorPeriodo" name="reprobadosColor"
+                                       class="form-control" value="#91CC75">
                             </div>
                             <div class="form-group">
                                 <label for="abandonaronColorPeriodo">Color de Abandonaron:</label>
-                                <input type="color" id="abandonaronColorPeriodo" name="abandonaronColor" class="form-control" value="#EE6666">
+                                <input type="color" id="abandonaronColorPeriodo" name="abandonaronColor"
+                                       class="form-control" value="#EE6666">
                             </div>
                             <div class="form-group">
                                 <label for="aprobadosColorPeriodo">Color de Aprobados:</label>
-                                <input type="color" id="aprobadosColorPeriodo" name="aprobadosColor" class="form-control" value="#73C0DE">
+                                <input type="color" id="aprobadosColorPeriodo" name="aprobadosColor"
+                                       class="form-control" value="#73C0DE">
                             </div>
                             <div class="form-group">
                                 <label for="aplazadoresColorPeriodo">Color de Aplazadores:</label>
-                                <input type="color" id="aplazadoresColorPeriodo" name="aplazadoresColor" class="form-control" value="#FAC858">
+                                <input type="color" id="aplazadoresColorPeriodo" name="aplazadoresColor"
+                                       class="form-control" value="#FAC858">
                             </div>
                             <div class="form-group">
                                 <label for="desertoresColorPeriodo">Color de Desertores:</label>
-                                <input type="color" id="desertoresColorPeriodo" name="desertoresColor" class="form-control" value="#8B4E8B">
+                                <input type="color" id="desertoresColorPeriodo" name="desertoresColor"
+                                       class="form-control" value="#8B4E8B">
                             </div>
                             <div class="form-group">
                                 <label for="lineWidthPeriodo">Ancho de las Líneas:</label>
-                                <input type="number" id="lineWidthPeriodo" name="lineWidth" class="form-control" value="2" min="1" max="10">
+                                <input type="number" id="lineWidthPeriodo" name="lineWidth" class="form-control"
+                                       value="2" min="1" max="10">
                             </div>
                             <div class="form-group">
                                 <label for="chartHeightPeriodo">Altura de la Gráfica:</label>
-                                <input type="number" id="chartHeightPeriodo" name="chartHeight" class="form-control" value="600" min="300" max="1000">
+                                <input type="number" id="chartHeightPeriodo" name="chartHeight" class="form-control"
+                                       value="600" min="300" max="1000">
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="applyCustomizationPeriodo()">Aplicar</button>
+                            <button type="button" class="btn btn-primary" onclick="applyCustomizationPeriodo()">
+                                Aplicar
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -190,9 +213,16 @@
         var defaultLineWidth = 2;
         var defaultChartHeight = 600;
 
+        function roundValue(value) {
+            return Math.round(value * 100) / 100;
+        }
+
         var option_ciclo = {
             tooltip: {
-                trigger: 'axis'
+                trigger: 'item',
+                formatter: function (params) {
+                    return params.marker + params.seriesName + ': ' + roundValue(params.value) + '<br>';
+                }
             },
             legend: {
                 data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
@@ -204,7 +234,12 @@
             },
             yAxis: {
                 type: 'value',
-                name: 'Valores'
+                name: 'Estudiantes',
+                axisLabel: {
+                    formatter: function (value) {
+                        return roundValue(value);
+                    }
+                }
             },
             series: [
                 {
@@ -278,7 +313,10 @@
 
         var option_periodo = {
             tooltip: {
-                trigger: 'axis'
+                trigger: 'item',
+                formatter: function (params) {
+                    return params.marker + params.seriesName + ': ' + roundValue(params.value) + '<br>';
+                }
             },
             legend: {
                 data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
@@ -290,7 +328,12 @@
             },
             yAxis: {
                 type: 'value',
-                name: 'Valores'
+                name: 'Estudiantes',
+                axisLabel: {
+                    formatter: function (value) {
+                        return roundValue(value);
+                    }
+                }
             },
             series: [
                 {
@@ -386,7 +429,7 @@
             option_ciclo.series[3].itemStyle.color = lineColors.aprobados;
             option_ciclo.series[4].itemStyle.color = lineColors.aplazadores;
             option_ciclo.series[5].itemStyle.color = lineColors.desertores;
-            option_ciclo.series.forEach(function(series) {
+            option_ciclo.series.forEach(function (series) {
                 series.lineStyle.width = parseInt(lineWidth);
             });
 
@@ -414,7 +457,7 @@
             option_periodo.series[3].itemStyle.color = lineColors.aprobados;
             option_periodo.series[4].itemStyle.color = lineColors.aplazadores;
             option_periodo.series[5].itemStyle.color = lineColors.desertores;
-            option_periodo.series.forEach(function(series) {
+            option_periodo.series.forEach(function (series) {
                 series.lineStyle.width = parseInt(lineWidth);
             });
 

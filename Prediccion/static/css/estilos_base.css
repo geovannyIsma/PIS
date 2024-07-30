@@ -36,8 +36,8 @@ a {
 }
 
 #sidebar {
-    max-width: 264px;
-    min-width: 264px;
+    max-width: 277px;
+    min-width: 277px;
     position: fixed; /* Establece el sidebar como fijo */
     top: 0;
     bottom: 0;
@@ -149,4 +149,25 @@ a.sidebar-link:hover {
     height: 60px;
     border-radius: 50%;
     margin-bottom: 1rem;
+}
+
+.sidebar-item.active > a.sidebar-link {
+    border-left: 4px solid #0056b3;
+    color: #0056b3;
+    background-color: transparent;
+}
+
+.toggler-btn {
+    background-color: transparent;
+    cursor: pointer;
+    border: 0;
+    font-size: 1.75rem;
+    color: #000;
+    font-weight: 1000;
+}
+
+.menu-icon {
+    width: 110px;
+    height: auto;
+    float: right;
 }

@@ -1,3 +1,5 @@
+import locale
+
 import numpy as np
 import pandas as pd
 from django.contrib.auth import login, logout, authenticate, get_user_model
@@ -311,11 +313,19 @@ def importar_datos_periodo_historico(request):
                     return JsonResponse(
                         {'success': False, 'message': 'No se encontraron fechas válidas en el archivo.'})
 
-                fecha_inicio = valid_dates.iloc[-1]['fecha_inicio']
-                fecha_fin = valid_dates.iloc[-1]['fecha_fin']
+                fecha_inicio = pd.to_datetime(valid_dates.iloc[-1]['fecha_inicio']).date()
+                fecha_fin = pd.to_datetime(valid_dates.iloc[-1]['fecha_fin']).date()
+
+                # Configurar el locale en español
+                locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+
+                codigo_periodo = f"{fecha_inicio.strftime('%B %Y')} - {fecha_fin.strftime('%B %Y')}"
+
+                # Restaurar el locale por defecto
+                locale.setlocale(locale.LC_TIME, 'C')
 
                 periodo, created = PeriodoAcademico.objects.update_or_create(
-                    codigo_periodo=f"Periodo-{fecha_fin.year}",
+                    codigo_periodo=codigo_periodo,
                     defaults={'fecha_inicio': fecha_inicio, 'fecha_fin': fecha_fin}
                 )
 
@@ -408,10 +418,12 @@ def editar_datos_periodo_historico(request, periodo_id):
                     historico.clean()
                     historicos.append(historico)
                 except ValidationError as e:
-                    return JsonResponse({'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
+                    return JsonResponse(
+                        {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
             Historico.objects.bulk_update(historicos,
-                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores'])
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
+                                           'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
@@ -490,7 +502,6 @@ def eliminar_usuario(request, usuario_id):
     return JsonResponse({'message': 'Usuario eliminado correctamente'}, status=200)
 
 
-
 def dashboard_view(request):
     historico_data = Historico.objects.aggregate(
         total_matriculados=Sum('matriculados'),
@@ -501,11 +512,10 @@ def dashboard_view(request):
         total_desertores=Sum('desertores')
     )
 
-    # Obtener datos históricos por periodo
-    historicos = Historico.objects.order_by('periodo_academico__codigo_periodo')
-    periodos = historicos.values_list('periodo_academico__codigo_periodo', flat=True).distinct()
-    matriculados = historicos.values_list('matriculados', flat=True)
-    desertores = historicos.values_list('desertores', flat=True)
+    historicos = Historico.objects.order_by('periodo_academico__fecha_inicio')
+    periodos = [h.periodo_academico.codigo_periodo for h in historicos]
+    matriculados = [h.matriculados for h in historicos]
+    desertores = [h.desertores for h in historicos]
 
     context = {
         'total_matriculados': historico_data['total_matriculados'] or 0,
@@ -514,9 +524,9 @@ def dashboard_view(request):
         'total_aprobados': historico_data['total_aprobados'] or 0,
         'total_aplazadores': historico_data['total_aplazadores'] or 0,
         'total_desertores': historico_data['total_desertores'] or 0,
-        'periodos': list(periodos),
-        'matriculados': list(matriculados),
-        'desertores': list(desertores),
+        'periodos': periodos,
+        'matriculados': matriculados,
+        'desertores': desertores,
     }
 
     return render(request, 'home.html', context)
@@ -551,6 +561,9 @@ def mcmc(lista, num_sim=12):
 
 
 def predicciones_view(request):
+    # Configurar el locale en español
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+
     # Obtener lista de ciclos disponibles
     ciclos = Ciclo.objects.all()
 
@@ -579,9 +592,12 @@ def predicciones_view(request):
         prediccion_desertores_ciclo = mcmc(desertores_ciclo)
 
         # Generar nuevos periodos para ciclo
-        ultimos_periodo_ciclo = periodos_ciclo[-1]
-        num_ultimo_periodo_ciclo = int(ultimos_periodo_ciclo.split('-')[1])
-        nuevos_periodos_ciclo = [f"Periodo-{num_ultimo_periodo_ciclo + i}" for i in range(1, 13)]
+        ultimos_periodo_ciclo = historicos.last().periodo_academico
+        fecha_inicio = ultimos_periodo_ciclo.fecha_fin
+        nuevos_periodos_ciclo = [
+            f"{(fecha_inicio + pd.DateOffset(months=i * 6)).strftime('%B %Y')} - {(fecha_inicio + pd.DateOffset(months=(i + 1) * 6 - 1)).strftime('%B %Y')}"
+            for i in range(12)
+        ]
     else:
         periodos_ciclo = []
         matriculados_ciclo = []
@@ -619,9 +635,12 @@ def predicciones_view(request):
         prediccion_desertores_periodo = mcmc(desertores_periodo)
 
         # Generar nuevos periodos para período académico
-        ultimos_periodo_periodo = periodos_periodo[-1]
-        num_ultimo_periodo_periodo = int(ultimos_periodo_periodo.split('-')[1])
-        nuevos_periodos_periodo = [f"Periodo-{num_ultimo_periodo_periodo + i}" for i in range(1, 13)]
+        ultimos_periodo_periodo = historicos_periodo.last().periodo_academico
+        fecha_inicio = ultimos_periodo_periodo.fecha_fin
+        nuevos_periodos_periodo = [
+            f"{(fecha_inicio + pd.DateOffset(months=i * 6)).strftime('%B %Y')} - {(fecha_inicio + pd.DateOffset(months=(i + 1) * 6 - 1)).strftime('%B %Y')}"
+            for i in range(12)
+        ]
     else:
         periodos_periodo = []
         matriculados_periodo = []
@@ -671,7 +690,7 @@ def predicciones_view(request):
         'prediccion_desertores_periodo': prediccion_desertores_periodo,
     }
 
+    # Restaurar el locale por defecto
+    locale.setlocale(locale.LC_TIME, 'C')
+
     return render(request, 'prediccion.html', context)
-
-
-
