@@ -18,7 +18,7 @@ from django.views.decorators.http import require_http_methods
 from Prediccion.decorators import admin_required
 from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
     CustomUserChangeForm, HistoricoPeriodoForm
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser, \
+from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, Historico, CustomUser, \
     Historico_Periodo
 
 
@@ -98,21 +98,8 @@ def nueva_malla(request):
             ciclos_data = []
 
             for ciclo_index in range(1, num_cycles + 1):
-                num_subjects = int(request.POST.get(f'num_subjects_{ciclo_index}'))
-                subjects = []
-
-                for subject_index in range(1, num_subjects + 1):
-                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{ciclo_index}_{subject_index}')
-                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{ciclo_index}_{subject_index}')
-
-                    subjects.append({
-                        'codigo_asignatura': codigo_asignatura,
-                        'nombre_asignatura': nombre_asignatura
-                    })
-
                 ciclo_data = {
                     'nombre_ciclo': f'Ciclo {ciclo_index}',
-                    'subjects': subjects
                 }
                 ciclos_data.append(ciclo_data)
 
@@ -146,16 +133,10 @@ def confirmar_malla(request):
                 )
 
                 for ciclo_data in ciclos_data:
-                    ciclo = Ciclo.objects.create(
+                    Ciclo.objects.create(
                         nombre_ciclo=ciclo_data['nombre_ciclo'],
                         malla_curricular=malla
                     )
-                    for subject_data in ciclo_data['subjects']:
-                        Asignatura.objects.create(
-                            codigo_asignatura=subject_data['codigo_asignatura'],
-                            nombre_asignatura=subject_data['nombre_asignatura'],
-                            ciclo=ciclo
-                        )
 
                 request.session.pop('malla_data')
                 request.session.pop('ciclos_data')
@@ -193,13 +174,6 @@ def editar_malla(request, malla_id):
                 ciclo.nombre_ciclo = nombre_ciclo
                 ciclo.save()
 
-                for asignatura in ciclo.asignatura_set.all():
-                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{asignatura.id}')
-                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{asignatura.id}')
-                    asignatura.codigo_asignatura = codigo_asignatura
-                    asignatura.nombre_asignatura = nombre_asignatura
-                    asignatura.save()
-
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'errors': malla_form.errors})
@@ -210,14 +184,7 @@ def editar_malla(request, malla_id):
     ciclos_data = [
         {
             'id': ciclo.id,
-            'nombre_ciclo': ciclo.nombre_ciclo,
-            'subjects': [
-                {
-                    'id': asignatura.id,
-                    'codigo_asignatura': asignatura.codigo_asignatura,
-                    'nombre_asignatura': asignatura.nombre_asignatura
-                } for asignatura in ciclo.asignatura_set.all()
-            ]
+            'nombre_ciclo': ciclo.nombre_ciclo
         } for ciclo in malla.ciclo_set.all()
     ]
 

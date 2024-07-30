@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, CustomUser, Historico_Periodo
+from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, CustomUser, Historico_Periodo
 
 
 class MallaCurricularForm(forms.ModelForm):
@@ -27,19 +27,6 @@ class CicloForm(forms.ModelForm):
         widgets = {
             'nombre_ciclo': forms.TextInput(
                 attrs={'class': 'form-control', 'id': 'validationTooltip04', 'required': 'required'}),
-        }
-
-
-class AsignaturaForm(forms.ModelForm):
-    class Meta:
-        model = Asignatura
-        fields = ['codigo_asignatura', 'nombre_asignatura']
-
-        widgets = {
-            'codigo_asignatura': forms.TextInput(
-                attrs={'class': 'form-control', 'id': 'validationTooltip05', 'required': 'required'}),
-            'nombre_asignatura': forms.TextInput(
-                attrs={'class': 'form-control', 'id': 'validationTooltip06', 'required': 'required'}),
         }
 
 

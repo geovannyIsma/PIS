@@ -29,19 +29,6 @@ class Ciclo(models.Model):
         return self.nombre_ciclo
 
 
-class Asignatura(models.Model):
-    codigo_asignatura = models.CharField(max_length=50, verbose_name="Código de Asignatura", unique=True)
-    nombre_asignatura = models.CharField(max_length=100, verbose_name="Nombre de Asignatura")
-    ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, verbose_name="Ciclo")
-
-    class Meta:
-        verbose_name = "Asignatura"
-        verbose_name_plural = "Asignaturas"
-
-    def __str__(self):
-        return self.nombre_asignatura
-
-
 class Historico(models.Model):
     matriculados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Matriculados")
     reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")

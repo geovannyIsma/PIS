@@ -4,31 +4,36 @@ let mallaIdToDelete = null;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: "text-center align-middle", targets: [0, 1, 2, 3, 4] },
-        { orderable: false, targets: [0, 4] },
-        { searchable: false, targets: [0, 4] }
+        {className: "text-center align-middle", targets: [0, 1, 2, 3, 4]},
+        {orderable: false, targets: [0, 4]},
+        {searchable: false, targets: [0, 4]}
     ],
     pageLength: 10,
     destroy: true,
     dom: 'Bfrtip',
     buttons: [
-        { extend: 'copy',
+        {
+            extend: 'copy',
             text: '<i class="fa-solid fa-copy"></i> Copiar',
             className: 'btn btn-copy'
         },
-        { extend: 'csv',
+        {
+            extend: 'csv',
             text: '<i class="fa-solid fa-file-csv"></i> CSV',
             className: 'btn btn-csv'
         },
-        { extend: 'excel',
+        {
+            extend: 'excel',
             text: '<i class="fa-regular fa-file-excel"></i> Excel',
             className: 'btn btn-excel'
         },
-        { extend: 'pdf',
+        {
+            extend: 'pdf',
             text: '<i class="fa-solid fa-file-pdf"></i> PDF',
             className: 'btn btn-pdf'
         },
-        { extend: 'print',
+        {
+            extend: 'print',
             text: '<i class="fa-solid fa-print"></i> Imprimir',
             className: 'btn btn-print'
         }
@@ -61,7 +66,7 @@ const initDataTable = async () => {
 
 const list_mallas = async () => {
     try {
-        const response = await fetch('http://localhost:8000/Prediccion/list_malla/');
+        const response = await fetch('/Prediccion/list_malla/');
         const data = await response.json();
         let content = ``;
         data.mallas_Curricular.forEach((mallaCurricular, index) => {
@@ -84,13 +89,13 @@ const list_mallas = async () => {
         });
         document.getElementById('tableBody_mallas').innerHTML = content;
     } catch (ex) {
-        Swal.fire("Error", ex , "error");
+        Swal.fire("Error", ex, "error");
     }
 };
 
 const deleteMalla = async (mallaId) => {
     try {
-        const response = await fetch(`http://localhost:8000/Prediccion/eliminar_malla/${mallaId}/`, {
+        const response = await fetch(`/Prediccion/eliminar_malla/${mallaId}/`, {
             method: 'DELETE',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
@@ -104,7 +109,7 @@ const deleteMalla = async (mallaId) => {
             Swal.fire("Error", "No se pudo eliminar la malla curricular", "error");
         }
     } catch (ex) {
-        Swal.fire("Error", ex , "error");
+        Swal.fire("Error", ex, "error");
     }
 };
 
@@ -139,6 +144,6 @@ window.addEventListener("load", async () => {
     document.getElementById('confirmDelete').addEventListener('click', confirmDelete);
 });
 
-function editMalla(mallaId){
+function editMalla(mallaId) {
     window.location.href = `/Prediccion/editar_malla/${mallaId}`;
 }
