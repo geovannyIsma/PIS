@@ -573,7 +573,7 @@ def predicciones_view(request):
 
     # Filtrar datos históricos por ciclo seleccionado
     historicos = Historico.objects.filter(ciclo=ciclo_seleccionado).order_by('id')
-
+    # amo a geovanyy
     if historicos.exists():
         periodos_ciclo = [h.periodo_academico.codigo_periodo for h in historicos]
         matriculados_ciclo = [h.matriculados for h in historicos]
