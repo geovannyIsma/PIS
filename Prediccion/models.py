@@ -79,10 +79,12 @@ class Historico_Periodo(models.Model):
 class CustomUser(AbstractUser):
     ADMIN = 'admin'
     CONSULTOR = 'consultor'
+    PREDICTOR = 'predictor'
 
     ROLE_CHOICES = [
         (ADMIN, 'Administrador'),
         (CONSULTOR, 'Consultor'),
+        (PREDICTOR, 'Predictor')
     ]
 
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default=CONSULTOR)
@@ -90,8 +92,11 @@ class CustomUser(AbstractUser):
     def is_admin(self):
         return self.role == self.ADMIN
 
-    def is_registered(self):
+    def is_consultor(self):
         return self.role == self.CONSULTOR
+
+    def is_predictor(self):
+        return self.role == self.PREDICTOR
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -102,3 +107,22 @@ class CustomUser(AbstractUser):
             elif self.role == self.CONSULTOR:
                 registered_group, created = Group.objects.get_or_create(name='Consultor')
                 self.groups.add(registered_group)
+            elif self.role == self.PREDICTOR:
+                predictor_group, created = Group.objects.get_or_create(name='Predictor')
+                self.groups.add(predictor_group)
+
+
+class Feedback(models.Model):
+    usuario = models.ForeignKey(CustomUser, on_delete=models.CASCADE, verbose_name="Usuario")
+    titulo = models.CharField(max_length=200)
+    sugerencia = models.TextField()
+    experiencia = models.CharField(max_length=20)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+
+    class Meta:
+        verbose_name = "Feedback"
+        verbose_name_plural = "Feedbacks"
+
+    def __str__(self):
+        return f"{self.usuario} - {self.fecha_creacion}"

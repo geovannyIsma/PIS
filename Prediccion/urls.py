@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import leer_feedback
 
 urlpatterns = [
     path('home/', views.dashboard_view, name='home'),
@@ -23,4 +24,8 @@ urlpatterns = [
     path('list_usuario/', views.list_usuarios, name='list_usuario'),
     path('about/', views.about, name='about'),
     path('prediccion/', views.prediccion_view, name='prediccion'),
+    path('simulacion/', views.simulacion_view, name='simulacion'),
+    path('registros/', views.registros_almacenados, name='registros'),
+    path('feedback/', views.enviar_feedback, name='enviar_feedback'),
+    path('admin/feedback/', leer_feedback, name='leer_feedback'),
 ]

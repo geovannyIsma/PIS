@@ -162,40 +162,50 @@
         var desertores = {{ desertores|safe }};
 
         var matriculadosOption = {
-            title: { text: 'Matriculados por Periodo' },
+            title: {text: 'Matriculados por Periodo'},
             tooltip: {},
-            xAxis: { data: periodos },
+            xAxis: {data: periodos},
             yAxis: {},
-            series: [{ name: 'Matriculados', type: 'bar', data: matriculados }]
+            series: [{name: 'Matriculados', type: 'bar', data: matriculados}]
         };
 
         var dataDistributionOption = {
-            title: { text: 'Distribución de Datos' },
+            title: {text: 'Distribución de Datos'},
             tooltip: {},
             series: [{
                 name: 'Datos',
                 type: 'pie',
                 radius: '55%',
                 data: [
-                    { value: {{ total_matriculados }}, name: 'Matriculados' },
-                    { value: {{ total_reprobados }}, name: 'Reprobados' },
-                    { value: {{ total_abandonaron }}, name: 'Abandonaron' },
-                    { value: {{ total_aprobados }}, name: 'Aprobados' },
-                    { value: {{ total_desertores }}, name: 'Desertores' }
+                    {value: {{ total_matriculados }}, name: 'Matriculados'},
+                    {value: {{ total_reprobados }}, name: 'Reprobados'},
+                    {value: {{ total_abandonaron }}, name: 'Abandonaron'},
+                    {value: {{ total_aprobados }}, name: 'Aprobados'},
+                    {value: {{ total_desertores }}, name: 'Desertores'}
                 ]
             }]
         };
 
         var desertoresOption = {
-            title: { text: 'Desertores por Periodo' },
+            title: {text: 'Desertores por Periodo'},
             tooltip: {},
-            xAxis: { data: periodos },
+            xAxis: {data: periodos},
             yAxis: {},
-            series: [{ name: 'Desertores', type: 'line', data: desertores }]
+            series: [{name: 'Desertores', type: 'line', data: desertores}]
         };
 
         matriculadosChart.setOption(matriculadosOption);
         dataDistributionChart.setOption(dataDistributionOption);
         desertoresChart.setOption(desertoresOption);
     </script>
+    {% if 'feedback' in request.GET and request.GET.feedback == "success" %}
+        <script>
+            Swal.fire({
+                title: '¡Gracias por tu Feedback!',
+                text: 'Tu feedback ha sido enviado exitosamente.',
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        </script>
+    {% endif %}
 {% endblock %}

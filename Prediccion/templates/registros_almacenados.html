@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2>Registros Almacenados</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col"><input type="checkbox" id="select_all"/></th>
+                        <th scope="col">Período</th>
+                        <th scope="col">Fecha Inicio</th>
+                        <th scope="col">Fecha Fin</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for periodo in periodos %}
+                        <tr>
+                            <td><input type="checkbox" name="periodos" value="{{ periodo.id }}"/></td>
+                            <td>{{ periodo.codigo_periodo }}</td>
+                            <td>{{ periodo.fecha_inicio }}</td>
+                            <td>{{ periodo.fecha_fin }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" class="btn btn-primary">Descargar Seleccionados</button>
+        </form>
+    </div>
+
+    {% block extra_js %}
+        <script>
+            document.getElementById('select_all').addEventListener('click', function () {
+                var checkboxes = document.querySelectorAll('input[name="periodos"]');
+                for (var checkbox of checkboxes) {
+                    checkbox.checked = this.checked;
+                }
+            });
+        </script>
+    {% endblock %}
+
+{% endblock %}

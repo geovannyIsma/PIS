@@ -1,6 +1,8 @@
 import locale
+from io import BytesIO
 
 import numpy as np
+import openpyxl
 import pandas as pd
 from dateutil.relativedelta import relativedelta
 from django.contrib.auth import login, logout, authenticate, get_user_model
@@ -11,16 +13,17 @@ from django.core.files.storage import FileSystemStorage
 from django.db import IntegrityError
 from django.db.models import Sum
 from django.http import HttpResponseBadRequest
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from openpyxl.styles import Alignment, PatternFill
 
 from Prediccion.decorators import admin_required
 from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
-    CustomUserChangeForm, HistoricoPeriodoForm
+    CustomUserChangeForm, HistoricoPeriodoForm, FeedbackForm
 from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, Historico, CustomUser, \
-    Historico_Periodo
+    Historico_Periodo, Feedback
 
 
 def index(request):
@@ -511,11 +514,13 @@ def mcmc(lista):
     valor_futuro_estimado = np.mean(valores_futuros)
     return valor_futuro_estimado
 
+
 def format_periodo(fecha_inicio, fecha_fin):
     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
     inicio = fecha_inicio.strftime('%B %Y')
     fin = fecha_fin.strftime('%B %Y')
     return f"{inicio} - {fin}"
+
 
 def generar_periodos_futuros(ultimo_periodo_inicio, ultimo_periodo_fin, cantidad_futuros):
     periodos_futuros = []
@@ -529,11 +534,13 @@ def generar_periodos_futuros(ultimo_periodo_inicio, ultimo_periodo_fin, cantidad
 
     return periodos_futuros
 
+
 def indiciar(prediccion, historicos):
     resul = historicos.copy()
     for i in range(10, len(prediccion), 10):
         resul.append(round(prediccion[i]))
     return resul
+
 
 def prediccion_view(request):
     historico = Historico.objects.all()
@@ -550,12 +557,16 @@ def prediccion_view(request):
 
     def dMdt(t, M, R, D, A, AB):
         return -lmbda * M * AB
+
     def dAdt(t, M, R, D, A, AB):
         return beta * M - alpha * A
+
     def dRdt(t, M, R, D, A, AB):
         return gamma * M - alpha * R - lmbda * R
+
     def dDdt(t, M, R, D, A, AB):
         return lmbda * M + lmbda * R
+
     def dABdt(t, M, R, D, A, AB):
         return alpha * A + alpha * R
 
@@ -574,29 +585,31 @@ def prediccion_view(request):
             D1 = dDdt(t, mi, ri, di, ai, abi)
             AB1 = dABdt(t, mi, ri, di, ai, abi)
 
-            M2 = dMdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
-            A2 = dAdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
-            R2 = dRdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
-            D2 = dDdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
-            AB2 = dABdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+            M2 = dMdt(t + h / 2, mi + M1 * h / 2, ri + R1 * h / 2, di + D1 * h / 2, ai + A1 * h / 2, abi + AB1 * h / 2)
+            A2 = dAdt(t + h / 2, mi + M1 * h / 2, ri + R1 * h / 2, di + D1 * h / 2, ai + A1 * h / 2, abi + AB1 * h / 2)
+            R2 = dRdt(t + h / 2, mi + M1 * h / 2, ri + R1 * h / 2, di + D1 * h / 2, ai + A1 * h / 2, abi + AB1 * h / 2)
+            D2 = dDdt(t + h / 2, mi + M1 * h / 2, ri + R1 * h / 2, di + D1 * h / 2, ai + A1 * h / 2, abi + AB1 * h / 2)
+            AB2 = dABdt(t + h / 2, mi + M1 * h / 2, ri + R1 * h / 2, di + D1 * h / 2, ai + A1 * h / 2,
+                        abi + AB1 * h / 2)
 
-            M3 = dMdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
-            A3 = dAdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
-            R3 = dRdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
-            D3 = dDdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
-            AB3 = dABdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+            M3 = dMdt(t + h / 2, mi + M2 * h / 2, ri + R2 * h / 2, di + D2 * h / 2, ai + A2 * h / 2, abi + AB2 * h / 2)
+            A3 = dAdt(t + h / 2, mi + M2 * h / 2, ri + R2 * h / 2, di + D2 * h / 2, ai + A2 * h / 2, abi + AB2 * h / 2)
+            R3 = dRdt(t + h / 2, mi + M2 * h / 2, ri + R2 * h / 2, di + D2 * h / 2, ai + A2 * h / 2, abi + AB2 * h / 2)
+            D3 = dDdt(t + h / 2, mi + M2 * h / 2, ri + R2 * h / 2, di + D2 * h / 2, ai + A2 * h / 2, abi + AB2 * h / 2)
+            AB3 = dABdt(t + h / 2, mi + M2 * h / 2, ri + R2 * h / 2, di + D2 * h / 2, ai + A2 * h / 2,
+                        abi + AB2 * h / 2)
 
-            M4 = dMdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
-            A4 = dAdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
-            R4 = dRdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
-            D4 = dDdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
-            AB4 = dABdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            M4 = dMdt(t + h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            A4 = dAdt(t + h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            R4 = dRdt(t + h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            D4 = dDdt(t + h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            AB4 = dABdt(t + h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
 
-            mi = mi + (M1 + 2*M2 + 2*M3 + M4) * h/6
-            ai = ai + (A1 + 2*A2 + 2*A3 + A4) * h/6
-            ri = ri + (R1 + 2*R2 + 2*R3 + R4) * h/6
-            di = di + (D1 + 2*D2 + 2*D3 + D4) * h/6
-            abi = abi + (AB1 + 2*AB2 + 2*AB3 + AB4) * h/6
+            mi = mi + (M1 + 2 * M2 + 2 * M3 + M4) * h / 6
+            ai = ai + (A1 + 2 * A2 + 2 * A3 + A4) * h / 6
+            ri = ri + (R1 + 2 * R2 + 2 * R3 + R4) * h / 6
+            di = di + (D1 + 2 * D2 + 2 * D3 + D4) * h / 6
+            abi = abi + (AB1 + 2 * AB2 + 2 * AB3 + AB4) * h / 6
             t = t + h
 
             solMatriculados.append(mi)
@@ -612,9 +625,11 @@ def prediccion_view(request):
         0, matriculados[-1], aprobados[-1], reprobados[-1], desertores[-1], abandonos[-1], 0.1)
 
     historicos = Historico.objects.select_related('periodo_academico').order_by('periodo_academico__fecha_inicio')
-    periodos_historicos = [format_periodo(h.periodo_academico.fecha_inicio, h.periodo_academico.fecha_fin) for h in historicos]
+    periodos_historicos = [format_periodo(h.periodo_academico.fecha_inicio, h.periodo_academico.fecha_fin) for h in
+                           historicos]
     ultimo_periodo = historicos.last().periodo_academico
-    periodos_futuros = generar_periodos_futuros(ultimo_periodo.fecha_inicio, ultimo_periodo.fecha_fin, len(tiempo) - len(periodos_historicos))
+    periodos_futuros = generar_periodos_futuros(ultimo_periodo.fecha_inicio, ultimo_periodo.fecha_fin,
+                                                len(tiempo) - len(periodos_historicos))
 
     # Utilizar la función indiciar para integrar los datos predichos
     solMatriculados = indiciar(solMatriculados, matriculados)
@@ -634,3 +649,131 @@ def prediccion_view(request):
     }
     return render(request, 'prediccion.html', {'data': data})
 
+
+def simulacion_view(request):
+    return render(request, 'simulacion.html')
+
+
+def registros_almacenados(request):
+    periodos = PeriodoAcademico.objects.all()
+
+    if request.method == 'POST':
+        periodos_seleccionados = request.POST.getlist('periodos')
+
+        if periodos_seleccionados:
+            output = BytesIO()
+            workbook = openpyxl.Workbook()
+            sheet = workbook.active
+            sheet.title = "Registros Almacenados"
+
+            row_num = 1
+            fill_colors = ['FFC7CE', 'C6EFCE', 'FFEB9C', 'D9EAD3', 'FCE4D6']  # Lista de colores de fondo
+            color_index = 0
+
+            for periodo_id in periodos_seleccionados:
+                fill_color = PatternFill(start_color=fill_colors[color_index % len(fill_colors)],
+                                         end_color=fill_colors[color_index % len(fill_colors)], fill_type="solid")
+                color_index += 1
+
+                periodo = get_object_or_404(PeriodoAcademico, id=periodo_id)
+                historico = Historico.objects.filter(periodo_academico=periodo)
+                historico_periodo = Historico_Periodo.objects.filter(periodo_academico=periodo)
+
+                # Escribir Periodo
+                sheet.merge_cells(start_row=row_num, start_column=1, end_row=row_num, end_column=6)
+                cell = sheet.cell(row=row_num, column=1)
+                cell.value = f"Periodo: {periodo.codigo_periodo}"
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = fill_color
+                row_num += 1
+                sheet.append(['Código Período', 'Fecha Inicio', 'Fecha Fin'])
+                for col in range(1, 4):
+                    sheet.cell(row=row_num, column=col).fill = fill_color
+                sheet.append([
+                    periodo.codigo_periodo,
+                    periodo.fecha_inicio.strftime('%Y-%m-%d'),
+                    periodo.fecha_fin.strftime('%Y-%m-%d')
+                ])
+                for col in range(1, 4):
+                    sheet.cell(row=row_num, column=col).fill = fill_color
+                row_num += 2
+
+                # Escribir Historico
+                sheet.merge_cells(start_row=row_num, start_column=1, end_row=row_num, end_column=6)
+                cell = sheet.cell(row=row_num, column=1)
+                cell.value = "Historico"
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = fill_color
+                row_num += 1
+                sheet.append(['Ciclo', 'Matriculados', 'Aprobados', 'Reprobados', 'Abandonaron', 'Desertores'])
+                for col in range(1, 7):
+                    sheet.cell(row=row_num, column=col).fill = fill_color
+                for record in historico:
+                    row_num += 1
+                    sheet.append([
+                        record.ciclo.nombre_ciclo,
+                        record.matriculados,
+                        record.aprobados,
+                        record.reprobados,
+                        record.abandonaron,
+                        record.desertores
+                    ])
+                    for col in range(1, 7):
+                        sheet.cell(row=row_num, column=col).fill = fill_color
+                row_num += 2
+
+                # Escribir Historico_Periodo
+                sheet.merge_cells(start_row=row_num, start_column=1, end_row=row_num, end_column=6)
+                cell = sheet.cell(row=row_num, column=1)
+                cell.value = "Historico Periodo"
+                cell.alignment = Alignment(horizontal='center')
+                cell.fill = fill_color
+                row_num += 1
+                sheet.append(['Periodo', 'Matriculados', 'Aprobados', 'Reprobados', 'Abandonaron', 'Desertores'])
+                for col in range(1, 7):
+                    sheet.cell(row=row_num, column=col).fill = fill_color
+                for record in historico_periodo:
+                    row_num += 1
+                    sheet.append([
+                        record.periodo_academico.codigo_periodo,
+                        record.matriculados,
+                        record.aprobados,
+                        record.reprobados,
+                        record.abandonaron,
+                        record.desertores
+                    ])
+                    for col in range(1, 7):
+                        sheet.cell(row=row_num, column=col).fill = fill_color
+                row_num += 3
+
+            workbook.save(output)
+            output.seek(0)
+
+            response = HttpResponse(output,
+                                    content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            response['Content-Disposition'] = 'attachment; filename=registros_periodos.xlsx'
+            return response
+
+    context = {
+        'periodos': periodos
+    }
+    return render(request, 'registros_almacenados.html', context)
+
+
+@login_required
+def enviar_feedback(request):
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            feedback = form.save(commit=False)
+            feedback.usuario = request.user
+            feedback.save()
+            return redirect(f'/home/?feedback=success')
+    else:
+        form = FeedbackForm()
+    return render(request, 'enviar_feedback.html', {'form': form})
+
+@admin_required
+def leer_feedback(request):
+    feedbacks = Feedback.objects.all().order_by('-fecha_creacion')
+    return render(request, 'leer_feedback.html', {'feedbacks': feedbacks})
