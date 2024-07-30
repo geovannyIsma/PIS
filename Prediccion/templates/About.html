@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acerca de - TrackGuard</title>
+    <link rel="stylesheet" href="{% static 'css/estilos_index.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <style>
+        .hero-content {
+            background-color: rgba(0, 0, 0, 0.66);
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .left-align-container {
+            margin-left: 0;
+            margin-right: auto;
+        }
+
+        .info-section h2, .info-section h3 {
+            margin-bottom: 20px;
+        }
+
+        .info-section p {
+            margin-bottom: 15px;
+        }
+
+        .team-member {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <img src="{% static 'img/image.png' %}" alt="" width="30" height="30" class="d-inline-block align-top">
+                TrackGuard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signin' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">Acerca de</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- About Section -->
+    <section class="info-section py-5">
+        <div class="container">
+            <h2 class="text-center">Acerca de TrackGuard</h2>
+            <p class="text-center">TrackGuard es una innovadora aplicación diseñada para predecir y analizar la deserción estudiantil en la carrera de Computación de la Universidad Nacional de Loja. Nuestro objetivo es proporcionar herramientas y datos que ayuden a identificar patrones y prever problemas potenciales de deserción.</p>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h3>Propósito</h3>
+                    <p>El propósito de TrackGuard es ofrecer a los estudiantes y a la administración de la carrera una plataforma basada en datos históricos para realizar predicciones sobre la deserción estudiantil. Con esta información, se pueden implementar estrategias efectivas para apoyar a los estudiantes en riesgo y mejorar la tasa de retención.</p>
+                </div>
+                <div class="col-md-6">
+                    <h3>¿Cómo Funciona?</h3>
+                    <p>TrackGuard utiliza un modelo matemático SEIRD para simular la deserción estudiantil y proporciona gráficos interactivos que permiten realizar análisis detallados. Los usuarios pueden descargar datos históricos y realizar simulaciones para obtener una visión más clara del panorama de deserción.</p>
+                </div>
+            </div>
+
+            <h3 class="text-center mt-5">Equipo de Desarrollo</h3>
+            <div class="row">
+                <div class="col-md-4 team-member">
+                    <img src="{% static 'img/member1.jpg' %}" alt="Miembro del equipo" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    <h5>Juan Pérez</h5>
+                    <p>Desarrollador Principal</p>
+                </div>
+                <div class="col-md-4 team-member">
+                    <img src="{% static 'img/member2.jpg' %}" alt="Miembro del equipo" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    <h5>María López</h5>
+                    <p>Analista de Datos</p>
+                </div>
+                <div class="col-md-4 team-member">
+                    <img src="{% static 'img/member3.jpg' %}" alt="Miembro del equipo" class="img-fluid rounded-circle" style="width: 150px; height: 150px;">
+                    <h5>Pedro González</h5>
+                    <p>Diseñador UI/UX</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white text-center py-3">
+        <div class="container">
+            <p>&copy; 2024 Aplicación para Predecir la Deserción Estudiantil.</p>
+        </div>
+    </footer>
+</body>
+</html>

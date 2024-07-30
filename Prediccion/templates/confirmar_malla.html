@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Confirmar Malla
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1 class="text-center">Confirmar Malla Curricular</h1>
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    Datos de la Malla
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Código:</label>
+                            <p>{{ malla_data.codigo }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Nombre de la Malla:</label>
+                            <p>{{ malla_data.nombre_malla }}</p>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label>Título Otorgado:</label>
+                            <p>{{ malla_data.tituloOtorgado }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    Ciclos y Asignaturas
+                </div>
+                <div class="card-body">
+                    {% for ciclo in ciclos_data %}
+                        <h5>{{ ciclo.nombre_ciclo }}</h5>
+                        <ul>
+                            {% for asignatura in ciclo.subjects %}
+                                <li>{{ asignatura.codigo_asignatura }} - {{ asignatura.nombre_asignatura }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-3">Confirmar y Guardar</button>
+            <a href="{% url 'nueva_malla' %}" class="btn btn-danger mt-3">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    {% if success %}
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'La malla curricular se ha guardado correctamente.',
+                confirmButtonText: 'Aceptar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "{% url 'administracion_malla' %}";
+                }
+            });
+        </script>
+    {% elif error %}
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: 'Error al guardar la malla curricular: {{ error }}',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    {% endif %}
+{% endblock %}

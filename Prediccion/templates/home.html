@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block extra_css %}
+    <style>
+        .dashboard-card {
+            margin: 10px;
+        }
+
+        .main .container-fluid {
+            padding: 1rem;
+        }
+
+        .dashboard-card {
+            margin: 10px 0;
+        }
+
+        .card-matriculados {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .card-reprobados {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .card-abandonaron {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        .card-aprobados {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .card-aplazadores {
+            background-color: #9c27b0;
+            color: white;
+        }
+
+        .card-desertores {
+            background-color: #795548;
+            color: white;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1 class="display-4">Predicciónes de la carrera de Computación</h1>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-matriculados">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-graduate card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Matriculados</h5>
+                                <p class="card-text">{{ total_matriculados }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-reprobados">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-times card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Reprobados</h5>
+                                <p class="card-text">{{ total_reprobados }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-abandonaron">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-slash card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Abandonaron</h5>
+                                <p class="card-text">{{ total_abandonaron }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-aprobados">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-check card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Aprobados</h5>
+                                <p class="card-text">{{ total_aprobados }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-aplazadores">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-clock card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Aplazadores</h5>
+                                <p class="card-text">{{ total_aplazadores }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
+                <div class="card card-desertores">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-user-alt-slash card-icon"></i>
+                            <div>
+                                <h5 class="card-title">Desertores</h5>
+                                <p class="card-text">{{ total_desertores }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Matriculados</h5>
+                        <div id="matriculados-chart" style="width: 100%; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Distribución de Datos</h5>
+                        <div id="data-distribution-chart" style="width: 100%; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Desertores</h5>
+                        <div id="desertores-chart" style="width: 100%; height: 400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+        var matriculadosChart = echarts.init(document.getElementById('matriculados-chart'));
+        var dataDistributionChart = echarts.init(document.getElementById('data-distribution-chart'));
+        var desertoresChart = echarts.init(document.getElementById('desertores-chart'));
+
+        var periodos = {{ periodos|safe }};
+        var matriculados = {{ matriculados|safe }};
+        var desertores = {{ desertores|safe }};
+
+        var matriculadosOption = {
+            title: { text: 'Matriculados por Periodo' },
+            tooltip: {},
+            xAxis: { data: periodos },
+            yAxis: {},
+            series: [{ name: 'Matriculados', type: 'bar', data: matriculados }]
+        };
+
+        var dataDistributionOption = {
+            title: { text: 'Distribución de Datos' },
+            tooltip: {},
+            series: [{
+                name: 'Datos',
+                type: 'pie',
+                radius: '55%',
+                data: [
+                    { value: {{ total_matriculados }}, name: 'Matriculados' },
+                    { value: {{ total_reprobados }}, name: 'Reprobados' },
+                    { value: {{ total_abandonaron }}, name: 'Abandonaron' },
+                    { value: {{ total_aprobados }}, name: 'Aprobados' },
+                    { value: {{ total_aplazadores }}, name: 'Aplazadores' },
+                    { value: {{ total_desertores }}, name: 'Desertores' }
+                ]
+            }]
+        };
+
+        var desertoresOption = {
+            title: { text: 'Desertores por Periodo' },
+            tooltip: {},
+            xAxis: { data: periodos },
+            yAxis: {},
+            series: [{ name: 'Desertores', type: 'line', data: desertores }]
+        };
+
+        matriculadosChart.setOption(matriculadosOption);
+        dataDistributionChart.setOption(dataDistributionOption);
+        desertoresChart.setOption(desertoresOption);
+    </script>
+{% endblock %}

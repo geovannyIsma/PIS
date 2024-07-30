@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    Editar Periodo
+{% endblock %}
+
+{% block content %}
+<nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'administracion_periodo' %}">Administración de Periodos</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar Periodo</li>
+    </ol>
+</nav>
+
+<div class="container">
+    <h1 class="text-center">Editar Periodo</h1>
+    <form id="periodoForm" method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Datos del Periodo
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ periodo_form.fecha_inicio.errors }}
+                        <label for="{{ periodo_form.fecha_inicio.id_for_label }}">Fecha de Inicio:</label>
+                        {{ periodo_form.fecha_inicio }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ periodo_form.fecha_fin.errors }}
+                        <label for="{{ periodo_form.fecha_fin.id_for_label }}">Fecha de Fin:</label>
+                        {{ periodo_form.fecha_fin }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                Editar Histórico Periodo
+            </div>
+            <div class="card-body">
+                {{ historico_periodo_form.as_p }}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                Asignaturas
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ciclo</th>
+                            <th>Matriculados</th>
+                            <th>Aprobados</th>
+                            <th>Reprobados</th>
+                            <th>Aplazadores</th>
+                            <th>Abandonaron</th>
+                            <th>Desertores</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for historico in historicos %}
+                            <tr>
+                                <td>{{ historico.ciclo.nombre_ciclo }}</td>
+                                <td>
+                                    <input type="number" class="form-control" name="matriculados_{{ historico.id }}" value="{{ historico.matriculados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="aprobados_{{ historico.id }}" value="{{ historico.aprobados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="reprobados_{{ historico.id }}" value="{{ historico.reprobados }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="aplazadores_{{ historico.id }}" value="{{ historico.aplazadores }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="abandonaron_{{ historico.id }}" value="{{ historico.abandonaron }}" required>
+                                </td>
+                                <td>
+                                    <input type="number" class="form-control" name="desertores_{{ historico.id }}" value="{{ historico.desertores }}" required>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-success mt-3">Guardar</button>
+        <a href="{% url 'administracion_periodo' %}" class="btn btn-danger mt-3">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('periodoForm');
+
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        Swal.fire({
+            title: '¿Está seguro?',
+            text: "Los datos serán guardados",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const formData = new FormData(form);
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    Swal.fire({
+                        icon: data.success ? 'success' : 'error',
+                        title: data.success ? 'Éxito' : 'Error',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        if (data.success) {
+                            window.location.href = "{% url 'administracion_periodo' %}";
+                        }
+                    });
+                })
+                .catch(error => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ocurrió un error al procesar la solicitud.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
