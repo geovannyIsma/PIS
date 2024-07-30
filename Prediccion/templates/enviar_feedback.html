@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Feedback</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.titulo.label_tag }}<br>
+            {{ form.titulo }}
+        </div>
+        <div class="mb-3">
+            {{ form.sugerencia.label_tag }}<br>
+            {{ form.sugerencia }}
+        </div>
+        <div class="mb-3">
+            <label for="experienciaSlider" class="form-label">¿Cómo estuvo tu experiencia?</label>
+            <input type="range" class="form-range" min="1" max="5" step="1" id="experienciaSlider" name="experiencia">
+            <div class="d-flex justify-content-between">
+                <div class="card" style="width: 18%;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-angry fa-2x text-danger"></i>
+                        <p class="card-text">Muy Mala</p>
+                    </div>
+                </div>
+                <div class="card" style="width: 18%;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-frown fa-2x text-warning"></i>
+                        <p class="card-text">Mala</p>
+                    </div>
+                </div>
+                <div class="card" style="width: 18%;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-meh fa-2x text-secondary"></i>
+                        <p class="card-text">Regular</p>
+                    </div>
+                </div>
+                <div class="card" style="width: 18%;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-smile fa-2x text-primary"></i>
+                        <p class="card-text">Buena</p>
+                    </div>
+                </div>
+                <div class="card" style="width: 18%;">
+                    <div class="card-body text-center">
+                        <i class="fas fa-laugh fa-2x text-success"></i>
+                        <p class="card-text">Muy Buena</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

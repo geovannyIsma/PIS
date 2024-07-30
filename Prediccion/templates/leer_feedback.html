@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Feedbacks{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Feedbacks Recibidos</h2>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Título</th>
+                    <th>Sugerencia</th>
+                    <th>Experiencia</th>
+                    <th>Usuario</th>
+                    <th>Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for feedback in feedbacks %}
+                <tr>
+                    <td>{{ feedback.titulo }}</td>
+                    <td>{{ feedback.sugerencia }}</td>
+                    <td>
+                        {% if feedback.experiencia == '1' %}
+                            <span class="badge bg-danger">Muy Mala <i class="fas fa-angry"></i></span>
+                        {% elif feedback.experiencia == '2' %}
+                            <span class="badge bg-warning">Mala <i class="fas fa-frown"></i></span>
+                        {% elif feedback.experiencia == '3' %}
+                            <span class="badge bg-secondary">Regular <i class="fas fa-meh"></i></span>
+                        {% elif feedback.experiencia == '4' %}
+                            <span class="badge bg-primary">Buena <i class="fas fa-smile"></i></span>
+                        {% elif feedback.experiencia == '5' %}
+                            <span class="badge bg-success">Muy Buena <i class="fas fa-laugh"></i></span>
+                        {% endif %}
+                    </td>
+                    <td>{{ feedback.usuario.username }}</td>
+                    <td>{{ feedback.fecha_creacion|date:"d M Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

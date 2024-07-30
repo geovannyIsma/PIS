@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
-from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, CustomUser, Historico_Periodo
+from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, CustomUser, Historico_Periodo, Feedback
 
 
 class MallaCurricularForm(forms.ModelForm):
@@ -86,4 +86,24 @@ class HistoricoPeriodoForm(forms.ModelForm):
             'abandonaron': forms.NumberInput(attrs={'class': 'form-control'}),
             'aprobados': forms.NumberInput(attrs={'class': 'form-control'}),
             'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+class FeedbackForm(forms.ModelForm):
+    EXPERIENCIA_CHOICES = [
+        ('1', 'Muy Mala'),
+        ('2', 'Mala'),
+        ('3', 'Regular'),
+        ('4', 'Buena'),
+        ('5', 'Muy Buena'),
+    ]
+
+    experiencia = forms.ChoiceField(choices=EXPERIENCIA_CHOICES, widget=forms.HiddenInput())
+
+    class Meta:
+        model = Feedback
+        fields = ['titulo', 'sugerencia', 'experiencia']
+        widgets = {
+            'titulo': forms.TextInput(attrs={'class': 'form-control'}),
+            'sugerencia': forms.Textarea(attrs={'class': 'form-control', 'rows': 5}),
         }
