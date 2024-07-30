@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser, Historico_Periodo
+from .models import MallaCurricular, Ciclo, PeriodoAcademico, Historico, CustomUser, Historico_Periodo
 
 
 # Register your models here.
@@ -32,9 +32,9 @@ class PeriodoAcademicoAdmin(admin.ModelAdmin):
 
 
 class HistoricoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
-    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
-    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
     ordering = ('id',)
 
 
@@ -46,15 +46,14 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 
 class HistoricoPeriodoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
-    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
-    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
     ordering = ('id',)
 
 
 admin.site.register(MallaCurricular, MallaCurricularAdmin)
 admin.site.register(Ciclo, CicloAdmin)
-admin.site.register(Asignatura, AsignaturaAdmin)
 admin.site.register(PeriodoAcademico, PeriodoAcademicoAdmin)
 admin.site.register(Historico, HistoricoAdmin)
 admin.site.register(CustomUser, CustomUserAdmin)

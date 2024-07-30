@@ -36,11 +36,6 @@
             color: white;
         }
 
-        .card-aplazadores {
-            background-color: #9c27b0;
-            color: white;
-        }
-
         .card-desertores {
             background-color: #795548;
             color: white;
@@ -105,19 +100,6 @@
                             <div>
                                 <h5 class="card-title">Aprobados</h5>
                                 <p class="card-text">{{ total_aprobados }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
-                <div class="card card-aplazadores">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-user-clock card-icon"></i>
-                            <div>
-                                <h5 class="card-title">Aplazadores</h5>
-                                <p class="card-text">{{ total_aplazadores }}</p>
                             </div>
                         </div>
                     </div>
@@ -199,7 +181,6 @@
                     { value: {{ total_reprobados }}, name: 'Reprobados' },
                     { value: {{ total_abandonaron }}, name: 'Abandonaron' },
                     { value: {{ total_aprobados }}, name: 'Aprobados' },
-                    { value: {{ total_aplazadores }}, name: 'Aplazadores' },
                     { value: {{ total_desertores }}, name: 'Desertores' }
                 ]
             }]

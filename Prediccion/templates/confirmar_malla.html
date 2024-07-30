@@ -5,6 +5,19 @@
     Confirmar Malla
 {% endblock %}
 
+{% block extra_css %}
+    <style>
+        .card-cycle {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px; /* Ajusta la altura según sea necesario */
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <div class="container">
         <h1 class="text-center">Confirmar Malla Curricular</h1>
@@ -37,17 +50,20 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    Ciclos y Asignaturas
+                    Ciclos
                 </div>
                 <div class="card-body">
-                    {% for ciclo in ciclos_data %}
-                        <h5>{{ ciclo.nombre_ciclo }}</h5>
-                        <ul>
-                            {% for asignatura in ciclo.subjects %}
-                                <li>{{ asignatura.codigo_asignatura }} - {{ asignatura.nombre_asignatura }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endfor %}
+                    <div class="row">
+                        {% for ciclo in ciclos_data %}
+                            <div class="col-md-4">
+                                <div class="card card-cycle mb-3">
+                                    <div class="card-body">
+                                        <h5>Ciclo {{ forloop.counter }}</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 

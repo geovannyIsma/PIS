@@ -12,6 +12,13 @@
             right: 15px;
             top: 15px;
         }
+        .card-cycle {
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100px;
+        }
     </style>
 {% endblock %}
 
@@ -59,7 +66,7 @@
                             <label for="num_cycles">Número de ciclos:</label>
                             <div class="input-group">
                                 <input type="number" class="form-control" id="num_cycles" name="num_cycles" min="1" placeholder="Número de ciclos de la malla curricular" aria-label="Número de ciclos" aria-describedby="button-addon1" required>
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleTabs()">Aceptar</button>
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon1" onclick="createCycleCards()">Aceptar</button>
                                 <div class="invalid-feedback">
                                     Por favor, ingresa un número válido de ciclos.
                                 </div>
@@ -72,16 +79,8 @@
                 </div>
             </div>
 
-            <!-- Card for Ciclos and Asignaturas -->
-            <div class="card">
-                <div class="card-header">
-                    Ciclos y Asignaturas
-                </div>
-                <div class="card-body">
-                    <ul class="nav nav-tabs" id="cycleTabs" role="tablist"></ul>
-                    <div class="tab-content" id="cycleTabsContent"></div>
-                </div>
-            </div>
+            <!-- Cards for Ciclos -->
+            <div id="cycleCardsContainer" class="row"></div>
 
             <!-- Botón de guardar -->
             <button type="submit" id="guardar_button" class="btn btn-success mt-3">Guardar Malla</button>

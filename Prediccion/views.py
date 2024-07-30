@@ -18,7 +18,7 @@ from django.views.decorators.http import require_http_methods
 from Prediccion.decorators import admin_required
 from Prediccion.forms import MallaCurricularForm, ExcelUploadForm, PeriodoForm, CustomUserCreationForm, \
     CustomUserChangeForm, HistoricoPeriodoForm
-from Prediccion.models import MallaCurricular, Ciclo, Asignatura, PeriodoAcademico, Historico, CustomUser, \
+from Prediccion.models import MallaCurricular, Ciclo, PeriodoAcademico, Historico, CustomUser, \
     Historico_Periodo
 
 
@@ -98,21 +98,8 @@ def nueva_malla(request):
             ciclos_data = []
 
             for ciclo_index in range(1, num_cycles + 1):
-                num_subjects = int(request.POST.get(f'num_subjects_{ciclo_index}'))
-                subjects = []
-
-                for subject_index in range(1, num_subjects + 1):
-                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{ciclo_index}_{subject_index}')
-                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{ciclo_index}_{subject_index}')
-
-                    subjects.append({
-                        'codigo_asignatura': codigo_asignatura,
-                        'nombre_asignatura': nombre_asignatura
-                    })
-
                 ciclo_data = {
                     'nombre_ciclo': f'Ciclo {ciclo_index}',
-                    'subjects': subjects
                 }
                 ciclos_data.append(ciclo_data)
 
@@ -146,16 +133,10 @@ def confirmar_malla(request):
                 )
 
                 for ciclo_data in ciclos_data:
-                    ciclo = Ciclo.objects.create(
+                    Ciclo.objects.create(
                         nombre_ciclo=ciclo_data['nombre_ciclo'],
                         malla_curricular=malla
                     )
-                    for subject_data in ciclo_data['subjects']:
-                        Asignatura.objects.create(
-                            codigo_asignatura=subject_data['codigo_asignatura'],
-                            nombre_asignatura=subject_data['nombre_asignatura'],
-                            ciclo=ciclo
-                        )
 
                 request.session.pop('malla_data')
                 request.session.pop('ciclos_data')
@@ -193,13 +174,6 @@ def editar_malla(request, malla_id):
                 ciclo.nombre_ciclo = nombre_ciclo
                 ciclo.save()
 
-                for asignatura in ciclo.asignatura_set.all():
-                    codigo_asignatura = request.POST.get(f'codigo_asignatura_{asignatura.id}')
-                    nombre_asignatura = request.POST.get(f'nombre_asignatura_{asignatura.id}')
-                    asignatura.codigo_asignatura = codigo_asignatura
-                    asignatura.nombre_asignatura = nombre_asignatura
-                    asignatura.save()
-
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'errors': malla_form.errors})
@@ -210,14 +184,7 @@ def editar_malla(request, malla_id):
     ciclos_data = [
         {
             'id': ciclo.id,
-            'nombre_ciclo': ciclo.nombre_ciclo,
-            'subjects': [
-                {
-                    'id': asignatura.id,
-                    'codigo_asignatura': asignatura.codigo_asignatura,
-                    'nombre_asignatura': asignatura.nombre_asignatura
-                } for asignatura in ciclo.asignatura_set.all()
-            ]
+            'nombre_ciclo': ciclo.nombre_ciclo
         } for ciclo in malla.ciclo_set.all()
     ]
 
@@ -272,7 +239,6 @@ def procesar_excel(request):
                         'matriculados': row['matriculados'],
                         'aprobados': row['aprobados'],
                         'reprobados': row['reprobados'],
-                        'aplazadores': row['aplazadores'],
                         'abandonaron': row['abandonaron'],
                         'desertores': row['desertores']
                     }
@@ -345,7 +311,6 @@ def importar_datos_periodo_historico(request):
                             reprobados=row['reprobados'],
                             abandonaron=row['abandonaron'],
                             aprobados=row['aprobados'],
-                            aplazadores=row['aplazadores'],
                             desertores=row['desertores'],
                             ciclo=ciclo,
                             periodo_academico=periodo
@@ -411,7 +376,6 @@ def editar_datos_periodo_historico(request, periodo_id):
                 historico.reprobados = request.POST.get(f'reprobados_{historico.id}')
                 historico.abandonaron = request.POST.get(f'abandonaron_{historico.id}')
                 historico.aprobados = request.POST.get(f'aprobados_{historico.id}')
-                historico.aplazadores = request.POST.get(f'aplazadores_{historico.id}')
                 historico.desertores = request.POST.get(f'desertores_{historico.id}')
 
                 try:
@@ -422,8 +386,7 @@ def editar_datos_periodo_historico(request, periodo_id):
                         {'success': False, 'message': f"Error en el ciclo {historico.ciclo.nombre_ciclo}: {e}"})
 
             Historico.objects.bulk_update(historicos,
-                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores',
-                                           'desertores'])
+                                          ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'desertores'])
 
             return JsonResponse({'success': True, 'message': 'Datos del periodo actualizados exitosamente.'})
         else:
@@ -508,7 +471,6 @@ def dashboard_view(request):
         total_reprobados=Sum('reprobados'),
         total_abandonaron=Sum('abandonaron'),
         total_aprobados=Sum('aprobados'),
-        total_aplazadores=Sum('aplazadores'),
         total_desertores=Sum('desertores')
     )
 
@@ -522,7 +484,6 @@ def dashboard_view(request):
         'total_reprobados': historico_data['total_reprobados'] or 0,
         'total_abandonaron': historico_data['total_abandonaron'] or 0,
         'total_aprobados': historico_data['total_aprobados'] or 0,
-        'total_aplazadores': historico_data['total_aplazadores'] or 0,
         'total_desertores': historico_data['total_desertores'] or 0,
         'periodos': periodos,
         'matriculados': matriculados,
@@ -580,7 +541,6 @@ def predicciones_view(request):
         reprobados_ciclo = [h.reprobados for h in historicos]
         abandonaron_ciclo = [h.abandonaron for h in historicos]
         aprobados_ciclo = [h.aprobados for h in historicos]
-        aplazadores_ciclo = [h.aplazadores for h in historicos]
         desertores_ciclo = [h.desertores for h in historicos]
 
         # Realizar predicciones por ciclo
@@ -588,7 +548,6 @@ def predicciones_view(request):
         prediccion_reprobados_ciclo = mcmc(reprobados_ciclo)
         prediccion_abandonaron_ciclo = mcmc(abandonaron_ciclo)
         prediccion_aprobados_ciclo = mcmc(aprobados_ciclo)
-        prediccion_aplazadores_ciclo = mcmc(aplazadores_ciclo)
         prediccion_desertores_ciclo = mcmc(desertores_ciclo)
 
         # Generar nuevos periodos para ciclo
@@ -604,14 +563,12 @@ def predicciones_view(request):
         reprobados_ciclo = []
         abandonaron_ciclo = []
         aprobados_ciclo = []
-        aplazadores_ciclo = []
         desertores_ciclo = []
         nuevos_periodos_ciclo = []
         prediccion_matriculados_ciclo = []
         prediccion_reprobados_ciclo = []
         prediccion_abandonaron_ciclo = []
         prediccion_aprobados_ciclo = []
-        prediccion_aplazadores_ciclo = []
         prediccion_desertores_ciclo = []
 
     # Obtener datos históricos por período académico
@@ -623,7 +580,6 @@ def predicciones_view(request):
         reprobados_periodo = [h.reprobados for h in historicos_periodo]
         abandonaron_periodo = [h.abandonaron for h in historicos_periodo]
         aprobados_periodo = [h.aprobados for h in historicos_periodo]
-        aplazadores_periodo = [h.aplazadores for h in historicos_periodo]
         desertores_periodo = [h.desertores for h in historicos_periodo]
 
         # Realizar predicciones por período académico
@@ -631,7 +587,6 @@ def predicciones_view(request):
         prediccion_reprobados_periodo = mcmc(reprobados_periodo)
         prediccion_abandonaron_periodo = mcmc(abandonaron_periodo)
         prediccion_aprobados_periodo = mcmc(aprobados_periodo)
-        prediccion_aplazadores_periodo = mcmc(aplazadores_periodo)
         prediccion_desertores_periodo = mcmc(desertores_periodo)
 
         # Generar nuevos periodos para período académico
@@ -647,14 +602,12 @@ def predicciones_view(request):
         reprobados_periodo = []
         abandonaron_periodo = []
         aprobados_periodo = []
-        aplazadores_periodo = []
         desertores_periodo = []
         nuevos_periodos_periodo = []
         prediccion_matriculados_periodo = []
         prediccion_reprobados_periodo = []
         prediccion_abandonaron_periodo = []
         prediccion_aprobados_periodo = []
-        prediccion_aplazadores_periodo = []
         prediccion_desertores_periodo = []
 
     context = {
@@ -665,28 +618,24 @@ def predicciones_view(request):
         'reprobados_ciclo': reprobados_ciclo,
         'abandonaron_ciclo': abandonaron_ciclo,
         'aprobados_ciclo': aprobados_ciclo,
-        'aplazadores_ciclo': aplazadores_ciclo,
         'desertores_ciclo': desertores_ciclo,
         'nuevos_periodos_ciclo': nuevos_periodos_ciclo,
         'prediccion_matriculados_ciclo': prediccion_matriculados_ciclo,
         'prediccion_reprobados_ciclo': prediccion_reprobados_ciclo,
         'prediccion_abandonaron_ciclo': prediccion_abandonaron_ciclo,
         'prediccion_aprobados_ciclo': prediccion_aprobados_ciclo,
-        'prediccion_aplazadores_ciclo': prediccion_aplazadores_ciclo,
         'prediccion_desertores_ciclo': prediccion_desertores_ciclo,
         'periodos_periodo': periodos_periodo,
         'matriculados_periodo': matriculados_periodo,
         'reprobados_periodo': reprobados_periodo,
         'abandonaron_periodo': abandonaron_periodo,
         'aprobados_periodo': aprobados_periodo,
-        'aplazadores_periodo': aplazadores_periodo,
         'desertores_periodo': desertores_periodo,
         'nuevos_periodos_periodo': nuevos_periodos_periodo,
         'prediccion_matriculados_periodo': prediccion_matriculados_periodo,
         'prediccion_reprobados_periodo': prediccion_reprobados_periodo,
         'prediccion_abandonaron_periodo': prediccion_abandonaron_periodo,
         'prediccion_aprobados_periodo': prediccion_aprobados_periodo,
-        'prediccion_aplazadores_periodo': prediccion_aplazadores_periodo,
         'prediccion_desertores_periodo': prediccion_desertores_periodo,
     }
 
