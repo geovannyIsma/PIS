@@ -79,12 +79,11 @@ class CustomUserChangeForm(UserChangeForm):
 class HistoricoPeriodoForm(forms.ModelForm):
     class Meta:
         model = Historico_Periodo
-        fields = ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'desertores']
+        fields = ['matriculados', 'reprobados', 'abandonaron', 'aprobados', 'desertores']
         widgets = {
             'matriculados': forms.NumberInput(attrs={'class': 'form-control'}),
             'reprobados': forms.NumberInput(attrs={'class': 'form-control'}),
             'abandonaron': forms.NumberInput(attrs={'class': 'form-control'}),
             'aprobados': forms.NumberInput(attrs={'class': 'form-control'}),
-            'aplazadores': forms.NumberInput(attrs={'class': 'form-control'}),
             'desertores': forms.NumberInput(attrs={'class': 'form-control'}),
         }

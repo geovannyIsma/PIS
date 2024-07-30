@@ -72,7 +72,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <td>${row.matriculados}</td>
                                 <td>${row.aprobados}</td>
                                 <td>${row.reprobados}</td>
-                                <td>${row.aplazadores}</td>
                                 <td>${row.abandonaron}</td>
                                 <td>${row.desertores}</td>
                             </tr>`;

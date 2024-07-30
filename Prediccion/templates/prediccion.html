@@ -77,11 +77,6 @@
                                        value="#73C0DE">
                             </div>
                             <div class="form-group">
-                                <label for="aplazadoresColorCiclo">Color de Aplazadores:</label>
-                                <input type="color" id="aplazadoresColorCiclo" name="aplazadoresColor"
-                                       class="form-control" value="#FAC858">
-                            </div>
-                            <div class="form-group">
                                 <label for="desertoresColorCiclo">Color de Desertores:</label>
                                 <input type="color" id="desertoresColorCiclo" name="desertoresColor"
                                        class="form-control" value="#8B4E8B">
@@ -142,11 +137,6 @@
                                        class="form-control" value="#73C0DE">
                             </div>
                             <div class="form-group">
-                                <label for="aplazadoresColorPeriodo">Color de Aplazadores:</label>
-                                <input type="color" id="aplazadoresColorPeriodo" name="aplazadoresColor"
-                                       class="form-control" value="#FAC858">
-                            </div>
-                            <div class="form-group">
                                 <label for="desertoresColorPeriodo">Color de Desertores:</label>
                                 <input type="color" id="desertoresColorPeriodo" name="desertoresColor"
                                        class="form-control" value="#8B4E8B">
@@ -183,7 +173,6 @@
         var reprobados_ciclo = {{ reprobados_ciclo|safe }};
         var abandonaron_ciclo = {{ abandonaron_ciclo|safe }};
         var aprobados_ciclo = {{ aprobados_ciclo|safe }};
-        var aplazadores_ciclo = {{ aplazadores_ciclo|safe }};
         var desertores_ciclo = {{ desertores_ciclo|safe }};
         var nuevos_periodos_ciclo = {{ nuevos_periodos_ciclo|safe }};
 
@@ -191,7 +180,6 @@
         var prediccion_reprobados_ciclo = {{ prediccion_reprobados_ciclo|safe }};
         var prediccion_abandonaron_ciclo = {{ prediccion_abandonaron_ciclo|safe }};
         var prediccion_aprobados_ciclo = {{ prediccion_aprobados_ciclo|safe }};
-        var prediccion_aplazadores_ciclo = {{ prediccion_aplazadores_ciclo|safe }};
         var prediccion_desertores_ciclo = {{ prediccion_desertores_ciclo|safe }};
 
         var periodos_periodo = {{ periodos_periodo|safe }};
@@ -199,7 +187,6 @@
         var reprobados_periodo = {{ reprobados_periodo|safe }};
         var abandonaron_periodo = {{ abandonaron_periodo|safe }};
         var aprobados_periodo = {{ aprobados_periodo|safe }};
-        var aplazadores_periodo = {{ aplazadores_periodo|safe }};
         var desertores_periodo = {{ desertores_periodo|safe }};
         var nuevos_periodos_periodo = {{ nuevos_periodos_periodo|safe }};
 
@@ -207,7 +194,6 @@
         var prediccion_reprobados_periodo = {{ prediccion_reprobados_periodo|safe }};
         var prediccion_abandonaron_periodo = {{ prediccion_abandonaron_periodo|safe }};
         var prediccion_aprobados_periodo = {{ prediccion_aprobados_periodo|safe }};
-        var prediccion_aplazadores_periodo = {{ prediccion_aplazadores_periodo|safe }};
         var prediccion_desertores_periodo = {{ prediccion_desertores_periodo|safe }};
 
         var defaultLineWidth = 2;
@@ -225,7 +211,7 @@
                 }
             },
             legend: {
-                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
+                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Desertores']
             },
             xAxis: {
                 type: 'category',
@@ -287,17 +273,6 @@
                     }
                 },
                 {
-                    name: 'Aplazadores',
-                    type: 'line',
-                    data: aplazadores_ciclo.concat(prediccion_aplazadores_ciclo),
-                    itemStyle: {
-                        color: '#FAC858'
-                    },
-                    lineStyle: {
-                        width: defaultLineWidth
-                    }
-                },
-                {
                     name: 'Desertores',
                     type: 'line',
                     data: desertores_ciclo.concat(prediccion_desertores_ciclo),
@@ -319,7 +294,7 @@
                 }
             },
             legend: {
-                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Aplazadores', 'Desertores']
+                data: ['Matriculados', 'Reprobados', 'Abandonaron', 'Aprobados', 'Desertores']
             },
             xAxis: {
                 type: 'category',
@@ -381,17 +356,6 @@
                     }
                 },
                 {
-                    name: 'Aplazadores',
-                    type: 'line',
-                    data: aplazadores_periodo.concat(prediccion_aplazadores_periodo),
-                    itemStyle: {
-                        color: '#FAC858'
-                    },
-                    lineStyle: {
-                        width: defaultLineWidth
-                    }
-                },
-                {
                     name: 'Desertores',
                     type: 'line',
                     data: desertores_periodo.concat(prediccion_desertores_periodo),
@@ -417,7 +381,6 @@
                 reprobados: document.getElementById('reprobadosColorCiclo').value || '#91CC75',
                 abandonaron: document.getElementById('abandonaronColorCiclo').value || '#EE6666',
                 aprobados: document.getElementById('aprobadosColorCiclo').value || '#73C0DE',
-                aplazadores: document.getElementById('aplazadoresColorCiclo').value || '#FAC858',
                 desertores: document.getElementById('desertoresColorCiclo').value || '#8B4E8B'
             };
             var lineWidth = document.getElementById('lineWidthCiclo').value || defaultLineWidth;
@@ -427,7 +390,6 @@
             option_ciclo.series[1].itemStyle.color = lineColors.reprobados;
             option_ciclo.series[2].itemStyle.color = lineColors.abandonaron;
             option_ciclo.series[3].itemStyle.color = lineColors.aprobados;
-            option_ciclo.series[4].itemStyle.color = lineColors.aplazadores;
             option_ciclo.series[5].itemStyle.color = lineColors.desertores;
             option_ciclo.series.forEach(function (series) {
                 series.lineStyle.width = parseInt(lineWidth);
@@ -445,7 +407,6 @@
                 reprobados: document.getElementById('reprobadosColorPeriodo').value || '#91CC75',
                 abandonaron: document.getElementById('abandonaronColorPeriodo').value || '#EE6666',
                 aprobados: document.getElementById('aprobadosColorPeriodo').value || '#73C0DE',
-                aplazadores: document.getElementById('aplazadoresColorPeriodo').value || '#FAC858',
                 desertores: document.getElementById('desertoresColorPeriodo').value || '#8B4E8B'
             };
             var lineWidth = document.getElementById('lineWidthPeriodo').value || defaultLineWidth;
@@ -455,7 +416,6 @@
             option_periodo.series[1].itemStyle.color = lineColors.reprobados;
             option_periodo.series[2].itemStyle.color = lineColors.abandonaron;
             option_periodo.series[3].itemStyle.color = lineColors.aprobados;
-            option_periodo.series[4].itemStyle.color = lineColors.aplazadores;
             option_periodo.series[5].itemStyle.color = lineColors.desertores;
             option_periodo.series.forEach(function (series) {
                 series.lineStyle.width = parseInt(lineWidth);

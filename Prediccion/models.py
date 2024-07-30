@@ -34,9 +34,7 @@ class Historico(models.Model):
     reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados")
     abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron")
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados")
-    aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores")
-    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
-                                          verbose_name="Periodo Académico")
+    periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,verbose_name="Periodo Académico")
     desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
     ciclo = models.ForeignKey(Ciclo, on_delete=models.CASCADE, verbose_name="Ciclo", default=1)
 
@@ -45,7 +43,7 @@ class Historico(models.Model):
         verbose_name_plural = "Históricos"
 
     def __str__(self):
-        return f"{self.periodo_academico} - {self.ciclo} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"
+        return f"{self.periodo_academico} - {self.ciclo} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados}"
 
 
 class PeriodoAcademico(models.Model):
@@ -66,7 +64,6 @@ class Historico_Periodo(models.Model):
     reprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Reprobados", default=0)
     abandonaron = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Abandonaron", default=0)
     aprobados = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aprobados", default=0)
-    aplazadores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Aplazadores", default=0)
     desertores = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Desertores", default=0)
     periodo_academico = models.ForeignKey('PeriodoAcademico', on_delete=models.CASCADE,
                                           verbose_name="Periodo Académico")
@@ -76,7 +73,7 @@ class Historico_Periodo(models.Model):
         verbose_name_plural = "Históricos de Periodos"
 
     def __str__(self):
-        return f"{self.periodo_academico} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados} - {self.aplazadores}"
+        return f"{self.periodo_academico} - {self.matriculados} - {self.reprobados} - {self.abandonaron} - {self.aprobados}"
 
 
 class CustomUser(AbstractUser):

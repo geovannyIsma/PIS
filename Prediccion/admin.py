@@ -32,9 +32,9 @@ class PeriodoAcademicoAdmin(admin.ModelAdmin):
 
 
 class HistoricoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
-    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
-    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores', 'ciclo')
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores', 'ciclo')
     ordering = ('id',)
 
 
@@ -46,9 +46,9 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 
 class HistoricoPeriodoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
-    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
-    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'aplazadores', 'periodo_academico', 'desertores')
+    list_display = ('id', 'matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
+    search_fields = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
+    list_filter = ('matriculados', 'reprobados', 'abandonaron', 'aprobados', 'periodo_academico', 'desertores')
     ordering = ('id',)
 
 
