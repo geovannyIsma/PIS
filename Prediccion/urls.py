@@ -22,5 +22,5 @@ urlpatterns = [
     path('eliminar_usuario/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
     path('list_usuario/', views.list_usuarios, name='list_usuario'),
     path('about/', views.about, name='about'),
-    path('prediccion/', views.predicciones_view, name='prediccion'),
+    path('prediccion/', views.prediccion_view, name='prediccion'),
 ]

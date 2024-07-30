@@ -2,6 +2,7 @@ import locale
 
 import numpy as np
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.forms import AuthenticationForm
@@ -497,149 +498,139 @@ def about(request):
     return render(request, 'about.html')
 
 
-def mcmc(lista, num_sim=12):
-    if len(lista) < 2:
-        # Añadir variabilidad para listas muy pequeñas o constantes
-        base_valor = lista[-1] if lista else 0
-        variabilidad = base_valor * 0.05  # 5% de variabilidad
-        valores_futuros = [base_valor + np.random.uniform(-variabilidad, variabilidad) for _ in range(num_sim)]
-    else:
-        difer = np.diff(lista)
-        media = np.mean(difer)
-        desviacion = np.std(difer)
+def mcmc(lista):
+    difer = np.diff(lista)
+    media = np.mean(difer)
+    desviacion = np.std(difer)
+    sim = 5000
+    valores_futuros = []
+    for _ in range(sim):
+        nueva_diferencia = np.random.normal(media, desviacion)
+        nuevo_valor = lista[-1] + nueva_diferencia
+        valores_futuros.append(nuevo_valor)
+    valor_futuro_estimado = np.mean(valores_futuros)
+    return valor_futuro_estimado
 
-        if desviacion == 0:  # Caso de datos constantes
-            variabilidad = media * 0.05  # 5% de variabilidad
-            valores_futuros = [lista[-1] + media + np.random.uniform(-variabilidad, variabilidad) for _ in
-                               range(num_sim)]
-        else:
-            valores_futuros = []
-            for _ in range(num_sim):
-                nueva_diferencia = np.random.normal(media, desviacion)
-                nuevo_valor = lista[-1] + nueva_diferencia
-                valores_futuros.append(nuevo_valor)
-    return valores_futuros
-
-
-def predicciones_view(request):
-    # Configurar el locale en español
+def format_periodo(fecha_inicio, fecha_fin):
     locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    inicio = fecha_inicio.strftime('%B %Y')
+    fin = fecha_fin.strftime('%B %Y')
+    return f"{inicio} - {fin}"
 
-    # Obtener lista de ciclos disponibles
-    ciclos = Ciclo.objects.all()
+def generar_periodos_futuros(ultimo_periodo_inicio, ultimo_periodo_fin, cantidad_futuros):
+    periodos_futuros = []
+    fecha_inicio = ultimo_periodo_inicio
+    fecha_fin = ultimo_periodo_fin
 
-    # Obtener ciclo seleccionado
-    ciclo_id = request.GET.get('ciclo', ciclos.first().id)
-    ciclo_seleccionado = get_object_or_404(Ciclo, id=ciclo_id)
+    for _ in range(cantidad_futuros):
+        fecha_inicio += relativedelta(months=6)
+        fecha_fin += relativedelta(months=6)
+        periodos_futuros.append(format_periodo(fecha_inicio, fecha_fin))
 
-    # Filtrar datos históricos por ciclo seleccionado
-    historicos = Historico.objects.filter(ciclo=ciclo_seleccionado).order_by('id')
-    # amo a geovanyy
-    if historicos.exists():
-        periodos_ciclo = [h.periodo_academico.codigo_periodo for h in historicos]
-        matriculados_ciclo = [h.matriculados for h in historicos]
-        reprobados_ciclo = [h.reprobados for h in historicos]
-        abandonaron_ciclo = [h.abandonaron for h in historicos]
-        aprobados_ciclo = [h.aprobados for h in historicos]
-        desertores_ciclo = [h.desertores for h in historicos]
+    return periodos_futuros
 
-        # Realizar predicciones por ciclo
-        prediccion_matriculados_ciclo = mcmc(matriculados_ciclo)
-        prediccion_reprobados_ciclo = mcmc(reprobados_ciclo)
-        prediccion_abandonaron_ciclo = mcmc(abandonaron_ciclo)
-        prediccion_aprobados_ciclo = mcmc(aprobados_ciclo)
-        prediccion_desertores_ciclo = mcmc(desertores_ciclo)
+def indiciar(prediccion, historicos):
+    resul = historicos.copy()
+    for i in range(10, len(prediccion), 10):
+        resul.append(round(prediccion[i]))
+    return resul
 
-        # Generar nuevos periodos para ciclo
-        ultimos_periodo_ciclo = historicos.last().periodo_academico
-        fecha_inicio = ultimos_periodo_ciclo.fecha_fin
-        nuevos_periodos_ciclo = [
-            f"{(fecha_inicio + pd.DateOffset(months=i * 6)).strftime('%B %Y')} - {(fecha_inicio + pd.DateOffset(months=(i + 1) * 6 - 1)).strftime('%B %Y')}"
-            for i in range(12)
-        ]
-    else:
-        periodos_ciclo = []
-        matriculados_ciclo = []
-        reprobados_ciclo = []
-        abandonaron_ciclo = []
-        aprobados_ciclo = []
-        desertores_ciclo = []
-        nuevos_periodos_ciclo = []
-        prediccion_matriculados_ciclo = []
-        prediccion_reprobados_ciclo = []
-        prediccion_abandonaron_ciclo = []
-        prediccion_aprobados_ciclo = []
-        prediccion_desertores_ciclo = []
+def prediccion_view(request):
+    historico = Historico.objects.all()
+    matriculados = list(historico.values_list('matriculados', flat=True))
+    aprobados = list(historico.values_list('aprobados', flat=True))
+    reprobados = list(historico.values_list('reprobados', flat=True))
+    desertores = list(historico.values_list('desertores', flat=True))
+    abandonos = list(historico.values_list('abandonaron', flat=True))
 
-    # Obtener datos históricos por período académico
-    historicos_periodo = Historico_Periodo.objects.all().order_by('periodo_academico__fecha_inicio')
+    lmbda = mcmc(desertores) / mcmc(matriculados)
+    beta = mcmc(aprobados) / mcmc(matriculados)
+    gamma = mcmc(reprobados) / mcmc(matriculados)
+    alpha = mcmc(abandonos) / mcmc(reprobados)
 
-    if historicos_periodo.exists():
-        periodos_periodo = [h.periodo_academico.codigo_periodo for h in historicos_periodo]
-        matriculados_periodo = [h.matriculados for h in historicos_periodo]
-        reprobados_periodo = [h.reprobados for h in historicos_periodo]
-        abandonaron_periodo = [h.abandonaron for h in historicos_periodo]
-        aprobados_periodo = [h.aprobados for h in historicos_periodo]
-        desertores_periodo = [h.desertores for h in historicos_periodo]
+    def dMdt(t, M, R, D, A, AB):
+        return -lmbda * M * AB
+    def dAdt(t, M, R, D, A, AB):
+        return beta * M - alpha * A
+    def dRdt(t, M, R, D, A, AB):
+        return gamma * M - alpha * R - lmbda * R
+    def dDdt(t, M, R, D, A, AB):
+        return lmbda * M + lmbda * R
+    def dABdt(t, M, R, D, A, AB):
+        return alpha * A + alpha * R
 
-        # Realizar predicciones por período académico
-        prediccion_matriculados_periodo = mcmc(matriculados_periodo)
-        prediccion_reprobados_periodo = mcmc(reprobados_periodo)
-        prediccion_abandonaron_periodo = mcmc(abandonaron_periodo)
-        prediccion_aprobados_periodo = mcmc(aprobados_periodo)
-        prediccion_desertores_periodo = mcmc(desertores_periodo)
+    def rungeKutta4toOrden(t, mi, ai, ri, di, abi, h):
+        solMatriculados = [mi]
+        solaprobados = [ai]
+        solReprobados = [ri]
+        solDesertores = [di]
+        solAbandono = [abi]
+        tiempo = [t]
 
-        # Generar nuevos periodos para período académico
-        ultimos_periodo_periodo = historicos_periodo.last().periodo_academico
-        fecha_inicio = ultimos_periodo_periodo.fecha_fin
-        nuevos_periodos_periodo = [
-            f"{(fecha_inicio + pd.DateOffset(months=i * 6)).strftime('%B %Y')} - {(fecha_inicio + pd.DateOffset(months=(i + 1) * 6 - 1)).strftime('%B %Y')}"
-            for i in range(12)
-        ]
-    else:
-        periodos_periodo = []
-        matriculados_periodo = []
-        reprobados_periodo = []
-        abandonaron_periodo = []
-        aprobados_periodo = []
-        desertores_periodo = []
-        nuevos_periodos_periodo = []
-        prediccion_matriculados_periodo = []
-        prediccion_reprobados_periodo = []
-        prediccion_abandonaron_periodo = []
-        prediccion_aprobados_periodo = []
-        prediccion_desertores_periodo = []
+        for i in range(200):
+            M1 = dMdt(t, mi, ri, di, ai, abi)
+            A1 = dAdt(t, mi, ri, di, ai, abi)
+            R1 = dRdt(t, mi, ri, di, ai, abi)
+            D1 = dDdt(t, mi, ri, di, ai, abi)
+            AB1 = dABdt(t, mi, ri, di, ai, abi)
 
-    context = {
-        'ciclos': ciclos,
-        'ciclo_seleccionado': ciclo_seleccionado,
-        'periodos_ciclo': periodos_ciclo,
-        'matriculados_ciclo': matriculados_ciclo,
-        'reprobados_ciclo': reprobados_ciclo,
-        'abandonaron_ciclo': abandonaron_ciclo,
-        'aprobados_ciclo': aprobados_ciclo,
-        'desertores_ciclo': desertores_ciclo,
-        'nuevos_periodos_ciclo': nuevos_periodos_ciclo,
-        'prediccion_matriculados_ciclo': prediccion_matriculados_ciclo,
-        'prediccion_reprobados_ciclo': prediccion_reprobados_ciclo,
-        'prediccion_abandonaron_ciclo': prediccion_abandonaron_ciclo,
-        'prediccion_aprobados_ciclo': prediccion_aprobados_ciclo,
-        'prediccion_desertores_ciclo': prediccion_desertores_ciclo,
-        'periodos_periodo': periodos_periodo,
-        'matriculados_periodo': matriculados_periodo,
-        'reprobados_periodo': reprobados_periodo,
-        'abandonaron_periodo': abandonaron_periodo,
-        'aprobados_periodo': aprobados_periodo,
-        'desertores_periodo': desertores_periodo,
-        'nuevos_periodos_periodo': nuevos_periodos_periodo,
-        'prediccion_matriculados_periodo': prediccion_matriculados_periodo,
-        'prediccion_reprobados_periodo': prediccion_reprobados_periodo,
-        'prediccion_abandonaron_periodo': prediccion_abandonaron_periodo,
-        'prediccion_aprobados_periodo': prediccion_aprobados_periodo,
-        'prediccion_desertores_periodo': prediccion_desertores_periodo,
+            M2 = dMdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+            A2 = dAdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+            R2 = dRdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+            D2 = dDdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+            AB2 = dABdt(t+h/2, mi + M1 * h/2, ri + R1 * h/2, di + D1 * h/2, ai + A1 * h/2, abi + AB1 * h/2)
+
+            M3 = dMdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+            A3 = dAdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+            R3 = dRdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+            D3 = dDdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+            AB3 = dABdt(t+h/2, mi + M2 * h/2, ri + R2 * h/2, di + D2 * h/2, ai + A2 * h/2, abi + AB2 * h/2)
+
+            M4 = dMdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            A4 = dAdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            R4 = dRdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            D4 = dDdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+            AB4 = dABdt(t+h, mi + M3 * h, ri + R3 * h, di + D3 * h, ai + A3 * h, abi + AB3 * h)
+
+            mi = mi + (M1 + 2*M2 + 2*M3 + M4) * h/6
+            ai = ai + (A1 + 2*A2 + 2*A3 + A4) * h/6
+            ri = ri + (R1 + 2*R2 + 2*R3 + R4) * h/6
+            di = di + (D1 + 2*D2 + 2*D3 + D4) * h/6
+            abi = abi + (AB1 + 2*AB2 + 2*AB3 + AB4) * h/6
+            t = t + h
+
+            solMatriculados.append(mi)
+            solaprobados.append(ai)
+            solReprobados.append(ri)
+            solDesertores.append(di)
+            solAbandono.append(abi)
+            tiempo.append(t)
+
+        return solMatriculados, solaprobados, solReprobados, solDesertores, solAbandono, tiempo
+
+    solMatriculados, solaprobados, solReprobados, solDesertores, solAbandono, tiempo = rungeKutta4toOrden(
+        0, matriculados[-1], aprobados[-1], reprobados[-1], desertores[-1], abandonos[-1], 0.1)
+
+    historicos = Historico.objects.select_related('periodo_academico').order_by('periodo_academico__fecha_inicio')
+    periodos_historicos = [format_periodo(h.periodo_academico.fecha_inicio, h.periodo_academico.fecha_fin) for h in historicos]
+    ultimo_periodo = historicos.last().periodo_academico
+    periodos_futuros = generar_periodos_futuros(ultimo_periodo.fecha_inicio, ultimo_periodo.fecha_fin, len(tiempo) - len(periodos_historicos))
+
+    # Utilizar la función indiciar para integrar los datos predichos
+    solMatriculados = indiciar(solMatriculados, matriculados)
+    solaprobados = indiciar(solaprobados, aprobados)
+    solReprobados = indiciar(solReprobados, reprobados)
+    solDesertores = indiciar(solDesertores, desertores)
+    solAbandono = indiciar(solAbandono, abandonos)
+
+    data = {
+        'tiempo': tiempo,
+        'matriculados': solMatriculados,
+        'aprobados': solaprobados,
+        'reprobados': solReprobados,
+        'desertores': solDesertores,
+        'abandono': solAbandono,
+        'periodos': periodos_historicos + periodos_futuros
     }
+    return render(request, 'prediccion.html', {'data': data})
 
-    # Restaurar el locale por defecto
-    locale.setlocale(locale.LC_TIME, 'C')
-
-    return render(request, 'prediccion.html', context)
