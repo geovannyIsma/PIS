@@ -182,12 +182,12 @@
         var isDarkMode = document.body.classList.contains('dark');
 
         var matriculadosOption = {
-            backgroundColor: isDarkMode ? '#333' : '#fff',
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
             tooltip: {
                 textStyle: {
                     color: isDarkMode ? '#ccc' : '#333'
                 },
-                backgroundColor: isDarkMode ? '#555' : '#fff'
+                backgroundColor: isDarkMode ? '#333' : '#fff'
             },
             xAxis: {
                 data: periodos,
@@ -202,12 +202,12 @@
         };
 
         var dataDistributionOption = {
-            backgroundColor: isDarkMode ? '#333' : '#fff',
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
             tooltip: {
                 textStyle: {
                     color: isDarkMode ? '#ccc' : '#333'
                 },
-                backgroundColor: isDarkMode ? '#555' : '#fff'
+                backgroundColor: isDarkMode ? '#333' : '#fff'
             },
             series: [{
                 name: 'Datos',
@@ -224,12 +224,12 @@
         };
 
         var desertoresOption = {
-            backgroundColor: isDarkMode ? '#333' : '#fff',
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
             tooltip: {
                 textStyle: {
                     color: isDarkMode ? '#ccc' : '#333'
                 },
-                backgroundColor: isDarkMode ? '#555' : '#fff'
+                backgroundColor: isDarkMode ? '#333' : '#fff'
             },
             xAxis: {
                 data: periodos,
@@ -250,28 +250,22 @@
         var updateCharts = function () {
             var isDarkMode = document.body.classList.contains('dark');
 
-            matriculadosOption.backgroundColor = isDarkMode ? '#333' : '#fff';
-            matriculadosOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
             matriculadosOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            matriculadosOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            matriculadosOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+            matriculadosOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
 
-            dataDistributionOption.backgroundColor = isDarkMode ? '#333' : '#fff';
-            dataDistributionOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            dataDistributionOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            dataDistributionOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+            dataDistributionOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
+            dataDistributionOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
 
-            desertoresOption.backgroundColor = isDarkMode ? '#333' : '#fff';
-            desertoresOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
             desertoresOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            desertoresOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
-            desertoresOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+            desertoresOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
 
             matriculadosChart.setOption(matriculadosOption);
             dataDistributionChart.setOption(dataDistributionOption);
@@ -296,4 +290,3 @@
         </script>
     {% endif %}
 {% endblock %}
-

@@ -322,12 +322,12 @@ body.dark h1, body.dark h2, body.dark h3, body.dark h4, body.dark h5, body.dark 
 }
 
 .dark-mode .card {
-    background-color: #333 !important;
-    color: #ccc !important;
+    background-color: #333;
+    color: #ccc;
 }
 
 .dark-mode .card .card-title {
-    color: #ccc !important;
+    color: #ccc;
 }
 
 body.dark .breadcrumb-item.active {
@@ -395,6 +395,7 @@ body.dark {
     --bs-input-focus-bg: #333;
     --bs-input-focus-color: #fff;
     --bs-input-focus-border-color: #555;
+    --bs-table-header-bg-color: #444;
 }
 
 body.dark {
