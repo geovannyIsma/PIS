@@ -7,16 +7,6 @@
 
 {% block extra_css %}
     <style>
-        .icon {
-            height: 50px;
-            width: 50px;
-            background-color: #ddd;
-            display: inline-block;
-            text-align: center;
-            line-height: 50px;
-            margin-right: 10px;
-            border-radius: 5px;
-        }
         .section-title {
             font-weight: bold;
             font-size: 24px;
@@ -86,6 +76,20 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
+        }
+
+        /* Estilos para el modo oscuro */
+        body.dark .section-title,
+        body.dark .sub-section-title{
+            color: #fff;
+        }
+        body.dark .content-box {
+            background-color: #333;
+            color: #ccc;
+        }
+        body.dark .card {
+            background-color: #444;
+            color: #ccc;
         }
     </style>
 {% endblock %}
