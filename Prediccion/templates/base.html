@@ -5,194 +5,180 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Bootstrap Sidebar{% endblock %}</title>
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- LineIcons -->
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet"/>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/estilos_base.css' %}">
+    <!-- Boxicons CSS -->
+    <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
+
+    <title>{% block title %}Dashboard Sidebar Menu{% endblock %}</title>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
-<div class="d-flex">
-    <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar-toggle">
-        <div class="sidebar-logo">
-            <img class="Logo" src="{% static 'img/image.png' %}" alt="Logo">
-            <a href="#">TrackGuard</a>
-        </div>
-        <!-- Sidebar Navigation -->
-        <ul class="sidebar-nav p-0">
-            {% if user.is_authenticated %}
-                {% if user.is_consultor %}
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                        <a href="{% url 'home' %}" class="sidebar-link">
-                            <i class="lni lni-home"></i>
-                            <span>Inicio</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-header">Predicciones</li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'prediccion' %}active{% endif %}">
-                        <a href="{% url 'prediccion' %}" class="sidebar-link">
-                            <i class="lni lni-bar-chart"></i>
-                            <span>Predicciones</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'simulacion' %}active{% endif %}">
-                        <a href="{% url 'simulacion' %}" class="sidebar-link">
-                            <i class="lni lni-graph"></i>
-                            <span>Simulación</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-header">Modelo matemático</li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'modelo_matematico' %}active{% endif %}">
-                        <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
-                            <i class="lni lni-popup"></i>
-                            <span>Modelo matemático</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-header">Registros</li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'registros' %}active{% endif %}">
-                        <a href="{% url 'registros' %}" class="sidebar-link">
-                            <i class="lni lni-database"></i>
-                            <span>Registros almacenados</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'feedback' %}active{% endif %}">
-                        <a href="{% url 'enviar_feedback' %}" class="sidebar-link">
-                            <i class="lni lni-comments"></i>
-                            <span>Feedback</span>
-                        </a>
-                    </li>
-                {% endif %}
-
-                {% if user.is_admin %}
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                        <a href="{% url 'home' %}" class="sidebar-link">
-                            <i class="lni lni-home"></i>
-                            <span>Inicio</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-header">Administración</li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'administracion_malla' %}active{% endif %}">
-                        <a href="{% url 'administracion_malla' %}" class="sidebar-link">
-                            <i class="lni lni-agenda"></i>
-                            <span>Administración de mallas curriculares</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'administracion_periodo' %}active{% endif %}">
-                        <a href="{% url 'administracion_periodo' %}" class="sidebar-link">
-                            <i class="lni lni-agenda"></i>
-                            <span>Administración periodos académicos</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'administracion_usuario' %}active{% endif %}">
-                        <a href="{% url 'administracion_usuario' %}" class="sidebar-link">
-                            <i class="lni lni-users"></i>
-                            <span>Administración de Usuarios</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-item {% if request.resolver_match.url_name == 'feedback' %}active{% endif %}">
-                        <a href="{% url 'leer_feedback' %}" class="sidebar-link">
-                            <i class="lni lni-comments"></i>
-                            <span>Feedback</span>
-                        </a>
-                    </li>
-                {% endif %}
-            {% else %}
-                <!-- Content for unauthenticated users -->
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-                    <a href="{% url 'home' %}" class="sidebar-link">
-                        <i class="lni lni-home"></i>
-                        <span>Inicio</span>
-                    </a>
-                </li>
-                <li class="sidebar-header">Predicciones</li>
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'prediccion' %}active{% endif %}">
-                    <a href="{% url 'prediccion' %}" class="sidebar-link">
-                        <i class="lni lni-bar-chart"></i>
-                        <span>Predicciones</span>
-                    </a>
-                </li>
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'simulacion' %}active{% endif %}">
-                    <a href="{% url 'simulacion' %}" class="sidebar-link">
-                        <i class="lni lni-graph"></i>
-                        <span>Simulación</span>
-                    </a>
-                </li>
-                <li class="sidebar-header">Modelo matemático</li>
-                <li class="sidebar-item {% if request.resolver_match.url_name == 'modelo_matematico' %}active{% endif %}">
-                    <a href="{% url 'modelo_matematico' %}" class="sidebar-link">
-                        <i class="lni lni-popup"></i>
-                        <span>Modelo matemático</span>
-                    </a>
-                </li>
-            {% endif %}
-        </ul>
-        <!-- Sidebar Navigation Ends -->
-
-        <div class="sidebar-footer">
-            <!-- Sidebar Visual Options -->
-            <ul class="sidebar-nav p-0 mt-3">
-                <li class="sidebar-header">Opciones Visuales</li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <i class="lni lni-sun"></i>
-                        <span>Modo Claro</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <i class="lni lni-night"></i>
-                        <span>Modo Oscuro</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <i class="lni lni-layout"></i>
-                        <span>Personalizar</span>
-                    </a>
-                </li>
-            </ul>
-            {% if user.is_authenticated %}
-                <a href="{% url 'signout' %}" class="sidebar-link">
-                    <i class="lni lni-exit"></i>
-                    <span>Salir</span>
-                </a>
-            {% else %}
-                <a href="{% url 'index' %}" class="sidebar-link">
-                    <i class="lni lni-exit"></i>
-                    <span>Salir</span>
-                </a>
-            {% endif %}
-        </div>
-    </aside>
-    <!-- Sidebar Ends -->
-    <!-- Main Component -->
-    <div class="main p-3">
-        <nav class="navbar navbar-expand">
-            <div class="d-flex w-100 justify-content-between align-items-center">
-                <button class="toggler-btn" type="button">
-                    <i class="lni lni-text-align-left"></i>
-                </button>
-                <img class="menu-icon" src="{% static 'img/computación.png' %}" alt="Menu Icon">
+<nav class="sidebar close">
+    <header>
+        <div class="image-text">
+                <span class="image">
+                    <img src="{% static 'img/image.png' %}" alt="Logo">
+                </span>
+            <div class="text logo-text">
+                <span class="name">TrackGuard</span>
             </div>
-        </nav>
-        <div class="container-fluid">
-            {% block content %}{% endblock %}
+        </div>
+        <i class='bx bx-chevron-right toggle'></i>
+    </header>
+
+    <div class="menu-bar">
+        <div class="menu">
+            <ul class="menu-links list-unstyled">
+                {% if user.is_authenticated %}
+                    {% if user.is_consultor %}
+                        <li class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                            <a href="{% url 'home' %}">
+                                <i class="lni lni-home icon"></i>
+                                <span class="text nav-text">Inicio</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'prediccion' %}active{% endif %}">
+                            <a href="{% url 'prediccion' %}">
+                                <i class='lni lni-bar-chart icon'></i>
+                                <span class="text nav-text">Predicciones</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'simulacion' %}active{% endif %}">
+                            <a href="{% url 'simulacion' %}">
+                                <i class='lni lni-graph icon'></i>
+                                <span class="text nav-text">Simulación</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'modelo_matematico' %}active{% endif %}">
+                            <a href="{% url 'modelo_matematico' %}">
+                                <i class='lni lni-popup icon'></i>
+                                <span class="text nav-text">Modelo matemático</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'registros' %}active{% endif %}">
+                            <a href="{% url 'registros' %}">
+                                <i class='lni lni-database icon'></i>
+                                <span class="text nav-text">Registros almacenados</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'feedback' %}active{% endif %}">
+                            <a href="{% url 'enviar_feedback' %}">
+                                <i class='lni lni-comments icon'></i>
+                                <span class="text nav-text">Feedback</span>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.is_admin %}
+                        <li class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                            <a href="{% url 'home' %}">
+                                <i class='lni lni-home icon'></i>
+                                <span class="text nav-text">Inicio</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'administracion_malla' %}active{% endif %}">
+                            <a href="{% url 'administracion_malla' %}">
+                                <i class='lni lni-agenda icon'></i>
+                                <span class="text nav-text">Administración de mallas curriculares</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'administracion_periodo' %}active{% endif %}">
+                            <a href="{% url 'administracion_periodo' %}">
+                                <i class='lni lni-agenda icon'></i>
+                                <span class="text nav-text">Administración periodos académicos</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'administracion_usuario' %}active{% endif %}">
+                            <a href="{% url 'administracion_usuario' %}">
+                                <i class='lni lni-users icon'></i>
+                                <span class="text nav-text">Administración de Usuarios</span>
+                            </a>
+                        </li>
+                        <li class="nav-link {% if request.resolver_match.url_name == 'feedback' %}active{% endif %}">
+                            <a href="{% url 'leer_feedback' %}">
+                                <i class='lni lni-comments icon'></i>
+                                <span class="text nav-text">Feedback</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                {% else %}
+                    <li class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <a href="{% url 'home' %}">
+                            <i class='lni lni-home icon'></i>
+                            <span class="text nav-text">Inicio</span>
+                        </a>
+                    </li>
+                    <li class="nav-link {% if request.resolver_match.url_name == 'prediccion' %}active{% endif %}">
+                        <a href="{% url 'prediccion' %}">
+                            <i class='lni lni-bar-chart icon'></i>
+                            <span class="text nav-text">Predicciones</span>
+                        </a>
+                    </li>
+                    <li class="nav-link {% if request.resolver_match.url_name == 'simulacion' %}active{% endif %}">
+                        <a href="{% url 'simulacion' %}">
+                            <i class='lni lni-graph icon'></i>
+                            <span class="text nav-text">Simulación</span>
+                        </a>
+                    </li>
+                    <li class="nav-link {% if request.resolver_match.url_name == 'modelo_matematico' %}active{% endif %}">
+                        <a href="{% url 'modelo_matematico' %}">
+                            <i class='lni lni-popup icon'></i>
+                            <span class="text nav-text">Modelo matemático</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="bottom-content">
+            {% if user.is_authenticated %}
+                <li>
+                    <a href="{% url 'signout' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Salir</span>
+                    </a>
+                </li>
+            {% else %}
+                <li>
+                    <a href="{% url 'index' %}">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Salir</span>
+                    </a>
+                </li>
+            {% endif %}
+            <li class="mode">
+                <div class="sun-moon">
+                    <i class='bx bx-moon icon moon'></i>
+                    <i class='bx bx-sun icon sun'></i>
+                </div>
+                <span class="mode-text text">Modo Oscuro</span>
+                <div class="toggle-switch">
+                    <span class="switch"></span>
+                </div>
+            </li>
         </div>
     </div>
-</div>
+</nav>
+
+<section class="home">
+    <img src="{% static 'img/computación.png' %}" alt="User Profile" class="profile-image">
+    <div class="content">
+        {% block content %}
+
+        {% endblock %}
+    </div>
+</section>
+
 <script src="{% static 'js/base_script.js' %}"></script>
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
-<!-- Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.1.slim.js"

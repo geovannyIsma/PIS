@@ -14,11 +14,19 @@
             z-index: 1000;
         }
 
-        .card {
-            margin-bottom: 20px;
+        body.dark .card {
+            --card-bg-color: #333;
+            --card-text-color: #ccc;
         }
+
+        body.light .card {
+            --card-bg-color: #fff;
+            --card-text-color: #333;
+        }
+
     </style>
 {% endblock %}
+
 
 {% block content %}
     <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
@@ -28,7 +36,7 @@
         </ol>
     </nav>
 
-    <h2>Predicciones en base a datos historicos de la carrera de Computación de la UNL </h2>
+    <h2>Predicciones en base a datos históricos de la carrera de Computación de la UNL</h2>
     <div id="chart" style="width: 100%; height: 600px;"></div>
     <script>
         const data = {{ data|safe }};
@@ -42,53 +50,95 @@
 
         const chart = echarts.init(document.getElementById('chart'));
 
-        const option = {
-            title: {
-                text: 'Predicción de Deserción de Estudiantes'
-            },
-            tooltip: {
-                trigger: 'axis'
-            },
-            legend: {
-                data: ['Matriculados', 'Aprobados', 'Reprobados', 'Desertores', 'Abandono']
-            },
-            xAxis: {
-                type: 'category',
-                data: periods
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [
-                {
-                    name: 'Matriculados',
-                    type: 'line',
-                    data: matriculados
+        const updateChart = () => {
+            const isDarkMode = document.body.classList.contains('dark');
+
+            const option = {
+                backgroundColor: isDarkMode ? '#18191a' : '#fff',
+                title: {
+                    text: 'Predicción de Deserción de Estudiantes',
+                    textStyle: {
+                        color: isDarkMode ? '#ccc' : '#333'
+                    }
                 },
-                {
-                    name: 'Aprobados',
-                    type: 'line',
-                    data: aprobados
+                tooltip: {
+                    trigger: 'axis',
+                    textStyle: {
+                        color: isDarkMode ? '#ccc' : '#333'
+                    },
+                    backgroundColor: isDarkMode ? '#555' : '#fff'
                 },
-                {
-                    name: 'Reprobados',
-                    type: 'line',
-                    data: reprobados
+                legend: {
+                    data: ['Matriculados', 'Aprobados', 'Reprobados', 'Desertores', 'Abandono'],
+                    textStyle: {
+                        color: isDarkMode ? '#ccc' : '#333'
+                    }
                 },
-                {
-                    name: 'Desertores',
-                    type: 'line',
-                    data: desertores
+                xAxis: {
+                    type: 'category',
+                    data: periods,
+                    axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                    axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
                 },
-                {
-                    name: 'Abandono',
-                    type: 'line',
-                    data: abandono
-                }
-            ]
+                yAxis: {
+                    type: 'value',
+                    axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                    axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
+                },
+                series: [
+                    {
+                        name: 'Matriculados',
+                        type: 'line',
+                        data: matriculados,
+                        itemStyle: {
+                            color: isDarkMode ? '#d87c7c' : '#5470c6'
+                        }
+                    },
+                    {
+                        name: 'Aprobados',
+                        type: 'line',
+                        data: aprobados,
+                        itemStyle: {
+                            color: isDarkMode ? '#91c7ae' : '#91c7ae'
+                        }
+                    },
+                    {
+                        name: 'Reprobados',
+                        type: 'line',
+                        data: reprobados,
+                        itemStyle: {
+                            color: isDarkMode ? '#c23531' : '#c23531'
+                        }
+                    },
+                    {
+                        name: 'Desertores',
+                        type: 'line',
+                        data: desertores,
+                        itemStyle: {
+                            color: isDarkMode ? '#6f42c1' : '#6f42c1'
+                        }
+                    },
+                    {
+                        name: 'Abandono',
+                        type: 'line',
+                        data: abandono,
+                        itemStyle: {
+                            color: isDarkMode ? '#ff8c00' : '#ff8c00'
+                        }
+                    }
+                ]
+            };
+
+            chart.setOption(option);
         };
 
-        chart.setOption(option);
+        updateChart();
+
+        const observer = new MutationObserver(() => {
+            updateChart();
+        });
+
+        observer.observe(document.body, {attributes: true, attributeFilter: ['class']});
     </script>
 {% endblock %}
 

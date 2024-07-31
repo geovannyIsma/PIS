@@ -45,11 +45,28 @@
             font-size: 2rem;
             margin-right: 10px;
         }
+
+        .chart-card {
+            background-color: var(--card-bg-color);
+            color: var(--card-text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body.dark .chart-card {
+            --card-bg-color: #333;
+            --card-text-color: #ccc;
+        }
+
+        body.light .chart-card {
+            --card-bg-color: #fff;
+            --card-text-color: #333;
+        }
     </style>
 {% endblock %}
 
+
 {% block content %}
-    <h1 class="display-4">Predicciónes de la carrera de Computación</h1>
+    <h1 class="display-4">Predicciones de la carrera de Computación</h1>
 
     <div class="container-fluid">
         <div class="row">
@@ -122,7 +139,7 @@
 
         <div class="row">
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
-                <div class="card">
+                <div class="card chart-card">
                     <div class="card-body">
                         <h5 class="card-title">Matriculados</h5>
                         <div id="matriculados-chart" style="width: 100%; height: 400px;"></div>
@@ -130,7 +147,7 @@
                 </div>
             </div>
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
-                <div class="card">
+                <div class="card chart-card">
                     <div class="card-body">
                         <h5 class="card-title">Distribución de Datos</h5>
                         <div id="data-distribution-chart" style="width: 100%; height: 400px;"></div>
@@ -138,7 +155,7 @@
                 </div>
             </div>
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
-                <div class="card">
+                <div class="card chart-card">
                     <div class="card-body">
                         <h5 class="card-title">Desertores</h5>
                         <div id="desertores-chart" style="width: 100%; height: 400px;"></div>
@@ -148,6 +165,7 @@
         </div>
     </div>
 {% endblock %}
+
 
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
@@ -161,17 +179,36 @@
         var matriculados = {{ matriculados|safe }};
         var desertores = {{ desertores|safe }};
 
+        var isDarkMode = document.body.classList.contains('dark');
+
         var matriculadosOption = {
-            title: {text: 'Matriculados por Periodo'},
-            tooltip: {},
-            xAxis: {data: periodos},
-            yAxis: {},
+            backgroundColor: isDarkMode ? '#333' : '#fff',
+            tooltip: {
+                textStyle: {
+                    color: isDarkMode ? '#ccc' : '#333'
+                },
+                backgroundColor: isDarkMode ? '#555' : '#fff'
+            },
+            xAxis: {
+                data: periodos,
+                axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
+            },
+            yAxis: {
+                axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
+            },
             series: [{name: 'Matriculados', type: 'bar', data: matriculados}]
         };
 
         var dataDistributionOption = {
-            title: {text: 'Distribución de Datos'},
-            tooltip: {},
+            backgroundColor: isDarkMode ? '#333' : '#fff',
+            tooltip: {
+                textStyle: {
+                    color: isDarkMode ? '#ccc' : '#333'
+                },
+                backgroundColor: isDarkMode ? '#555' : '#fff'
+            },
             series: [{
                 name: 'Datos',
                 type: 'pie',
@@ -187,16 +224,66 @@
         };
 
         var desertoresOption = {
-            title: {text: 'Desertores por Periodo'},
-            tooltip: {},
-            xAxis: {data: periodos},
-            yAxis: {},
+            backgroundColor: isDarkMode ? '#333' : '#fff',
+            tooltip: {
+                textStyle: {
+                    color: isDarkMode ? '#ccc' : '#333'
+                },
+                backgroundColor: isDarkMode ? '#555' : '#fff'
+            },
+            xAxis: {
+                data: periodos,
+                axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
+            },
+            yAxis: {
+                axisLine: {lineStyle: {color: isDarkMode ? '#ccc' : '#333'}},
+                axisLabel: {textStyle: {color: isDarkMode ? '#ccc' : '#333'}}
+            },
             series: [{name: 'Desertores', type: 'line', data: desertores}]
         };
 
         matriculadosChart.setOption(matriculadosOption);
         dataDistributionChart.setOption(dataDistributionOption);
         desertoresChart.setOption(desertoresOption);
+
+        var updateCharts = function () {
+            var isDarkMode = document.body.classList.contains('dark');
+
+            matriculadosOption.backgroundColor = isDarkMode ? '#333' : '#fff';
+            matriculadosOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            matriculadosOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+
+            dataDistributionOption.backgroundColor = isDarkMode ? '#333' : '#fff';
+            dataDistributionOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            dataDistributionOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            dataDistributionOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+
+            desertoresOption.backgroundColor = isDarkMode ? '#333' : '#fff';
+            desertoresOption.title.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.tooltip.textStyle.color = isDarkMode ? '#ccc' : '#333';
+            desertoresOption.tooltip.backgroundColor = isDarkMode ? '#555' : '#fff';
+
+            matriculadosChart.setOption(matriculadosOption);
+            dataDistributionChart.setOption(dataDistributionOption);
+            desertoresChart.setOption(desertoresOption);
+
+            document.querySelectorAll('.chart-card').forEach(card => {
+                card.style.backgroundColor = isDarkMode ? '#333' : '#fff';
+                card.style.color = isDarkMode ? '#ccc' : '#333';
+            });
+        };
+
+        document.querySelector(".toggle-switch").addEventListener("click", updateCharts);
     </script>
     {% if 'feedback' in request.GET and request.GET.feedback == "success" %}
         <script>
@@ -209,3 +296,4 @@
         </script>
     {% endif %}
 {% endblock %}
+

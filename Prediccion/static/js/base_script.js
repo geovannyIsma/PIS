@@ -1,7 +1,19 @@
-document.addEventListener("DOMContentLoaded", function () {
-        const toggler = document.querySelector(".toggler-btn");
-        toggler.addEventListener("click", function () {
-            document.querySelector("#sidebar").classList.toggle("collapsed");
-            document.querySelector(".main").classList.toggle("expanded");
-        });
-    });
+const body = document.querySelector('body'),
+      sidebar = body.querySelector('nav'),
+      toggle = body.querySelector(".toggle"),
+      modeSwitch = body.querySelector(".toggle-switch"),
+      modeText = body.querySelector(".mode-text");
+
+toggle.addEventListener("click", () => {
+    sidebar.classList.toggle("close");
+});
+
+modeSwitch.addEventListener("click", () => {
+    body.classList.toggle("dark");
+
+    if (body.classList.contains("dark")) {
+        modeText.innerText = "Modo Claro";
+    } else {
+        modeText.innerText = "Modo Oscuro";
+    }
+});
