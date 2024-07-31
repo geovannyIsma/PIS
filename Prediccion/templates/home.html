@@ -64,12 +64,23 @@
     </style>
 {% endblock %}
 
-
 {% block content %}
     <h1 class="display-4">Predicciones de la carrera de Computación</h1>
 
+    <!-- Dropdown para seleccionar el periodo académico -->
+    <div class="form-group">
+        <label for="periodo-select">Seleccione el Periodo Académico:</label>
+        <select id="periodo-select" class="form-control" onchange="window.location.href=this.value;">
+            <option value="{% url 'home' %}" {% if not periodo_seleccionado_id %}selected{% endif %}>Todos los periodos</option>
+            {% for periodo in periodos_academicos %}
+                <option value="{% url 'home' %}?periodo={{ periodo.id }}" {% if periodo.id == periodo_seleccionado_id %}selected{% endif %}>{{ periodo.codigo_periodo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
     <div class="container-fluid">
         <div class="row">
+            <!-- Matriculados Card -->
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-matriculados">
                     <div class="card-body">
@@ -83,6 +94,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Reprobados Card -->
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-reprobados">
                     <div class="card-body">
@@ -96,6 +108,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Abandonaron Card -->
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-abandonaron">
                     <div class="card-body">
@@ -109,6 +122,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Aprobados Card -->
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-aprobados">
                     <div class="card-body">
@@ -122,6 +136,7 @@
                     </div>
                 </div>
             </div>
+            <!-- Desertores Card -->
             <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6 col-12 dashboard-card">
                 <div class="card card-desertores">
                     <div class="card-body">
@@ -137,11 +152,12 @@
             </div>
         </div>
 
+        <!-- Gráficas -->
         <div class="row">
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
                 <div class="card chart-card">
                     <div class="card-body">
-                        <h5 class="card-title">Matriculados</h5>
+                        <h5 class="card-title">Matriculados por Periodo</h5>
                         <div id="matriculados-chart" style="width: 100%; height: 400px;"></div>
                     </div>
                 </div>
@@ -149,16 +165,16 @@
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
                 <div class="card chart-card">
                     <div class="card-body">
-                        <h5 class="card-title">Distribución de Datos</h5>
-                        <div id="data-distribution-chart" style="width: 100%; height: 400px;"></div>
+                        <h5 class="card-title">Desertores por Periodo</h5>
+                        <div id="desertores-chart" style="width: 100%; height: 400px;"></div>
                     </div>
                 </div>
             </div>
             <div class="col-xl-4 col-lg-6 col-md-12 dashboard-card">
                 <div class="card chart-card">
                     <div class="card-body">
-                        <h5 class="card-title">Desertores</h5>
-                        <div id="desertores-chart" style="width: 100%; height: 400px;"></div>
+                        <h5 class="card-title">Distribución de Datos por Periodo</h5>
+                        <div id="data-distribution-chart" style="width: 100%; height: 400px;"></div>
                     </div>
                 </div>
             </div>
@@ -166,14 +182,13 @@
     </div>
 {% endblock %}
 
-
 {% block extra_js %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
     <script>
         var matriculadosChart = echarts.init(document.getElementById('matriculados-chart'));
-        var dataDistributionChart = echarts.init(document.getElementById('data-distribution-chart'));
         var desertoresChart = echarts.init(document.getElementById('desertores-chart'));
+        var dataDistributionChart = echarts.init(document.getElementById('data-distribution-chart'));
 
         var periodos = {{ periodos|safe }};
         var matriculados = {{ matriculados|safe }};
@@ -182,7 +197,7 @@
         var isDarkMode = document.body.classList.contains('dark');
 
         var matriculadosOption = {
-            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff',
             tooltip: {
                 textStyle: {
                     color: isDarkMode ? '#ccc' : '#333'
@@ -201,30 +216,8 @@
             series: [{name: 'Matriculados', type: 'bar', data: matriculados}]
         };
 
-        var dataDistributionOption = {
-            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
-            tooltip: {
-                textStyle: {
-                    color: isDarkMode ? '#ccc' : '#333'
-                },
-                backgroundColor: isDarkMode ? '#333' : '#fff'
-            },
-            series: [{
-                name: 'Datos',
-                type: 'pie',
-                radius: '55%',
-                data: [
-                    {value: {{ total_matriculados }}, name: 'Matriculados'},
-                    {value: {{ total_reprobados }}, name: 'Reprobados'},
-                    {value: {{ total_abandonaron }}, name: 'Abandonaron'},
-                    {value: {{ total_aprobados }}, name: 'Aprobados'},
-                    {value: {{ total_desertores }}, name: 'Desertores'}
-                ]
-            }]
-        };
-
         var desertoresOption = {
-            backgroundColor: isDarkMode ? '#18191a' : '#ffffff', // Cambia el fondo en modo oscuro
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff',
             tooltip: {
                 textStyle: {
                     color: isDarkMode ? '#ccc' : '#333'
@@ -243,33 +236,55 @@
             series: [{name: 'Desertores', type: 'line', data: desertores}]
         };
 
+        var dataDistributionOption = {
+            backgroundColor: isDarkMode ? '#18191a' : '#ffffff',
+            tooltip: {
+                textStyle: {
+                    color: isDarkMode ? '#ccc' : '#333'
+                },
+                backgroundColor: isDarkMode ? '#333' : '#fff'
+            },
+            series: [{
+                name: 'Datos',
+                type: 'pie',
+                radius: '55%',
+                data: [
+                    {value: {{ periodo_matriculados }}, name: 'Matriculados'},
+                    {value: {{ periodo_reprobados }}, name: 'Reprobados'},
+                    {value: {{ periodo_abandonaron }}, name: 'Abandonaron'},
+                    {value: {{ periodo_aprobados }}, name: 'Aprobados'},
+                    {value: {{ periodo_desertores }}, name: 'Desertores'}
+                ]
+            }]
+        };
+
         matriculadosChart.setOption(matriculadosOption);
-        dataDistributionChart.setOption(dataDistributionOption);
         desertoresChart.setOption(desertoresOption);
+        dataDistributionChart.setOption(dataDistributionOption);
 
         var updateCharts = function () {
             var isDarkMode = document.body.classList.contains('dark');
 
-            matriculadosOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
+            matriculadosOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff';
             matriculadosOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             matriculadosOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
 
-            dataDistributionOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
-            dataDistributionOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
-
-            desertoresOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff'; // Actualiza el fondo
+            desertoresOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff';
             desertoresOption.xAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.xAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.yAxis.axisLine.lineStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.yAxis.axisLabel.textStyle.color = isDarkMode ? '#ccc' : '#333';
             desertoresOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
 
+            dataDistributionOption.backgroundColor = isDarkMode ? '#18191a' : '#ffffff';
+            dataDistributionOption.tooltip.backgroundColor = isDarkMode ? '#333' : '#fff';
+
             matriculadosChart.setOption(matriculadosOption);
-            dataDistributionChart.setOption(dataDistributionOption);
             desertoresChart.setOption(desertoresOption);
+            dataDistributionChart.setOption(dataDistributionOption);
 
             document.querySelectorAll('.chart-card').forEach(card => {
                 card.style.backgroundColor = isDarkMode ? '#333' : '#fff';

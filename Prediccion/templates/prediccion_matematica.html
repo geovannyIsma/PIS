@@ -1,18 +1,10 @@
 {% extends 'base.html' %}
 
-{% block title %} Predicciones de Datos Históricos {% endblock %}
+{% block title %} Predicciones de Datos Históricos con Modelo Matemático {% endblock %}
 
 {% block extra_css %}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: 'Arial', sans-serif; /* Cambia esta tipografía según tu preferencia */
-        }
-
-        #main_ciclo, #main_periodo {
-            font-family: 'Arial', sans-serif; /* Cambia esta tipografía según tu preferencia */
-        }
-
         #downloadButton {
             position: fixed;
             bottom: 20px;
@@ -30,7 +22,7 @@
     <nav style="--bs-breadcrumb-divider: '▶';" aria-label="breadcrumb">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}">Inicio</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Predicciones</li>
+            <li class="breadcrumb-item active" aria-current="page">Predicciones Matemáticas</li>
         </ol>
     </nav>
 
@@ -42,12 +34,12 @@
             <li class="nav-item">
                 <a class="nav-link active" id="mcmc-tab" data-toggle="tab" href="{% url 'prediccion' %}" role="tab"
                    aria-controls="mcmc"
-                   aria-selected="true">Predicción MCMC</a>
+                   aria-selected="false">Predicción MCMC</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="modelo-matematico-tab" data-toggle="tab" href="{% url 'prediccion_modelo' %}"
                    role="tab"
-                   aria-controls="modelo-matematico" aria-selected="false">Predicción Modelo Matemático</a>
+                   aria-controls="modelo-matematico" aria-selected="true">Predicción Modelo Matemático</a>
             </li>
         </ul>
 
@@ -67,6 +59,7 @@
                                 {% endfor %}
                             </select>
                         </form>
+
                         <form id="rangeFormCiclo" class="form-inline">
                             <label for="startPeriodoCiclo">Desde:</label>
                             <select id="startPeriodoCiclo" class="form-control ml-2">
@@ -85,7 +78,6 @@
                                 {% for periodo in nuevos_periodos_ciclo %}
                                     <option value="{{ periodo }}">{{ periodo }}</option>
                                 {% endfor %}
-
                             </select>
                             <button type="button" class="btn btn-primary ml-4" onclick="filterDataCiclo()">Aplicar
                             </button>
@@ -391,7 +383,6 @@
             ]
         };
 
-
         var option_periodo = {
             tooltip: {
                 trigger: 'item',
@@ -516,7 +507,6 @@
                 }
             ]
         };
-
 
         function roundValue(value) {
             return Math.round(value * 100) / 100;

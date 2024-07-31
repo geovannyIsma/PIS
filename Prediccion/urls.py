@@ -23,9 +23,10 @@ urlpatterns = [
     path('eliminar_usuario/<int:usuario_id>/', views.eliminar_usuario, name='eliminar_usuario'),
     path('list_usuario/', views.list_usuarios, name='list_usuario'),
     path('about/', views.about, name='about'),
-    path('prediccion/', views.prediccion_view, name='prediccion'),
+    path('prediccion/', views.predicciones_view, name='prediccion'),
     path('simulacion/', views.simulacion_view, name='simulacion'),
     path('registros/', views.registros_almacenados, name='registros'),
     path('feedback/', views.enviar_feedback, name='enviar_feedback'),
     path('admin/feedback/', leer_feedback, name='leer_feedback'),
+    path('prediccion_modelo/', views.prediccion_matematica_view, name='prediccion_modelo'),
 ]
